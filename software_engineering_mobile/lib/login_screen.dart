@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'registration_page.dart'; // Import the registration page
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -249,9 +250,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () {
                       // Handle sign up navigation
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Sign up clicked')),
-                      );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegistrationPage())
+                        );
                     },
                     child: const Text('Sign Up'),
                   ),
