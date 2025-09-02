@@ -179,6 +179,9 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       labelText: 'Address',
                       border: OutlineInputBorder(),
                     ),
+                    onFieldSubmitted: (value) {
+                        _handleRegistration();
+                      },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your address';

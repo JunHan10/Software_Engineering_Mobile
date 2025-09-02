@@ -158,6 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         filled: true,
                         fillColor: Colors.white,
                       ),
+                      onFieldSubmitted: (value) {
+                        _handleLogin();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your password';
