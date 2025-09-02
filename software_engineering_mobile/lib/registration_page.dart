@@ -14,14 +14,20 @@ class _RegistrationPageState extends State<RegistrationPage>{
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _ageController = TextEditingController();
-  final _addressController = TextEditingController();
+  final _streetAddressController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _zipcodeController = TextEditingController();
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _ageController.dispose();
-    _addressController.dispose();
+    _streetAddressController.dispose();
+    _cityController.dispose();
+    _stateController.dispose();
+    _zipcodeController.dispose();
     super.dispose();
   }
 
@@ -36,7 +42,10 @@ class _RegistrationPageState extends State<RegistrationPage>{
         final firstName = _firstNameController.text.trim();
         final lastName = _lastNameController.text.trim();
         final age = int.parse(_ageController.text.trim());
-        final address = _addressController.text.trim();
+        final streetAddress = _streetAddressController.text.trim();
+        final city = _cityController.text.trim();
+        final state = _stateController.text.trim();
+        final zipcode = _zipcodeController.text.trim();
 
         /*
 
@@ -171,23 +180,79 @@ class _RegistrationPageState extends State<RegistrationPage>{
 
                   const SizedBox(height: 16),
 
-                  // Address Field
+                  // Street Address Field
                   TextFormField(
-                    controller: _addressController,
-                    maxLines: 3,
+                    controller: _streetAddressController,
                     decoration: const InputDecoration(
-                      labelText: 'Address',
+                      labelText: 'Street Address',
                       border: OutlineInputBorder(),
                     ),
-                    onFieldSubmitted: (value) {
-                        _handleRegistration();
-                      },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your address';
+                        return 'Please enter your street address';
                       }
                       return null;
                     },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // City, State and Zipcode Row
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: _cityController,
+                          decoration: const InputDecoration(
+                            labelText: 'City',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your city';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _stateController,
+                          decoration: const InputDecoration(
+                            labelText: 'State',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your state';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _zipcodeController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Zipcode',
+                            border: OutlineInputBorder(),
+                          ),
+                          onFieldSubmitted: (value) {
+                            _handleRegistration();
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your zipcode';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 24),
