@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_page.dart'; // Import the dashboard page
 import 'registration_page.dart'; // Import the registration page
 
 class LoginScreen extends StatefulWidget {
@@ -39,11 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: Colors.green,
-          ),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardPage()),
         );
       }
     }
