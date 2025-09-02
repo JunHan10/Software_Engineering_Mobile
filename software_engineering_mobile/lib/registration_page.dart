@@ -96,7 +96,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
             const Icon(
               Icons.person_add_outlined,
               size: 80,
-              color: Colors.blue,
+              color: Colors.deepPurple,
             ),
             const SizedBox(height: 24),
             
@@ -195,7 +195,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleRegistration,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.deepPurple,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

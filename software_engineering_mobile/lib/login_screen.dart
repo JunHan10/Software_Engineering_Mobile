@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const Icon(
                 Icons.lock_outline,
                 size: 80,
-                color: Colors.blue,
+                color: Colors.deepPurple,
               ),
               const SizedBox(height: 24),
               
@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -192,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.deepPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
