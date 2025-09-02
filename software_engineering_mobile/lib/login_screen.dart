@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard_page.dart'; // Import the dashboard page
 import 'registration_page.dart'; // Import the registration page
 
 class LoginScreen extends StatefulWidget {
@@ -39,11 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: Colors.green,
-          ),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardPage()),
         );
       }
     }
@@ -65,12 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const Icon(
                 Icons.lock_outline,
                 size: 80,
-                color: Colors.blue,
+                color: Colors.deepPurple,
               ),
               const SizedBox(height: 24),
               
               const Text(
-                'Welcome Back',
+                'HippoExchange',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -111,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -154,11 +153,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
+                      onFieldSubmitted: (value) {
+                        _handleLogin();
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your password';
@@ -193,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.deepPurple,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
