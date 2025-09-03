@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
+import 'profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -16,7 +17,7 @@ class _MainNavigationState extends State<MainNavigation> {
     DashboardPage(),
     Center(child: Text('Search Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
-    Center(child: Text('My Profile Page', style: TextStyle(fontSize: 24))),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
