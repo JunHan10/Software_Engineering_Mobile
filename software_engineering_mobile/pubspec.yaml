@@ -11,6 +11,8 @@ dependencies:
   firebase_core: ^4.0.0
   flutter:
     sdk: flutter
+  flutter_profile_picture: ^2.0.0
+  image_picker: ^1.2.0
   mongo_dart: ^0.9.3
 
 dev_dependencies:

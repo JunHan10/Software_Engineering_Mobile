@@ -1,4 +1,3 @@
-// Profile Page
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -8,13 +7,10 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Profile'),
+        title: const Text('Profile'),
       ),
       body: Center(
-        child: Text(
-          'Profile Information',
-          style: TextStyle(fontSize: 24),
-        ),
+        child: const Text('User Profile Information'),
       ),
     );
   }
