@@ -17,6 +17,7 @@ class _MainNavigationState extends State<MainNavigation> {
     DashboardPage(),
     Center(child: Text('Search Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
+    Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
     ProfilePage(),
   ];
 
@@ -35,6 +36,7 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'New'),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Messages'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Profile'),
         ],
         currentIndex: _selectedIndex,
