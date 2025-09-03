@@ -13,17 +13,17 @@ class _RegistrationPageState extends State<RegistrationPage>{
   
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _ageController = TextEditingController();
   final _streetAddressController = TextEditingController();
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
   final _zipcodeController = TextEditingController();
+  
+  int? _selectedAge;
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _ageController.dispose();
     _streetAddressController.dispose();
     _cityController.dispose();
     _stateController.dispose();
@@ -41,7 +41,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
         // Create user object with form data
         final firstName = _firstNameController.text.trim();
         final lastName = _lastNameController.text.trim();
-        final age = int.parse(_ageController.text.trim());
+        final age = _selectedAge!;
         final streetAddress = _streetAddressController.text.trim();
         final city = _cityController.text.trim();
         final state = _stateController.text.trim();
@@ -159,20 +159,28 @@ class _RegistrationPageState extends State<RegistrationPage>{
                   const SizedBox(height: 16),
 
                   // Age Field
-                  TextFormField(
-                    controller: _ageController,
-                    keyboardType: TextInputType.number,
+                  DropdownButtonFormField<int>(
+                    value: _selectedAge,
                     decoration: const InputDecoration(
                       labelText: 'Age',
                       border: OutlineInputBorder(),
                     ),
+                    menuMaxHeight: 200,
+                    isExpanded: true,
+                    items: List.generate(100, (index) => index + 1)
+                        .map((age) => DropdownMenuItem(
+                              value: age,
+                              child: Text(age.toString()),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedAge = value;
+                      });
+                    },
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your age';
-                      }
-                      final age = int.tryParse(value);
-                      if (age == null || age < 1 || age > 120) {
-                        return 'Please enter a valid age';
+                      if (value == null) {
+                        return 'Please select your age';
                       }
                       return null;
                     },
