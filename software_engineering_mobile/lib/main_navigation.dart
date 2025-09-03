@@ -13,13 +13,14 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   /// List of pages to navigate (replace "center" with actual pages)
-  static const List<Widget> _pages = <Widget>[
+  final List<Widget> _pages = [
     DashboardPage(),
     Center(child: Text('Search Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
     ProfilePage(),
   ];
+
 
   void _onItemTapped(int index) {
     setState(() {
