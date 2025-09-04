@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard_page.dart'; // Import the dashboard page
+// Import the dashboard page
 import 'main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
 

@@ -160,7 +160,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
 
                   // Age Field
                   DropdownButtonFormField<int>(
-                    value: _selectedAge,
+                    initialValue: _selectedAge,
                     decoration: const InputDecoration(
                       labelText: 'Age',
                       border: OutlineInputBorder(),
