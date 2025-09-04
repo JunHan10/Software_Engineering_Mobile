@@ -35,6 +35,7 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const Text('You have successfully logged in!'),
+              const SizedBox(height: 20),
             ],
           ),
         ),
