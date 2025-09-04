@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
+import 'search_page.dart';
 import 'profile.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -15,7 +16,7 @@ class _MainNavigationState extends State<MainNavigation> {
   /// List of pages to navigate (replace "center" with actual pages)
   final List<Widget> _pages = [
     DashboardPage(),
-    Center(child: Text('Search Page', style: TextStyle(fontSize: 24))),
+    const SearchPage(),
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
     ProfilePage(),
@@ -37,7 +38,7 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'New'),
-          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Messages'),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Inbox'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Profile'),
         ],
         currentIndex: _selectedIndex,

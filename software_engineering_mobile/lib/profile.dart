@@ -132,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ElevatedButton.icon(
                     onPressed: _pickMultipleImages,
                     icon: const Icon(Icons.add_photo_alternate),
-                    label: const Text('Add Images'),
+                    label: const Text('Edit Profile Picture'),
                   ),
                   const SizedBox(height: 10),
 
