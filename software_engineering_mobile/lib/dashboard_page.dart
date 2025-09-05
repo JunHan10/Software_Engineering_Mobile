@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:software_engineering_mobile/Active_Loans.dart';
 import 'login_screen.dart';
+import 'Loaned_Items.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -27,15 +29,58 @@ class DashboardPage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Welcome to Dashboard',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              SizedBox(
+                width: 200,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Loaned_Items()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple.withOpacity(0.7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'View Loaned Items',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
-              const Text('You have successfully logged in!'),
-              const SizedBox(height: 20),
+              
+              const SizedBox(width: 16),
+              
+              SizedBox(
+                width: 200,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ActiveLoans()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple.withOpacity(0.7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'View Active Loans',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

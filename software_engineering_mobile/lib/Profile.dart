@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-List<File> _imageFiles = [];
+final List<File> _imageFiles = [];
 
 Future<void> _pickMultipleImages() async {
   final List<XFile> pickedFiles = await ImagePicker().pickMultiImage();
