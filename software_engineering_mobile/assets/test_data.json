@@ -1,0 +1,26 @@
+{
+  "user": {
+    "email": "john.doe@example.com",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe",
+    "currency": 2500.75,
+    "assets": [
+      {
+        "name": "MacBook Pro",
+        "value": 1200.00,
+        "description": "2021 MacBook Pro 14-inch with M1 Pro chip, used for work and personal projects"
+      },
+      {
+        "name": "Canon EOS R5",
+        "value": 3500.00,
+        "description": "Professional mirrorless camera with 45MP sensor, excellent for photography"
+      },
+      {
+        "name": "Gibson Les Paul Guitar",
+        "value": 2800.00,
+        "description": "Vintage 1995 Gibson Les Paul Standard in sunburst finish, well-maintained"
+      }
+    ]
+  }
+}
