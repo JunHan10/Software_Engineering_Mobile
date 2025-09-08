@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 // Import the dashboard page
 import 'main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
+import 'services/auth_service.dart';
+import 'repositories/user_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +18,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  
+  late final AuthService _authService;
+  
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(JsonUserRepository());
+  }
 
   @override
   void dispose() {
@@ -30,21 +40,42 @@ class _LoginScreenState extends State<LoginScreen> {
         _isLoading = true;
       });
 
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Here you would typically make an API call to authenticate the user
-      // For now, we'll just show a success message
-      
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
+      try {
+        final success = await _authService.login(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
         );
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (success && mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainNavigation()),
+          );
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Invalid email or password'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login failed. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

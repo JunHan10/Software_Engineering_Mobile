@@ -1,49 +1,79 @@
-import 'package:mongo_dart/mongo_dart.dart';
-
 class User {
-  ObjectId? id;
-  String? prefix;
-  String firstName;
-  String lastName;
-  String? suffix;
-  int age;
-  String address;
-  List<ObjectId> assetIds;
+  final String? id; // For database primary key
+  final String email;
+  final String password;
+  final String firstName;
+  final String lastName;
+  final double currency;
+  final List<Asset> assets;
 
   User({
     this.id,
-    this.prefix,
+    required this.email,
+    required this.password,
     required this.firstName,
     required this.lastName,
-    this.suffix,
-    required this.age,
-    required this.address,
-    this.assetIds = const [],
+    required this.currency,
+    required this.assets,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      '_id': id,
-      'prefix': prefix,
-      'firstName': firstName,
-      'lastName': lastName,
-      'suffix': suffix,
-      'age': age,
-      'address': address,
-      'assetIds': assetIds,
-    };
+  // From JSON (for current file-based approach)
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      email: json['email'],
+      password: json['password'],
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      currency: json['currency'].toDouble(),
+      assets: (json['assets'] as List)
+          .map((asset) => Asset.fromJson(asset))
+          .toList(),
+    );
   }
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['_id'],
-      prefix: map['prefix'],
-      firstName: map['firstName'],
-      lastName: map['lastName'],
-      suffix: map['suffix'],
-      age: map['age'],
-      address: map['address'],
-      assetIds: List<ObjectId>.from(map['assetIds'] ?? []),
+  // To JSON (for database storage)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'password': password,
+      'firstName': firstName,
+      'lastName': lastName,
+      'currency': currency,
+      'assets': assets.map((asset) => asset.toJson()).toList(),
+    };
+  }
+}
+
+class Asset {
+  final String? id;
+  final String name;
+  final double value;
+  final String description;
+
+  Asset({
+    this.id,
+    required this.name,
+    required this.value,
+    required this.description,
+  });
+
+  factory Asset.fromJson(Map<String, dynamic> json) {
+    return Asset(
+      id: json['id'],
+      name: json['name'],
+      value: json['value'].toDouble(),
+      description: json['description'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'value': value,
+      'description': description,
+    };
   }
 }
