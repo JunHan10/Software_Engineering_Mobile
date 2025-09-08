@@ -4,6 +4,11 @@ class User {
   final String password;
   final String firstName;
   final String lastName;
+  final int? age;
+  final String? streetAddress;
+  final String? city;
+  final String? state;
+  final String? zipcode;
   final double currency;
   final List<Asset> assets;
 
@@ -13,6 +18,11 @@ class User {
     required this.password,
     required this.firstName,
     required this.lastName,
+    this.age,
+    this.streetAddress,
+    this.city,
+    this.state,
+    this.zipcode,
     required this.currency,
     required this.assets,
   });
@@ -25,6 +35,11 @@ class User {
       password: json['password'],
       firstName: json['firstName'],
       lastName: json['lastName'],
+      age: json['age'],
+      streetAddress: json['streetAddress'],
+      city: json['city'],
+      state: json['state'],
+      zipcode: json['zipcode'],
       currency: json['currency'].toDouble(),
       assets: (json['assets'] as List)
           .map((asset) => Asset.fromJson(asset))
@@ -40,6 +55,11 @@ class User {
       'password': password,
       'firstName': firstName,
       'lastName': lastName,
+      'age': age,
+      'streetAddress': streetAddress,
+      'city': city,
+      'state': state,
+      'zipcode': zipcode,
       'currency': currency,
       'assets': assets.map((asset) => asset.toJson()).toList(),
     };

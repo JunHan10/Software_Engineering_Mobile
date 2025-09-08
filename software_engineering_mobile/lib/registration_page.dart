@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'services/auth_service.dart';
+import 'repositories/shared_prefs_user_repository.dart';
+import 'models/user.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -17,6 +20,11 @@ class _RegistrationPageState extends State<RegistrationPage>{
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
   final _zipcodeController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   
   int? _selectedAge;
 
@@ -28,6 +36,9 @@ class _RegistrationPageState extends State<RegistrationPage>{
     _cityController.dispose();
     _stateController.dispose();
     _zipcodeController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -39,37 +50,48 @@ class _RegistrationPageState extends State<RegistrationPage>{
 
       try {
         // Create user object with form data
-        final firstName = _firstNameController.text.trim();
-        final lastName = _lastNameController.text.trim();
-        final age = _selectedAge!;
-        final streetAddress = _streetAddressController.text.trim();
-        final city = _cityController.text.trim();
-        final state = _stateController.text.trim();
-        final zipcode = _zipcodeController.text.trim();
+        final newUser = User(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          age: _selectedAge,
+          streetAddress: _streetAddressController.text.trim(),
+          city: _cityController.text.trim(),
+          state: _stateController.text.trim(),
+          zipcode: _zipcodeController.text.trim(),
+          currency: 0.0, // Start with $0
+          assets: [], // Start with no assets
+        );
 
-        /*
+        final authService = AuthService(SharedPrefsUserRepository());
+        final success = await authService.register(newUser);
 
-            TODO: Save to MongoDB here
+        setState(() {
+          _isLoading = false;
+        });
 
-        */
-
-        // For now, just simulate a delay
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Show success message
-        if (mounted) {
+        if (success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Registration successful!'),
               backgroundColor: Colors.green,
             ),
           );
-          
-          // Navigate back to login
           Navigator.pop(context);
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Email already exists or registration failed'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       } catch (e) {
-        // Show error message
+        setState(() {
+          _isLoading = false;
+        });
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -77,12 +99,6 @@ class _RegistrationPageState extends State<RegistrationPage>{
               backgroundColor: Colors.red,
             ),
           );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
         }
       }
     }
@@ -125,32 +141,88 @@ class _RegistrationPageState extends State<RegistrationPage>{
               key: _formKey,
               child: Column(
                 children: [
-                  // First Name Field
-                  TextFormField(
-                    controller: _firstNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null;
-                    },
+                  // First Name, Last Name, and Age Row
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _firstNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'First Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your first name';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _lastNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Last Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your last name';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          value: _selectedAge,
+                          decoration: const InputDecoration(
+                            labelText: 'Age',
+                            border: OutlineInputBorder(),
+                          ),
+                          menuMaxHeight: 200,
+                          isExpanded: true,
+                          items: List.generate(100, (index) => index + 13)
+                              .map((age) => DropdownMenuItem(
+                                    value: age,
+                                    child: Text(age.toString()),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedAge = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select your age';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  // Last Name Field
+
+                  // Email Field
                   TextFormField(
-                    controller: _lastNameController,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: 'Last Name',
+                      labelText: 'Email',
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your last name';
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        return 'Please enter a valid email';
                       }
                       return null;
                     },
@@ -158,29 +230,57 @@ class _RegistrationPageState extends State<RegistrationPage>{
 
                   const SizedBox(height: 16),
 
-                  // Age Field
-                  DropdownButtonFormField<int>(
-                    initialValue: _selectedAge,
-                    decoration: const InputDecoration(
-                      labelText: 'Age',
-                      border: OutlineInputBorder(),
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: !_isPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                      ),
                     ),
-                    menuMaxHeight: 200,
-                    isExpanded: true,
-                    items: List.generate(100, (index) => index + 1)
-                        .map((age) => DropdownMenuItem(
-                              value: age,
-                              child: Text(age.toString()),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedAge = value;
-                      });
-                    },
                     validator: (value) {
-                      if (value == null) {
-                        return 'Please select your age';
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Confirm Password Field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: !_isConfirmPasswordVisible,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                          });
+                        },
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
                       }
                       return null;
                     },

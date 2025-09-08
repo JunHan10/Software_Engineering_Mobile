@@ -14,6 +14,7 @@ dependencies:
   flutter_profile_picture: ^2.0.0
   image_picker: ^1.2.0
   mongo_dart: ^0.10.5
+  path_provider: ^2.1.1
   shared_preferences: ^2.2.2
 
 dev_dependencies:

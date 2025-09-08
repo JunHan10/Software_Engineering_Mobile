@@ -31,4 +31,20 @@ class AuthService {
   Future<User?> getUserByEmail(String email) async {
     return await _userRepository.findByEmail(email);
   }
+
+  Future<bool> register(User user) async {
+    try {
+      // Check if email already exists
+      final existingUser = await _userRepository.findByEmail(user.email);
+      if (existingUser != null) {
+        return false; // Email already exists
+      }
+      
+      // Save new user
+      await _userRepository.save(user);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

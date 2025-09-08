@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
 import 'services/auth_service.dart';
-import 'repositories/user_repository.dart';
+import 'repositories/shared_prefs_user_repository.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _authService = AuthService(JsonUserRepository());
+    _authService = AuthService(SharedPrefsUserRepository());
   }
 
   @override
