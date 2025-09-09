@@ -95,38 +95,7 @@ class DashboardPage extends StatelessWidget {
                 ],
               ),
               
-              const SizedBox(height: 40),
-              
-              // Debug Buttons
-              ElevatedButton(
-                onPressed: () async {
-                  final repo = SharedPrefsUserRepository();
-                  await repo.printAllUsers();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Debug: View All Users'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  final repo = SharedPrefsUserRepository();
-                  await repo.clearAllData();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('All data cleared! App will reload original test data.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Clear All Data'),
-              ),
+
             ],
           ),
         ),
