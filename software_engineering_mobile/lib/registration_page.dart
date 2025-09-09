@@ -1,8 +1,29 @@
+// Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
+// Import authentication service for user registration
 import 'services/auth_service.dart';
+// Import repository for data storage
 import 'repositories/shared_prefs_user_repository.dart';
+// Import User model for creating user objects
 import 'models/user.dart';
 
+/**
+ * RegistrationPage - User account creation form
+ * 
+ * This is a StatefulWidget because it needs to manage:
+ * - Form input state (text controllers)
+ * - Loading state during registration
+ * - Password visibility toggles
+ * - Form validation state
+ * 
+ * Key Features:
+ * - Comprehensive user data collection (personal info + address)
+ * - Real-time form validation with user feedback
+ * - Password confirmation with visibility toggles
+ * - Loading state management during async operations
+ * - Error handling with user-friendly messages
+ * - Responsive layout with grouped fields
+ */
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
 
@@ -11,9 +32,14 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage>{
+  // Form key for validation - allows us to validate all fields at once
   final _formKey = GlobalKey<FormState>();
+  
+  // Loading state to show progress indicator during registration
   bool _isLoading = false;
   
+  // Text controllers for form inputs - manage text field state
+  // Each controller is tied to a specific input field
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _streetAddressController = TextEditingController();
@@ -23,13 +49,25 @@ class _RegistrationPageState extends State<RegistrationPage>{
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  
+  // Password visibility toggles for better UX
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   
+  // Age selection - nullable because user might not select initially
   int? _selectedAge;
 
+  /**
+   * Dispose method - Clean up resources when widget is destroyed
+   * 
+   * CRITICAL: TextEditingControllers must be disposed to prevent memory leaks
+   * Each controller creates listeners and holds references that need cleanup
+   * 
+   * This is called automatically when the widget is removed from the widget tree
+   */
   @override
   void dispose() {
+    // Dispose all text controllers to prevent memory leaks
     _firstNameController.dispose();
     _lastNameController.dispose();
     _streetAddressController.dispose();
@@ -39,47 +77,79 @@ class _RegistrationPageState extends State<RegistrationPage>{
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    // Always call super.dispose() last
     super.dispose();
   }
 
+  /**
+   * Handle user registration process
+   * 
+   * Registration Flow:
+   * 1. Validate all form fields using Flutter's built-in validation
+   * 2. Show loading indicator to provide user feedback
+   * 3. Create User object from form data
+   * 4. Call AuthService to register user (handles business logic)
+   * 5. Show success/error message and navigate accordingly
+   * 
+   * Error Handling:
+   * - Form validation prevents submission of invalid data
+   * - Try-catch handles unexpected errors gracefully
+   * - 'mounted' checks prevent setState calls on disposed widgets
+   * - User-friendly error messages via SnackBar
+   * 
+   * UX Considerations:
+   * - Loading state disables button and shows progress indicator
+   * - Success navigates back to login screen
+   * - Errors keep user on form to fix issues
+   */
   Future<void> _handleRegistration() async{
+    // Validate all form fields before proceeding
     if(_formKey.currentState!.validate()) {
+      // Show loading state - disables button and shows progress indicator
       setState(() {
         _isLoading = true;
       });
 
       try {
-        // Create user object with form data
+        // Create User object from form data
+        // .trim() removes leading/trailing whitespace from text inputs
         final newUser = User(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
-          age: _selectedAge,
+          age: _selectedAge, // Can be null if not selected
           streetAddress: _streetAddressController.text.trim(),
           city: _cityController.text.trim(),
           state: _stateController.text.trim(),
           zipcode: _zipcodeController.text.trim(),
-          currency: 0.0, // Start with $0
-          assets: [], // Start with no assets
+          currency: 0.0, // New users start with no money
+          assets: [], // New users start with no assets
         );
 
+        // Create AuthService with repository dependency injection
         final authService = AuthService(SharedPrefsUserRepository());
+        // Attempt to register user - returns boolean for success/failure
         final success = await authService.register(newUser);
 
+        // Hide loading state
         setState(() {
           _isLoading = false;
         });
 
+        // Handle registration result
         if (success && mounted) {
+          // Success: Show confirmation and return to login
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Registration successful!'),
               backgroundColor: Colors.green,
             ),
           );
+          // Navigate back to login screen
           Navigator.pop(context);
         } else if (mounted) {
+          // Failure: Show error message (likely duplicate email)
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Email already exists or registration failed'),
@@ -88,10 +158,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
           );
         }
       } catch (e) {
+        // Handle unexpected errors (network, storage, etc.)
         setState(() {
           _isLoading = false;
         });
         
+        // Show technical error message for debugging
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
