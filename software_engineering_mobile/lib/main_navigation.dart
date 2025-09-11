@@ -25,7 +25,6 @@ class _MainNavigationState extends State<MainNavigation> {
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
     Loaned_Items(),
     ActiveLoans(),
-    ProfilePage(),
     MessagesPage(),
   ];
 
@@ -43,8 +42,6 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.upload), label: 'Post'),
-          BottomNavigationBarItem(icon: Icon(Icons.download), label: 'Borrow'),
           BottomNavigationBarItem(icon: Icon(Icons.upload), label: 'Post'),
           BottomNavigationBarItem(icon: Icon(Icons.download), label: 'Borrow'),
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Inbox'),
