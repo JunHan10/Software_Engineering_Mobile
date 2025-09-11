@@ -160,55 +160,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ],
               ),
-              
-              // Spacing between main navigation and debug section
-              const SizedBox(height: 40),
-              
-              // Debug Section - FOR DEVELOPMENT ONLY
-              // These buttons should be removed or hidden in production builds
-              
-              // Debug Button 1: View All Users
-              // Orange color indicates this is a debug/development feature
-              ElevatedButton(
-                onPressed: () async {
-                  // Create repository instance to access user data
-                  final repo = SharedPrefsUserRepository();
-                  // Print all stored users to console for debugging
-                  // This helps developers verify user registration and data storage
-                  await repo.printAllUsers();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange, // Orange = debug/warning
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Debug: View All Users'),
-              ),
-              const SizedBox(height: 10),
-              
-              // Debug Button 2: Clear All Data
-              // Red color indicates destructive action
-              ElevatedButton(
-                onPressed: () async {
-                  final repo = SharedPrefsUserRepository();
-                  // Clear all stored user data from SharedPreferences
-                  // This resets the app to initial state with only test data
-                  await repo.clearAllData();
-                  // Show user feedback via SnackBar
-                  // SnackBar appears at bottom of screen temporarily
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('All data cleared! App will reload original test data.'),
-                      backgroundColor: Colors.red, // Red indicates destructive action
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Red = destructive action
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Clear All Data'),
-              ),
-
+              // Additional content can go here
             ],
           ),
         ),
