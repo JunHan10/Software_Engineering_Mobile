@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
+import 'new_item_page.dart';
 // import 'search_page.dart';
 // import 'profile.dart';
 
@@ -14,11 +15,24 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   /// List of pages to navigate (replace "center" with actual pages)
-  final List<Widget> _pages = [
-    DashboardPage(),
-    Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      DashboardPage(),
+      NewItemPage(
+        onSaved: () {
+          // After save, jump back to Home tab
+          setState(() {
+            _selectedIndex = 0;
+          });
+        },
+      ),
+      Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
+    ];
+  }
 
 
   void _onItemTapped(int index) {
