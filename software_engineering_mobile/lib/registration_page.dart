@@ -113,8 +113,9 @@ class _RegistrationPageState extends State<RegistrationPage>{
       try {
         // Create User object from form data
         // .trim() removes leading/trailing whitespace from text inputs
+        // .toLowerCase() ensures email is stored in consistent format
         final newUser = User(
-          email: _emailController.text.trim(),
+          email: _emailController.text.trim().toLowerCase(),
           password: _passwordController.text.trim(),
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
@@ -220,7 +221,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         child: TextFormField(
                           controller: _firstNameController,
                           decoration: InputDecoration(
-                            labelText: 'First Name',
+                            labelText: 'First',
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
@@ -239,7 +240,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         child: TextFormField(
                           controller: _lastNameController,
                           decoration: InputDecoration(
-                            labelText: 'Last Name',
+                            labelText: 'Last',
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xff87ae73), width: 2),

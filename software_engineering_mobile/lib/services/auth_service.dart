@@ -48,6 +48,11 @@ class AuthService {
    */
   static User? get currentUser => _currentUser;
 
+  // Allows updating the in-memory current user after profile/data changes
+  static void loginStateUpdate(User user) {
+    _currentUser = user;
+  }
+
   /**
    * Login method - authenticates user with email and password
    * 
