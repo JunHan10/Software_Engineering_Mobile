@@ -1,10 +1,10 @@
 /**
  * User Model - Core data structure representing a user in the loan application
- * 
+ *
  * This class serves as the primary data model for user information throughout
  * the application. It's designed to be database-agnostic, meaning it can work
  * with JSON files, SharedPreferences, MongoDB, or any other storage system.
- * 
+ *
  * Design Decisions:
  * - Uses nullable ID for flexibility (auto-generated when saving to storage)
  * - Separates address into components for better data structure and validation
@@ -16,26 +16,29 @@ class User {
   // Nullable ID allows for new users (no ID) vs existing users (with ID)
   // This pattern works well with both local storage and databases
   final String? id;
-  
+
   // Authentication fields - required for login functionality
   final String email;    // Primary identifier for user accounts
   final String password; // Stored in plain text for development (should be hashed in production)
-  
+
   // Personal information - collected during registration
   final String firstName;
   final String lastName;
   final int? age; // Nullable because age might not be provided in all cases
-  
+
   // Address components - separated for better data structure and validation
   // Nullable because address might be optional or collected separately
   final String? streetAddress;
   final String? city;
   final String? state;
   final String? zipcode;
-  
+
   // Financial data
   final double currency; // User's available currency for loans
   final List<Asset> assets; // List of assets that can be used as collateral
+
+  // NEW: Hippopotamoney balance stored in cents to avoid floating point issues
+  final int hippoBalanceCents;
 
   /**
    * Constructor with named parameters for clarity and flexibility
@@ -55,17 +58,51 @@ class User {
     this.zipcode,
     required this.currency,
     required this.assets,
+    this.hippoBalanceCents = 0, // NEW: default to 0
   });
+
+  // NEW: copyWith method for immutability and easy field updates
+  User copyWith({
+    String? id,
+    String? email,
+    String? password,
+    String? firstName,
+    String? lastName,
+    int? age,
+    String? streetAddress,
+    String? city,
+    String? state,
+    String? zipcode,
+    double? currency,
+    List<Asset>? assets,
+    int? hippoBalanceCents,
+  }) {
+    return User(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      age: age ?? this.age,
+      streetAddress: streetAddress ?? this.streetAddress,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      zipcode: zipcode ?? this.zipcode,
+      currency: currency ?? this.currency,
+      assets: assets ?? this.assets,
+      hippoBalanceCents: hippoBalanceCents ?? this.hippoBalanceCents,
+    );
+  }
 
   /**
    * Factory constructor for creating User objects from JSON data
-   * 
+   *
    * This is essential for:
    * - Loading data from SharedPreferences
    * - Reading from JSON files (like test_data.json)
    * - Receiving data from APIs
    * - Database deserialization
-   * 
+   *
    * Uses .toDouble() to ensure currency is always a double type,
    * even if JSON contains an integer
    */
@@ -87,18 +124,19 @@ class User {
       assets: (json['assets'] as List)
           .map((asset) => Asset.fromJson(asset))
           .toList(),
+      hippoBalanceCents: (json['hippoBalanceCents'] ?? 0) as int, // NEW
     );
   }
 
   /**
    * Converts User object to JSON Map for storage
-   * 
+   *
    * This is essential for:
    * - Saving to SharedPreferences
    * - Writing to JSON files
    * - Sending to APIs
    * - Database serialization
-   * 
+   *
    * All fields are included, even nullable ones, to maintain
    * data integrity and allow for future expansion
    */
@@ -117,17 +155,18 @@ class User {
       'currency': currency,
       // Convert assets list to JSON array
       'assets': assets.map((asset) => asset.toJson()).toList(),
+      'hippoBalanceCents': hippoBalanceCents, // NEW
     };
   }
 }
 
 /**
  * Asset Model - Represents items that users can use as loan collateral
- * 
+ *
  * Assets are valuable items that users own and can potentially loan out
  * or use as collateral for loans. This model tracks the essential information
  * needed for loan processing and valuation.
- * 
+ *
  * Design Decisions:
  * - Nullable ID for same flexibility as User model
  * - Double value for precise monetary calculations

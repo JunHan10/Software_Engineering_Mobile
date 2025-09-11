@@ -1,45 +1,65 @@
-import 'package:flutter/services.dart';
 // Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
+
 // Import specific loan-related pages for navigation
 import 'package:software_engineering_mobile/Active_Loans.dart';
-import 'login_screen.dart';
 import 'Loaned_Items.dart';
-// Import repository for debugging user data operations
-import 'repositories/shared_prefs_user_repository.dart';
+import 'login_screen.dart';
 import 'profile.dart';
+
+// Import repository + money service
+import 'repositories/shared_prefs_user_repository.dart';
+import 'services/money_service.dart';
 
 /**
  * DashboardPage - Main landing page after successful user authentication
- * 
- * This is a StatelessWidget because the dashboard doesn't need to maintain
- * any internal state - it's purely a navigation hub with static content.
- * 
- * Key Features:
- * - Clean AppBar with currency display and logout functionality
- * - Two main navigation buttons for core app features
- * - Debug buttons for development and testing (should be removed in production)
- * - Consistent theming with deep purple color scheme
+ *
+ * This screen now shows the current Hippo Bucks balance in the AppBar.
+ * Balance is loaded from SharedPreferences using SharedPrefsUserRepository.
  */
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
+class _DashboardPageState extends State<DashboardPage> {
+  final _repo = SharedPrefsUserRepository();
+  int _hippoBalanceCents = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    // TODO: Replace this with the actual logged-in user ID
+    // Right now this assumes "active_user id" is known.
+    final userId = "active_user"; // placeholder until login stores real id
+    final bal = await _repo.getHippoBalanceCents(userId);
+    if (!mounted) return;
+    setState(() => _hippoBalanceCents = bal);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
-        backgroundColor: Color(0xFF87AE73),
+        backgroundColor: const Color(0xFF87AE73),
         foregroundColor: Colors.white,
         actions: [
+          // Show current Hippo Bucks balance
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-            child: const Text(
-              'Currency Here',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+            child: Text(
+              MoneyService.formatCents(_hippoBalanceCents), // e.g. HB 10.00
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ),
+          // Profile avatar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: GestureDetector(
@@ -47,15 +67,16 @@ class DashboardPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );  
+                );
               },
-            child: CircleAvatar(
-              radius: 18,
-              backgroundImage: AssetImage('assets/login_icon.png'), // Replace with better icons
-              backgroundColor: Colors.white,
-              )
+              child: const CircleAvatar(
+                radius: 18,
+                backgroundImage: AssetImage('assets/login_icon.png'),
+                backgroundColor: Colors.white,
+              ),
             ),
           ),
+          // Logout button
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -78,17 +99,19 @@ class DashboardPage extends StatelessWidget {
                 child: SizedBox(
                   height: 36,
                   child: TextField(
-                    style: TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
                       hintText: 'Search...',
-                      prefixIcon: Icon(Icons.search, size: 20),
+                      prefixIcon: const Icon(Icons.search, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Color(0xFF87AE73), width: 2),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF87AE73), width: 2),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -97,55 +120,50 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
+
               // Main Navigation Section
-              // Uses Row layout to place buttons side-by-side for better UX
               Row(
                 children: [
-                  // First navigation button - Loaned Items
-                  // Expanded ensures both buttons take equal width
                   Expanded(
                     child: SizedBox(
-                      height: 60, // Fixed height for consistent button sizing
+                      height: 60,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Standard navigation push - allows back navigation
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const Loaned_Items()),
+                            MaterialPageRoute(
+                                builder: (context) => const Loaned_Items()),
                           );
                         },
-                        // Consistent styling with app theme
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF87AE73),
+                          backgroundColor: const Color(0xFF87AE73),
                           foregroundColor: Colors.white,
-                          // Rounded corners for modern UI appearance
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text(
                           'View Loaned Items',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
                   ),
-                  // Spacing between buttons for visual separation
                   const SizedBox(width: 16),
-                  // Second navigation button - Active Loans
                   Expanded(
                     child: SizedBox(
-                      height: 60, // Matching height for visual consistency
+                      height: 60,
                       child: ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ActiveLoans()),
+                            MaterialPageRoute(
+                                builder: (context) => const ActiveLoans()),
                           );
                         },
-                        // Identical styling to first button for consistency
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF87AE73),
+                          backgroundColor: const Color(0xFF87AE73),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -153,66 +171,55 @@ class DashboardPage extends StatelessWidget {
                         ),
                         child: const Text(
                           'View Active Loans',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
                   ),
                 ],
               ),
-              
-              // Spacing between main navigation and debug section
+
               const SizedBox(height: 40),
-              
+
               // Debug Section - FOR DEVELOPMENT ONLY
-              // These buttons should be removed or hidden in production builds
-              
-              // Debug Button 1: View All Users
-              // Orange color indicates this is a debug/development feature
               ElevatedButton(
                 onPressed: () async {
-                  // Create repository instance to access user data
-                  final repo = SharedPrefsUserRepository();
-                  // Print all stored users to console for debugging
-                  // This helps developers verify user registration and data storage
-                  await repo.printAllUsers();
+                  final userId = "active_user"; // same placeholder
+                  final balance = await _repo.getHippoBalanceCents(userId);
+                  debugPrint(
+                      "Active user balance: ${MoneyService.formatCents(balance)}");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange, // Orange = debug/warning
+                  backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Debug: View All Users'),
+                child: const Text('Debug: View Balance'),
               ),
               const SizedBox(height: 10),
-              
-              // Debug Button 2: Clear All Data
-              // Red color indicates destructive action
+
               ElevatedButton(
                 onPressed: () async {
-                  final repo = SharedPrefsUserRepository();
-                  // Clear all stored user data from SharedPreferences
-                  // This resets the app to initial state with only test data
-                  await repo.clearAllData();
-                  // Show user feedback via SnackBar
-                  // SnackBar appears at bottom of screen temporarily
+                  await _repo.clearAllData();
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('All data cleared! App will reload original test data.'),
-                      backgroundColor: Colors.red, // Red indicates destructive action
+                      backgroundColor: Colors.red,
                     ),
                   );
+                  setState(() => _hippoBalanceCents = 0); // reset UI
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Red = destructive action
+                  backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                 ),
                 child: const Text('Clear All Data'),
               ),
-
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
