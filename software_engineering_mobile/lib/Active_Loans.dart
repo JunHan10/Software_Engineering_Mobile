@@ -8,8 +8,8 @@ class ActiveLoans extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Active Loans'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        backgroundColor: Color(0xFF87AE73),
+        foregroundColor: Color(0xFFede6c7),
       ),
       body: const SafeArea(
         child: Padding(

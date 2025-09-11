@@ -193,7 +193,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
             const Icon(
               Icons.person_add_outlined,
               size: 80,
-              color: Colors.deepPurple,
+              color: Color(0xFF87AE73),
             ),
             const SizedBox(height: 24),
             
@@ -219,9 +219,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       Expanded(
                         child: TextFormField(
                           controller: _firstNameController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'First Name',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -235,9 +238,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       Expanded(
                         child: TextFormField(
                           controller: _lastNameController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Last Name',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -251,9 +257,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           value: _selectedAge,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Age',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           menuMaxHeight: 200,
                           isExpanded: true,
@@ -285,9 +294,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Email',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -309,6 +321,9 @@ class _RegistrationPageState extends State<RegistrationPage>{
                     decoration: InputDecoration(
                       labelText: 'Password',
                       border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
                         onPressed: () {
@@ -338,6 +353,9 @@ class _RegistrationPageState extends State<RegistrationPage>{
                     decoration: InputDecoration(
                       labelText: 'Confirm Password',
                       border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
                         onPressed: () {
@@ -363,9 +381,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                   // Street Address Field
                   TextFormField(
                     controller: _streetAddressController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Street Address',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -384,9 +405,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         flex: 2,
                         child: TextFormField(
                           controller: _cityController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'City',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -400,9 +424,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       Expanded(
                         child: TextFormField(
                           controller: _stateController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'State',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -417,9 +444,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         child: TextFormField(
                           controller: _zipcodeController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Zipcode',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: 'ZIP',
+                            border: const OutlineInputBorder(),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
+                            ),
                           ),
                           onFieldSubmitted: (value) {
                             _handleRegistration();
@@ -443,7 +473,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleRegistration,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: Color(0xFF87AE73),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -472,7 +502,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text('Sign In'),
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(
+                            color: Color(0xff87ae73),
+                          ),
+                        ),
                       ),
                     ],
                   ),

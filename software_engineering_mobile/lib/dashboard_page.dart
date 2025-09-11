@@ -29,7 +29,7 @@ class DashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         // Deep purple theme maintains consistency across the app
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF87AE73),
         foregroundColor: Colors.white,
         actions: [
           // Currency display - shows the app's base currency (USD)
@@ -84,7 +84,7 @@ class DashboardPage extends StatelessWidget {
                         },
                         // Consistent styling with app theme
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: Color(0xFF87AE73),
                           foregroundColor: Colors.white,
                           // Rounded corners for modern UI appearance
                           shape: RoundedRectangleBorder(
@@ -113,7 +113,7 @@ class DashboardPage extends StatelessWidget {
                         },
                         // Identical styling to first button for consistency
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: Color(0xFF87AE73),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

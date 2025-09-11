@@ -8,7 +8,7 @@ class Loaned_Items extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Loaned Assets'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF87AE73),
         foregroundColor: Colors.white,
       ),
       body: const SafeArea(

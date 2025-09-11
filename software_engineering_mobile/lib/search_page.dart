@@ -52,7 +52,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF87AE73),
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
@@ -80,7 +80,7 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                          borderSide: const BorderSide(color: Color(0xFF87AE73), width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: ElevatedButton(
                       onPressed: _isSearching ? null : _performSearch,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: Color(0xFF87AE73),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),

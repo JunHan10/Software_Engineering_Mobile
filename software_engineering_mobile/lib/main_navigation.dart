@@ -41,6 +41,7 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Inbox'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Profile'),
         ],
+        backgroundColor: Color.fromARGB(255, 231, 228, 213),
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
