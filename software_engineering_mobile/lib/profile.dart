@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dashboard_page.dart';
-import 'main_navigation.dart';
 
 /// Entry point of the application
 void main() {
   runApp(const MaterialApp(home: ProfilePage()));
 }
+
 
 /// Profile page where user can tap to pick and persist a profile picture
 class ProfilePage extends StatefulWidget {
@@ -26,8 +25,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Variable to store the selected image file
   File? _pickedImage;
-  // Variable to store selected background image file
-  File? _backgroundImage;
 
   // Lock flag to prevent opening picker multiple times at once
   bool _isPickingImage = false;
@@ -37,22 +34,17 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _loadSavedImage(); // Load saved profile picture from local storage on startup
   }
+
   /// Loads the saved image path from SharedPreferences
   /// and checks if the file still exists before displaying
   Future<void> _loadSavedImage() async {
     final prefs = await SharedPreferences.getInstance();
     final savedPath = prefs.getString('profile_image_path');
-    final savedBgPath = prefs.getString('profile_bg_path');
 
     // Check if the path exists and is valid
     if (savedPath != null && File(savedPath).existsSync()) {
       setState(() {
         _pickedImage = File(savedPath);
-      });
-    }
-    if (savedBgPath != null && File(savedBgPath).existsSync()) {
-      setState(() {
-        _backgroundImage = File(savedBgPath);
       });
     }
   }
@@ -83,28 +75,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-  /// Picks a background image from the gallery and saves the path
-  Future<void> _pickBackgroundImage() async {
-    if (_isPickingImage) return; // Prevent multiple calls
-
-    _isPickingImage = true;
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        final path = pickedFile.path;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('profile_bg_path', path);
-        setState(() {
-          _backgroundImage = File(path);
-        });
-      }
-    } catch (_) {
-      // Silently catch errors
-    } finally {
-      _isPickingImage = false;
-    }
-  }
-
 final List<File> _imageFiles = [];
 
 Future<void> _pickMultipleImages() async {
@@ -121,36 +91,21 @@ void _removeImage(int index) {
     _imageFiles.removeAt(index);
   });
 }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 207, 181, 181),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Profile'),
-      ),
       body: Column(
         children: [
           // 🔳 Top Section: Black background with profile picture
           Container(
             width: double.infinity,
             height: 300,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              image: _backgroundImage != null
-                  ? DecorationImage(
-                      image: FileImage(_backgroundImage!),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
+            color: Colors.black,
             alignment: Alignment.center,
             child: GestureDetector(
               onTap: _pickImage, // Tap to pick image
@@ -189,20 +144,6 @@ void _removeImage(int index) {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Edit profile picture button
-                      ElevatedButton.icon(
-                        onPressed: _pickImage,
-                        icon: const Icon(Icons.edit),
-                        label: const Text('Edit Profile Picture'),
-                      ),
-                      const SizedBox(height: 10),
-                      // Select background image button
-                      ElevatedButton.icon(
-                        onPressed: _pickBackgroundImage,
-                        icon: const Icon(Icons.wallpaper),
-                        label: const Text('Select Background'),
-                      ),
-                      const SizedBox(height: 20),
                       ElevatedButton.icon(
                         onPressed: _pickMultipleImages,
                         icon: Icon(Icons.add_photo_alternate),
