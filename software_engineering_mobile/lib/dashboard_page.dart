@@ -62,9 +62,31 @@ class DashboardPage extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Top spacing to create visual breathing room
-              const SizedBox(height: 40),
-              
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: SizedBox(
+                  height: 36,
+                  child: TextField(
+                    style: TextStyle(fontSize: 14),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      hintText: 'Search...',
+                      prefixIcon: Icon(Icons.search, size: 20),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Color(0xFF87AE73), width: 2),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               // Main Navigation Section
               // Uses Row layout to place buttons side-by-side for better UX
               Row(
