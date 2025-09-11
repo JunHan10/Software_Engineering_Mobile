@@ -22,7 +22,6 @@ class _MainNavigationState extends State<MainNavigation> {
   /// List of pages to navigate
   final List<Widget> _pages = [
     DashboardPage(),
-    Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
     Loaned_Items(),
     ActiveLoans(),
     MessagesPage(),
