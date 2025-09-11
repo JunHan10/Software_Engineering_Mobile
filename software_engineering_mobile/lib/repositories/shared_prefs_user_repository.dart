@@ -51,6 +51,10 @@ class SharedPrefsUserRepository implements UserRepository {
    * - User lookup functionality
    * - Password reset flows (future)
    * 
+   * Email Comparison:
+   * - Case-insensitive: converts both stored and input emails to lowercase
+   * - This allows users to login with any case variation of their email
+   * 
    * Returns null if user not found (rather than throwing exception)
    * This makes error handling simpler in the service layer
    */
@@ -58,8 +62,10 @@ class SharedPrefsUserRepository implements UserRepository {
   Future<User?> findByEmail(String email) async {
     final users = await _loadUsers();
     try {
+      // Convert input email to lowercase for case-insensitive comparison
+      final emailLower = email.toLowerCase();
       // firstWhere throws StateError if no match found
-      return users.firstWhere((user) => user.email == email);
+      return users.firstWhere((user) => user.email.toLowerCase() == emailLower);
     } catch (e) {
       // Convert exception to null for consistent error handling
       return null;
@@ -72,6 +78,10 @@ class SharedPrefsUserRepository implements UserRepository {
    * Primary method for user authentication
    * Checks both email and password in single query for efficiency
    * 
+   * Email Comparison:
+   * - Case-insensitive: converts both stored and input emails to lowercase
+   * - Password remains case-sensitive for security
+   * 
    * Security Note: In production, passwords should be hashed
    * and this would compare hashed values
    */
@@ -79,8 +89,10 @@ class SharedPrefsUserRepository implements UserRepository {
   Future<User?> findByEmailAndPassword(String email, String password) async {
     final users = await _loadUsers();
     try {
+      // Convert input email to lowercase for case-insensitive comparison
+      final emailLower = email.toLowerCase();
       return users.firstWhere(
-        (user) => user.email == email && user.password == password,
+        (user) => user.email.toLowerCase() == emailLower && user.password == password,
       );
     } catch (e) {
       // Return null if no matching user found
