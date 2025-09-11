@@ -9,7 +9,7 @@ class ActiveLoans extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Active Loans'),
         backgroundColor: Color(0xFF87AE73),
-        foregroundColor: Color(0xFFede6c7),
+        foregroundColor: Colors.white,
       ),
       body: const SafeArea(
         child: Padding(
