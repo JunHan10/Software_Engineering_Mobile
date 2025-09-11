@@ -139,6 +139,7 @@ class Asset {
   final String name; // Asset name/title (e.g., "MacBook Pro", "Car")
   final double value; // Monetary value in the app's base currency
   final String description; // Detailed description for identification
+  final List<String> imagePaths; // Local file paths to images for this asset
 
   /**
    * Constructor with required fields for essential asset data
@@ -149,6 +150,7 @@ class Asset {
     required this.name,
     required this.value,
     required this.description,
+    this.imagePaths = const [],
   });
 
   /**
@@ -162,6 +164,7 @@ class Asset {
       // Ensure value is always a double for monetary calculations
       value: json['value'].toDouble(),
       description: json['description'],
+      imagePaths: (json['imagePaths'] as List?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }
 
@@ -175,6 +178,7 @@ class Asset {
       'name': name,
       'value': value,
       'description': description,
+      'imagePaths': imagePaths,
     };
   }
 }
