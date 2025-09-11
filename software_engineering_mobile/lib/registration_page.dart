@@ -221,7 +221,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         child: TextFormField(
                           controller: _firstNameController,
                           decoration: InputDecoration(
-                            labelText: 'First Name',
+                            labelText: 'First',
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
@@ -240,7 +240,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         child: TextFormField(
                           controller: _lastNameController,
                           decoration: InputDecoration(
-                            labelText: 'Last Name',
+                            labelText: 'Last',
                             border: const OutlineInputBorder(),
                             focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xff87ae73), width: 2),

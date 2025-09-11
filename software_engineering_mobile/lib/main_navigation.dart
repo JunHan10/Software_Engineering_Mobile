@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
-import 'new_item_page.dart';
 import 'Loaned_Items.dart';
 import 'Active_Loans.dart';
 import 'profile.dart';
@@ -16,25 +15,13 @@ class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
   /// List of pages to navigate
-  late List<Widget> _pages;
+  final List<Widget> _pages = [
+    DashboardPage(),
+    Loaned_Items(),
+    ActiveLoans(),
+    ProfilePage(),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      DashboardPage(),
-      NewItemPage(
-        onSaved: () {
-          // After save, jump back to Home tab
-          setState(() {
-            _selectedIndex = 0;
-          });
-        },
-      ),
-      Loaned_Items(),
-      ActiveLoans(),
-    ];
-  }
 
   void _onItemTapped(int index) {
     setState(() {
