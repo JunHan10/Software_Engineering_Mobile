@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 // import 'search_page.dart';
-import 'profile.dart';
+// import 'profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -18,7 +18,6 @@ class _MainNavigationState extends State<MainNavigation> {
     DashboardPage(),
     Center(child: Text('New Item Page', style: TextStyle(fontSize: 24))),
     Center(child: Text('Messages Page', style: TextStyle(fontSize: 24))),
-    ProfilePage(),
   ];
 
 
@@ -37,7 +36,6 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'New'),
           BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Inbox'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'My Profile'),
         ],
         backgroundColor: Color.fromARGB(255, 231, 228, 213),
         currentIndex: _selectedIndex,

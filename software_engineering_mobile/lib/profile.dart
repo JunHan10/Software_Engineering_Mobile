@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dashboard_page.dart';
+import 'main_navigation.dart';
 
 /// Entry point
 void main() {
@@ -91,6 +93,17 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 207, 181, 181),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text('Profile'),
+      ),
       body: Column(
         children: [
           // Top Black Section with Profile Picture

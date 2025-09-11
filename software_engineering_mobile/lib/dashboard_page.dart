@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 // Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
 // Import specific loan-related pages for navigation
@@ -6,6 +7,7 @@ import 'login_screen.dart';
 import 'Loaned_Items.dart';
 // Import repository for debugging user data operations
 import 'repositories/shared_prefs_user_repository.dart';
+import 'profile.dart';
 
 /**
  * DashboardPage - Main landing page after successful user authentication
@@ -24,41 +26,49 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      // AppBar provides top navigation and branding
       appBar: AppBar(
         title: const Text('Dashboard'),
-        // Deep purple theme maintains consistency across the app
         backgroundColor: Color(0xFF87AE73),
         foregroundColor: Colors.white,
         actions: [
-          // Currency display - shows the app's base currency (USD)
-          // Positioned in AppBar for constant visibility across the dashboard
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
             child: const Text(
-              'Currency Here', // Static currency display - could be dynamic in future
+              'Currency Here',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ),
-          // Logout button - uses pushReplacement to prevent back navigation
-          // This ensures users can't accidentally return to dashboard after logout
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );  
+              },
+            child: CircleAvatar(
+              radius: 18,
+              backgroundImage: AssetImage('assets/login_icon.png'), // Replace with better icons
+              backgroundColor: Colors.white,
+              )
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // pushReplacement removes current route from navigation stack
-              // This prevents users from using back button to return to dashboard
-              Navigator.pushReplacement( 
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
-          },
-      )]
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            },
+          )
+        ],
       ),
-      // SafeArea ensures content doesn't overlap with system UI (status bar, notch, etc.)
       body: SafeArea(
         child: Padding(
-          // 16px padding provides comfortable spacing from screen edges
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
@@ -202,7 +212,7 @@ class DashboardPage extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )
     );
   }
 }
