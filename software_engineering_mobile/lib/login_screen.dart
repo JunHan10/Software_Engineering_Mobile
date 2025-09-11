@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Color.fromARGB(255, 231, 228, 213), // Light cream background
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                          borderSide: const BorderSide(color: Color(0xFF87AE73), width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                          borderSide: const BorderSide(color: Color(0xFF87ae73), width: 2),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -216,7 +216,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SnackBar(content: Text('Forgot password clicked')),
                           );
                         },
-                        child: const Text('Forgot Password?'),
+                        child: const Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: Color(0xff87ae73),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -228,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: Color(0xFF87AE73),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -290,7 +295,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         MaterialPageRoute(builder: (context) => const RegistrationPage())
                         );
                     },
-                    child: const Text('Sign Up'),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: Color(0xff87ae73),
+                      ),
+                    ),
                   ),
                 ],
               ),
