@@ -96,70 +96,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Main Navigation Section
-              // Uses Row layout to place buttons side-by-side for better UX
-              Row(
-                children: [
-                  // First navigation button - Loaned Items
-                  // Expanded ensures both buttons take equal width
-                  Expanded(
-                    child: SizedBox(
-                      height: 60, // Fixed height for consistent button sizing
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Standard navigation push - allows back navigation
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Loaned_Items()),
-                          );
-                        },
-                        // Consistent styling with app theme
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF87AE73),
-                          foregroundColor: Colors.white,
-                          // Rounded corners for modern UI appearance
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'View Loaned Items',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Spacing between buttons for visual separation
-                  const SizedBox(width: 16),
-                  // Second navigation button - Active Loans
-                  Expanded(
-                    child: SizedBox(
-                      height: 60, // Matching height for visual consistency
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ActiveLoans()),
-                          );
-                        },
-                        // Identical styling to first button for consistency
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF87AE73),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'View Active Loans',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+
               // Additional content can go here
             ],
           ),
