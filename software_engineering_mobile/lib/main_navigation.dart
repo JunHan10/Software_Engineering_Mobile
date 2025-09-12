@@ -28,7 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
 
   void _onItemTapped(int index) {
-    HapticFeedback.lightImpact();
+    HapticFeedback.mediumImpact();
     setState(() {
       _selectedIndex = index;
     });
