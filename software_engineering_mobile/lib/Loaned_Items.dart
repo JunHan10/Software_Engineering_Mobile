@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'new_item_page.dart';
 
 class Loaned_Items extends StatelessWidget {
   const Loaned_Items({super.key});
@@ -19,6 +21,17 @@ class Loaned_Items extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewItemPage()),
+          );
+        },
+        backgroundColor: Color(0xFF87AE73),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
