@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:software_engineering_mobile/messages.dart';
 import 'dashboard_page.dart';
 import 'messages.dart';
 import 'Loaned_Items.dart';
 import 'Active_Loans.dart';
-import 'profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -17,7 +15,6 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  /// List of pages to navigate
   /// List of pages to navigate
   final List<Widget> _pages = [
     DashboardPage(),

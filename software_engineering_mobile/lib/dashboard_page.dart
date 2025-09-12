@@ -1,12 +1,5 @@
-import 'package:flutter/services.dart';
-// Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
-// Import specific loan-related pages for navigation
-import 'package:software_engineering_mobile/Active_Loans.dart';
 import 'login_screen.dart';
-import 'Loaned_Items.dart';
-// Import repository for debugging user data operations
-import 'repositories/shared_prefs_user_repository.dart';
 import 'profile.dart';
 
 /**

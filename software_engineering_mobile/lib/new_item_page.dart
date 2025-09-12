@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user.dart';
 import 'services/auth_service.dart';
 import 'repositories/shared_prefs_user_repository.dart';
