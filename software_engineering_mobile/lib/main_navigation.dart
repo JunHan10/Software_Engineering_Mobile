@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:software_engineering_mobile/messages.dart';
 import 'dashboard_page.dart';
 import 'messages.dart';
-// import 'search_page.dart';
-// import 'profile.dart';
 import 'Loaned_Items.dart';
 import 'Active_Loans.dart';
 import 'profile.dart';
@@ -29,6 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
 
   void _onItemTapped(int index) {
+    HapticFeedback.lightImpact();
     setState(() {
       _selectedIndex = index;
     });
