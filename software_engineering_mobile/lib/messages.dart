@@ -13,6 +13,8 @@ class _MessagesPageState extends State<MessagesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
+        backgroundColor: Color(0xFF87AE73),
+        foregroundColor: Colors.white,
       ),
       body: const Center(
         child: Text('No messages yet.'),

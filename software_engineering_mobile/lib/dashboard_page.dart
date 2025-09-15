@@ -1,26 +1,17 @@
-import 'package:flutter/services.dart';
-// Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
-// Import specific loan-related pages for navigation
-import 'package:software_engineering_mobile/Active_Loans.dart';
 import 'login_screen.dart';
-import 'Loaned_Items.dart';
-// Import repository for debugging user data operations
-import 'repositories/shared_prefs_user_repository.dart';
 import 'profile.dart';
 
-/**
- * DashboardPage - Main landing page after successful user authentication
- * 
- * This is a StatelessWidget because the dashboard doesn't need to maintain
- * any internal state - it's purely a navigation hub with static content.
- * 
- * Key Features:
- * - Clean AppBar with currency display and logout functionality
- * - Two main navigation buttons for core app features
- * - Debug buttons for development and testing (should be removed in production)
- * - Consistent theming with deep purple color scheme
- */
+/// DashboardPage - Main landing page after successful user authentication
+/// 
+/// This is a StatelessWidget because the dashboard doesn't need to maintain
+/// any internal state - it's purely a navigation hub with static content.
+/// 
+/// Key Features:
+/// - Clean AppBar with currency display and logout functionality
+/// - Two main navigation buttons for core app features
+/// - Debug buttons for development and testing (should be removed in production)
+/// - Consistent theming with deep purple color scheme
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
