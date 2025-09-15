@@ -7,23 +7,21 @@ import 'repositories/shared_prefs_user_repository.dart';
 // Import User model for creating user objects
 import 'models/user.dart';
 
-/**
- * RegistrationPage - User account creation form
- * 
- * This is a StatefulWidget because it needs to manage:
- * - Form input state (text controllers)
- * - Loading state during registration
- * - Password visibility toggles
- * - Form validation state
- * 
- * Key Features:
- * - Comprehensive user data collection (personal info + address)
- * - Real-time form validation with user feedback
- * - Password confirmation with visibility toggles
- * - Loading state management during async operations
- * - Error handling with user-friendly messages
- * - Responsive layout with grouped fields
- */
+/// RegistrationPage - User account creation form
+/// 
+/// This is a StatefulWidget because it needs to manage:
+/// - Form input state (text controllers)
+/// - Loading state during registration
+/// - Password visibility toggles
+/// - Form validation state
+/// 
+/// Key Features:
+/// - Comprehensive user data collection (personal info + address)
+/// - Real-time form validation with user feedback
+/// - Password confirmation with visibility toggles
+/// - Loading state management during async operations
+/// - Error handling with user-friendly messages
+/// - Responsive layout with grouped fields
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
 
@@ -57,14 +55,12 @@ class _RegistrationPageState extends State<RegistrationPage>{
   // Age selection - nullable because user might not select initially
   int? _selectedAge;
 
-  /**
-   * Dispose method - Clean up resources when widget is destroyed
-   * 
-   * CRITICAL: TextEditingControllers must be disposed to prevent memory leaks
-   * Each controller creates listeners and holds references that need cleanup
-   * 
-   * This is called automatically when the widget is removed from the widget tree
-   */
+  /// Dispose method - Clean up resources when widget is destroyed
+  /// 
+  /// CRITICAL: TextEditingControllers must be disposed to prevent memory leaks
+  /// Each controller creates listeners and holds references that need cleanup
+  /// 
+  /// This is called automatically when the widget is removed from the widget tree
   @override
   void dispose() {
     // Dispose all text controllers to prevent memory leaks
@@ -81,27 +77,25 @@ class _RegistrationPageState extends State<RegistrationPage>{
     super.dispose();
   }
 
-  /**
-   * Handle user registration process
-   * 
-   * Registration Flow:
-   * 1. Validate all form fields using Flutter's built-in validation
-   * 2. Show loading indicator to provide user feedback
-   * 3. Create User object from form data
-   * 4. Call AuthService to register user (handles business logic)
-   * 5. Show success/error message and navigate accordingly
-   * 
-   * Error Handling:
-   * - Form validation prevents submission of invalid data
-   * - Try-catch handles unexpected errors gracefully
-   * - 'mounted' checks prevent setState calls on disposed widgets
-   * - User-friendly error messages via SnackBar
-   * 
-   * UX Considerations:
-   * - Loading state disables button and shows progress indicator
-   * - Success navigates back to login screen
-   * - Errors keep user on form to fix issues
-   */
+  /// Handle user registration process
+  /// 
+  /// Registration Flow:
+  /// 1. Validate all form fields using Flutter's built-in validation
+  /// 2. Show loading indicator to provide user feedback
+  /// 3. Create User object from form data
+  /// 4. Call AuthService to register user (handles business logic)
+  /// 5. Show success/error message and navigate accordingly
+  /// 
+  /// Error Handling:
+  /// - Form validation prevents submission of invalid data
+  /// - Try-catch handles unexpected errors gracefully
+  /// - 'mounted' checks prevent setState calls on disposed widgets
+  /// - User-friendly error messages via SnackBar
+  /// 
+  /// UX Considerations:
+  /// - Loading state disables button and shows progress indicator
+  /// - Success navigates back to login screen
+  /// - Errors keep user on form to fix issues
   Future<void> _handleRegistration() async{
     // Validate all form fields before proceeding
     if(_formKey.currentState!.validate()) {
@@ -257,7 +251,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                       const SizedBox(width: 8),
                       Expanded(
                         child: DropdownButtonFormField<int>(
-                          value: _selectedAge,
+                          initialValue: _selectedAge,
                           decoration: InputDecoration(
                             labelText: 'Age',
                             border: const OutlineInputBorder(),
