@@ -105,16 +105,16 @@ void _removeImage(int index) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: Color.fromARGB(255, 231, 228, 213),
       body: Stack(
         children: [
           Column(
         children: [
-          // 🔳 Top Section: Black background with profile picture
+          //  Top Section: Black background with profile picture
           Container(
             width: double.infinity,
             height: 300,
-            color: Colors.black,
+            color: Color(0xFF87AE73),
             alignment: Alignment.center,
             child: GestureDetector(
               onTap: _pickImage, // Tap to pick image
@@ -145,7 +145,7 @@ void _removeImage(int index) {
           Expanded(
             child: Container(
               width: double.infinity,
-              color: Colors.teal,
+              color: Color.fromARGB(255, 231, 228, 213),
               alignment: Alignment.topCenter,
               padding: const EdgeInsets.all(16),
               child: Row(
