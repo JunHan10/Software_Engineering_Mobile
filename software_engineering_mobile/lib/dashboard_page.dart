@@ -47,15 +47,6 @@ class DashboardPage extends StatelessWidget {
               )
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          )
         ],
       ),
       body: SafeArea(
