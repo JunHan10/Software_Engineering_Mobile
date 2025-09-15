@@ -1,6 +1,9 @@
 // Importing necessary packages
+import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
+import 'package:flutter/services.dart';
+import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +31,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Lock flag to prevent opening picker multiple times at once
   bool _isPickingImage = false;
+  
+  // Animation state for back button
+  bool _isBackPressed = false;
+  Timer? _backPressedTimer;
 
   @override
   void initState() {
@@ -99,7 +106,9 @@ void _removeImage(int index) {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal,
-      body: Column(
+      body: Stack(
+        children: [
+          Column(
         children: [
           // 🔳 Top Section: Black background with profile picture
           Container(
@@ -198,6 +207,83 @@ void _removeImage(int index) {
   ],
 ),
         ],),
+            ),
+          ),
+            ],
+          ),
+          Positioned(
+            top: 50,
+            left: 16,
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 231, 228, 213),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _isBackPressed = true);
+                    Timer(Duration(milliseconds: 200), () {
+                      if (mounted) {
+                        setState(() => _isBackPressed = false);
+                        Navigator.pop(context);
+                      }
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.easeOut,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Color.fromARGB(255, 231, 228, 213).withValues(alpha: 0.9),
+                      boxShadow: _isBackPressed
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.4),
+                                offset: Offset(0, 4),
+                                blurRadius: 8,
+                                inset: true,
+                              ),
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                offset: Offset(0, -2),
+                                blurRadius: 4,
+                                inset: true,
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                inset: true,
+                              ),
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                offset: Offset(0, -1),
+                                blurRadius: 2,
+                                inset: true,
+                              ),
+                            ],
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.bounceOut,
+                      transform: Matrix4.translationValues(0, _isBackPressed ? 6.0 : 2.0, 0),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF87AE73),
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
