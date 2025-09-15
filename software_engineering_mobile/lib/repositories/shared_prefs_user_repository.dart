@@ -124,6 +124,7 @@ class SharedPrefsUserRepository implements UserRepository {
             firstName: user.firstName,
             lastName: user.lastName,
             age: user.age,
+            phone: user.phone,
             streetAddress: user.streetAddress,
             city: user.city,
             state: user.state,

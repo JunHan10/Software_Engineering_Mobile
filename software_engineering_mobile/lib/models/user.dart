@@ -23,6 +23,7 @@ class User {
   final String firstName;
   final String lastName;
   final int? age; // Nullable because age might not be provided in all cases
+  final String? phone; // Nullable because phone might not be provided in all cases
   
   // Address components - separated for better data structure and validation
   // Nullable because address might be optional or collected separately
@@ -45,6 +46,7 @@ class User {
     required this.firstName,
     required this.lastName,
     this.age,
+    this.phone,
     this.streetAddress,
     this.city,
     this.state,
@@ -71,6 +73,7 @@ class User {
       firstName: json['firstName'],
       lastName: json['lastName'],
       age: json['age'],
+      phone: json['phone'],
       streetAddress: json['streetAddress'],
       city: json['city'],
       state: json['state'],
@@ -102,6 +105,7 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'age': age,
+      'phone': phone,
       'streetAddress': streetAddress,
       'city': city,
       'state': state,
