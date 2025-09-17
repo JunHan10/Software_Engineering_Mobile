@@ -25,6 +25,7 @@ class User {
   final String firstName;
   final String lastName;
   final int? age; // Nullable because age might not be provided in all cases
+  final String? phone; // Phone number - optional field
 
   // Address components - separated for better data structure and validation
   // Nullable because address might be optional or collected separately
@@ -70,6 +71,7 @@ class User {
     String? firstName,
     String? lastName,
     int? age,
+    String? phone,
     String? streetAddress,
     String? city,
     String? state,
@@ -85,6 +87,7 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       age: age ?? this.age,
+      phone: phone ?? this.phone,
       streetAddress: streetAddress ?? this.streetAddress,
       city: city ?? this.city,
       state: state ?? this.state,

@@ -16,6 +16,7 @@ import 'dashboard_page.dart'; // 👈 Import so we can navigate back
 import 'login_screen.dart';
 import 'settings_page.dart';
 import 'services/auth_service.dart';
+import 'repositories/shared_prefs_user_repository.dart';
 
 /// Entry point of the application
 /// NOTE: Your app usually starts from lib/main.dart.
@@ -209,28 +210,16 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.teal.shade700,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const DashboardPage()),
-            );
-          },
-        ),
-      ),
-      backgroundColor: Colors.teal,
-      body: Column(
+      backgroundColor: const Color.fromARGB(255, 231, 228, 213),
+      body: Stack(
         children: [
-          // 🔳 Top Section: Black background with profile picture
-          Container(
-            width: double.infinity,
-            height: 300,
-            color: Colors.black,
+          Column(
+            children: [
+              // Top Section: Green background with profile picture
+              Container(
+                width: double.infinity,
+                height: 300,
+                color: const Color(0xFF87AE73),
             alignment: Alignment.center,
             child: GestureDetector(
               onTap: _pickImage, // Tap to pick image
@@ -257,11 +246,11 @@ class _ProfilePageState extends State<ProfilePage> {
             color: Colors.white,
           ),
 
-          // 🔽 Bottom Section
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.teal,
+              // Bottom Section
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  color: const Color.fromARGB(255, 231, 228, 213),
               alignment: Alignment.topCenter,
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -367,127 +356,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ],
               ),
-              // Bottom Section: User information and images
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  color: const Color.fromARGB(255, 231, 228, 213),
-                  padding: const EdgeInsets.all(16),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // User Information Section
-                        if (currentUser != null) ...[
-                          _buildInfoCard(
-                            'Personal Information',
-                            [
-                              _buildInfoRow('Name', fullName),
-                              if (currentUser.phone != null)
-                                _buildInfoRow('Phone', currentUser.phone!),
-                              _buildInfoRow('Email', currentUser.email),
-                              if (currentUser.age != null)
-                                _buildInfoRow('Age', currentUser.age.toString()),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          
-                          // Address Information
-                          if (currentUser.streetAddress != null || 
-                              currentUser.city != null || 
-                              currentUser.state != null || 
-                              currentUser.zipcode != null)
-                            _buildInfoCard(
-                              'Address',
-                              [
-                                if (currentUser.streetAddress != null)
-                                  _buildInfoRow('Street', currentUser.streetAddress!),
-                                if (currentUser.city != null)
-                                  _buildInfoRow('City', currentUser.city!),
-                                if (currentUser.state != null)
-                                  _buildInfoRow('State', currentUser.state!),
-                                if (currentUser.zipcode != null)
-                                  _buildInfoRow('ZIP Code', currentUser.zipcode!),
-                              ],
-                            ),
-                          const SizedBox(height: 16),
-                        ],
-                        
-                        // Images Section
-                        _buildInfoCard(
-                          'Images',
-                          [
-                            ElevatedButton.icon(
-                              onPressed: _pickMultipleImages,
-                              icon: const Icon(Icons.add_photo_alternate),
-                              label: const Text('Add Images'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF87AE73),
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            
-                            // Display images
-                            if (_imageFiles.isNotEmpty)
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: List.generate(_imageFiles.length, (index) {
-                                    return Stack(
-                                      children: [
-                                        Container(
-                                          margin: const EdgeInsets.symmetric(horizontal: 5),
-                                          width: 100,
-                                          height: 100,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: FileImage(_imageFiles[index]),
-                                              fit: BoxFit.cover,
-                                            ),
-                                            borderRadius: BorderRadius.circular(8),
-                                            color: Colors.grey[300],
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: GestureDetector(
-                                            onTap: () => _removeImage(index),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(2),
-                                              decoration: const BoxDecoration(
-                                                color: Colors.black54,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.close,
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                                ),
-                              )
-                            else
-                              const Text(
-                                'No images added yet',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+            ),
+          ),
             ],
           ),
           
