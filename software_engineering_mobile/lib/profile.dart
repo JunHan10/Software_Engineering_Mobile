@@ -34,14 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // Lock flag to prevent opening picker multiple times at once
   bool _isPickingImage = false;
-  
-  // Animation state for back button
-  bool _isBackPressed = false;
-  Timer? _backPressedTimer;
-  
-  // Animation state for logout button
-  bool _isLogoutPressed = false;
-  Timer? _logoutPressedTimer;
 
   @override
   void initState() {

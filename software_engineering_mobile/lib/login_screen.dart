@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 20),
               
               // App Logo/Title
               Center(
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 200,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 6),
               
               const Text(
                 'HippoExchange',
@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 32),
               
               // Login Form
               Form(
@@ -224,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 9),
                     
                     // Login Button
                     SizedBox(
@@ -261,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               
               // Divider
               Row(
@@ -277,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(child: Divider(color: Colors.grey[300])),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               
               // Sign Up Link
               Row(
