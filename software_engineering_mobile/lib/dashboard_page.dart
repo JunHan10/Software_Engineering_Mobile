@@ -1,5 +1,8 @@
 // Flutter Material Design imports for UI components
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 // Import specific loan-related pages for navigation
 import 'package:software_engineering_mobile/Active_Loans.dart';
@@ -27,11 +30,13 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final _repo = SharedPrefsUserRepository();
   int _hippoBalanceCents = 0;
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
     _loadBalance();
+    _loadProfileImage();
   }
 
   Future<void> _loadBalance() async {
@@ -41,6 +46,16 @@ class _DashboardPageState extends State<DashboardPage> {
     final bal = await _repo.getHippoBalanceCents(userId);
     if (!mounted) return;
     setState(() => _hippoBalanceCents = bal);
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPath = prefs.getString('profile_image_path');
+    if (savedPath != null && File(savedPath).existsSync()) {
+      setState(() {
+        _profileImage = File(savedPath);
+      });
+    }
   }
 
   @override
@@ -67,12 +82,19 @@ class _DashboardPageState extends State<DashboardPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
+                ).then((_) => _loadProfileImage()); // Refresh profile image when returning
               },
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 18,
-                backgroundImage: AssetImage('assets/login_icon.png'),
                 backgroundColor: Colors.white,
+                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+                child: _profileImage == null
+                    ? ProfilePicture(
+                        name: 'John King',
+                        radius: 18,
+                        fontsize: 12,
+                      )
+                    : null,
               ),
             ),
           ),
