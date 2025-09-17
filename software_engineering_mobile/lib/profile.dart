@@ -1,12 +1,14 @@
 // Importing necessary packages
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/services.dart';
 import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image/image.dart' as img;
 
 // NEW: App models / repositories / money utilities for Hippo Bucks
 import 'models/user.dart';
@@ -169,12 +171,12 @@ class _ProfilePageState extends State<ProfilePage> {
       await _picker.pickImage(source: ImageSource.gallery);
 
       if (pickedFile != null) {
-        final path = pickedFile.path;
+        final correctedFile = await _correctImageOrientation(pickedFile);
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('profile_image_path', path);
+        await prefs.setString('profile_image_path', correctedFile.path);
 
         setState(() {
-          _pickedImage = File(path);
+          _pickedImage = correctedFile;
         });
       }
     } catch (_) {
@@ -187,8 +189,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _pickMultipleImages() async {
     final List<XFile> pickedFiles = await ImagePicker().pickMultiImage();
     if (pickedFiles.isNotEmpty) {
+      final List<File> correctedFiles = [];
+      for (final xfile in pickedFiles) {
+        final correctedFile = await _correctImageOrientation(xfile);
+        correctedFiles.add(correctedFile);
+      }
       setState(() {
-        _imageFiles.addAll(pickedFiles.map((xfile) => File(xfile.path)));
+        _imageFiles.addAll(correctedFiles);
       });
     }
   }
@@ -198,6 +205,26 @@ class _ProfilePageState extends State<ProfilePage> {
       _imageFiles.removeAt(index);
     });
     return;
+  }
+
+  Future<File> _correctImageOrientation(XFile imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    final image = img.decodeImage(bytes);
+    
+    if (image == null) return File(imageFile.path);
+    
+    // Fix orientation based on EXIF data
+    final orientedImage = img.bakeOrientation(image);
+    
+    // Encode back to bytes
+    final correctedBytes = img.encodeJpg(orientedImage);
+    
+    // Write to a new temporary file
+    final tempDir = Directory.systemTemp;
+    final tempFile = File('${tempDir.path}/corrected_${DateTime.now().millisecondsSinceEpoch}.jpg');
+    await tempFile.writeAsBytes(correctedBytes);
+    
+    return tempFile;
   }
 
   @override
