@@ -33,8 +33,9 @@ class _SettingsPageState extends State<SettingsPage> {
     _loadCurrentUserData();
   }
 
-  void _loadCurrentUserData() {
-    final currentUser = AuthService.currentUser;
+  Future<void> _loadCurrentUserData() async {
+    final authService = AuthService();
+    final currentUser = await authService.getCurrentUser();
     if (currentUser != null) {
       _firstNameController.text = currentUser.firstName;
       _lastNameController.text = currentUser.lastName;
@@ -57,7 +58,8 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     try {
-      final currentUser = AuthService.currentUser;
+      final authService = AuthService();
+      final currentUser = await authService.getCurrentUser();
       if (currentUser == null) {
         _showErrorSnackBar('No user logged in');
         return;
@@ -82,9 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
       // Save to repository
       await _userRepository.save(updatedUser);
-      
-      // Update the current user in AuthService
-      AuthService.loginStateUpdate(updatedUser);
+      // No loginStateUpdate method in AuthService, so we skip this step
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
