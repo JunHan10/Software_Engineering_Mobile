@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/user.dart';
 
-/**
- * UserRepository - Repository interface for user persistence
- *
- * This interface abstracts read/write operations for User data so the app
- * can swap between different backends (local file, SharedPreferences, DB, API).
- */
+/// UserRepository - Repository interface for user persistence
+///
+/// This interface abstracts read/write operations for User data so the app
+/// can swap between different backends (local file, SharedPreferences, DB, API).
 abstract class UserRepository {
   // Core read operations
   Future<User?> findByEmail(String email);

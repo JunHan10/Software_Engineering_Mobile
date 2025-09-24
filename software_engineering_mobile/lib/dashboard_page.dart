@@ -14,12 +14,10 @@ import 'profile.dart';
 import 'repositories/shared_prefs_user_repository.dart';
 import 'services/money_service.dart';
 
-/**
- * DashboardPage - Main landing page after successful user authentication
- *
- * This screen shows the current Hippo Bucks balance in the AppBar.
- * Balance is loaded from SharedPreferences using SharedPrefsUserRepository.
- */
+/// DashboardPage - Main landing page after successful user authentication
+///
+/// This screen shows the current Hippo Bucks balance in the AppBar.
+/// Balance is loaded from SharedPreferences using SharedPrefsUserRepository.
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 

@@ -1,9 +1,7 @@
 // Importing necessary packages
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
-import 'package:flutter/services.dart';
 import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,11 +12,9 @@ import 'package:image/image.dart' as img;
 import 'models/user.dart';
 import 'repositories/shared_prefs_user_repository.dart';
 import 'services/money_service.dart';
-import 'dashboard_page.dart'; // 👈 Import so we can navigate back
+// 👈 Import so we can navigate back
 import 'login_screen.dart';
 import 'settings_page.dart';
-import 'services/auth_service.dart';
-import 'repositories/shared_prefs_user_repository.dart';
 
 /// Entry point of the application
 /// NOTE: Your app usually starts from lib/main.dart.

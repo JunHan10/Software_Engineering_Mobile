@@ -5,14 +5,12 @@ import 'package:path_provider/path_provider.dart';
 import '../models/user.dart';
 import 'user_repository.dart';
 
-/**
- * LocalUserRepository - File-based repository using app documents directory.
- *
- * This repository reads initial seed data from assets/test_data.json (if needed),
- * caches in memory, and persists to a JSON file (test_data.json) under the app's
- * documents directory. It implements the UserRepository interface so it can be
- * swapped with alternative storage backends without touching UI code.
- */
+/// LocalUserRepository - File-based repository using app documents directory.
+///
+/// This repository reads initial seed data from assets/test_data.json (if needed),
+/// caches in memory, and persists to a JSON file (test_data.json) under the app's
+/// documents directory. It implements the UserRepository interface so it can be
+/// swapped with alternative storage backends without touching UI code.
 class LocalUserRepository implements UserRepository {
   static const String _fileName = 'test_data.json';
   List<User>? _cachedUsers; // lazy-initialized in _loadUsers()

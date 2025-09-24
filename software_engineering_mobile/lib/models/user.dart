@@ -1,17 +1,15 @@
-/**
- * User Model - Core data structure representing a user in the loan application
- *
- * This class serves as the primary data model for user information throughout
- * the application. It's designed to be database-agnostic, meaning it can work
- * with JSON files, SharedPreferences, MongoDB, or any other storage system.
- *
- * Design Decisions:
- * - Uses nullable ID for flexibility (auto-generated when saving to storage)
- * - Separates address into components for better data structure and validation
- * - Includes both authentication (email/password) and profile data
- * - Uses double for currency to handle decimal values accurately
- * - Contains assets list for loan collateral tracking
- */
+/// User Model - Core data structure representing a user in the loan application
+///
+/// This class serves as the primary data model for user information throughout
+/// the application. It's designed to be database-agnostic, meaning it can work
+/// with JSON files, SharedPreferences, MongoDB, or any other storage system.
+///
+/// Design Decisions:
+/// - Uses nullable ID for flexibility (auto-generated when saving to storage)
+/// - Separates address into components for better data structure and validation
+/// - Includes both authentication (email/password) and profile data
+/// - Uses double for currency to handle decimal values accurately
+/// - Contains assets list for loan collateral tracking
 class User {
   // Nullable ID allows for new users (no ID) vs existing users (with ID)
   // This pattern works well with both local storage and databases
@@ -41,11 +39,9 @@ class User {
   // NEW: Hippopotamoney balance stored in cents to avoid floating point issues
   final int hippoBalanceCents;
 
-  /**
-   * Constructor with named parameters for clarity and flexibility
-   * Required fields are those essential for basic user functionality
-   * Optional fields can be added later or left empty
-   */
+  /// Constructor with named parameters for clarity and flexibility
+  /// Required fields are those essential for basic user functionality
+  /// Optional fields can be added later or left empty
   User({
     this.id,
     required this.email,
@@ -98,18 +94,16 @@ class User {
     );
   }
 
-  /**
-   * Factory constructor for creating User objects from JSON data
-   *
-   * This is essential for:
-   * - Loading data from SharedPreferences
-   * - Reading from JSON files (like test_data.json)
-   * - Receiving data from APIs
-   * - Database deserialization
-   *
-   * Uses .toDouble() to ensure currency is always a double type,
-   * even if JSON contains an integer
-   */
+  /// Factory constructor for creating User objects from JSON data
+  ///
+  /// This is essential for:
+  /// - Loading data from SharedPreferences
+  /// - Reading from JSON files (like test_data.json)
+  /// - Receiving data from APIs
+  /// - Database deserialization
+  ///
+  /// Uses .toDouble() to ensure currency is always a double type,
+  /// even if JSON contains an integer
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
@@ -133,18 +127,16 @@ class User {
     );
   }
 
-  /**
-   * Converts User object to JSON Map for storage
-   *
-   * This is essential for:
-   * - Saving to SharedPreferences
-   * - Writing to JSON files
-   * - Sending to APIs
-   * - Database serialization
-   *
-   * All fields are included, even nullable ones, to maintain
-   * data integrity and allow for future expansion
-   */
+  /// Converts User object to JSON Map for storage
+  ///
+  /// This is essential for:
+  /// - Saving to SharedPreferences
+  /// - Writing to JSON files
+  /// - Sending to APIs
+  /// - Database serialization
+  ///
+  /// All fields are included, even nullable ones, to maintain
+  /// data integrity and allow for future expansion
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -166,19 +158,17 @@ class User {
   }
 }
 
-/**
- * Asset Model - Represents items that users can use as loan collateral
- *
- * Assets are valuable items that users own and can potentially loan out
- * or use as collateral for loans. This model tracks the essential information
- * needed for loan processing and valuation.
- *
- * Design Decisions:
- * - Nullable ID for same flexibility as User model
- * - Double value for precise monetary calculations
- * - Description field for detailed asset information
- * - Simple structure that can be extended for specific asset types
- */
+/// Asset Model - Represents items that users can use as loan collateral
+///
+/// Assets are valuable items that users own and can potentially loan out
+/// or use as collateral for loans. This model tracks the essential information
+/// needed for loan processing and valuation.
+///
+/// Design Decisions:
+/// - Nullable ID for same flexibility as User model
+/// - Double value for precise monetary calculations
+/// - Description field for detailed asset information
+/// - Simple structure that can be extended for specific asset types
 class Asset {
   final String? id; // Nullable for new vs existing assets
   final String name; // Asset name/title (e.g., "MacBook Pro", "Car")

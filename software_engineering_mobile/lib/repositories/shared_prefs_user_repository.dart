@@ -11,15 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'user_repository.dart';
 
-/**
- * SharedPrefsUserRepository - Concrete implementation of UserRepository using SharedPreferences
- *
- * Initializes from assets/test_data.json on first run.
- * Stores all users under a single versioned key as a JSON string:
- *   { "users": [ {user1}, {user2}, ... ] }
- *
- * Caches users in-memory to minimize decode/encode operations and disk reads.
- */
+/// SharedPrefsUserRepository - Concrete implementation of UserRepository using SharedPreferences
+///
+/// Initializes from assets/test_data.json on first run.
+/// Stores all users under a single versioned key as a JSON string:
+///   { "users": [ {user1}, {user2}, ... ] }
+///
+/// Caches users in-memory to minimize decode/encode operations and disk reads.
 class SharedPrefsUserRepository implements UserRepository {
   /// Versioned key (easier future migrations)
   static const String _usersKey = 'users_data';
