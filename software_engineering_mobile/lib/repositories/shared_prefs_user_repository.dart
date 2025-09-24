@@ -6,6 +6,7 @@
 
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import 'user_repository.dart';
@@ -19,7 +20,17 @@ class SharedPrefsUserRepository implements UserRepository {
   Future<List<User>> _loadUsers() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_usersKey);
-    if (raw == null || raw.isEmpty) return [];
+    if (raw == null || raw.isEmpty) {
+      await _initializeTestData();
+      final newRaw = prefs.getString(_usersKey);
+      if (newRaw == null || newRaw.isEmpty) return [];
+      try {
+        final list = (jsonDecode(newRaw) as List).cast<Map<String, dynamic>>();
+        return list.map((m) => User.fromJson(m)).toList();
+      } catch (_) {
+        return [];
+      }
+    }
     try {
       final list = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
       return list.map((m) => User.fromJson(m)).toList();
@@ -131,6 +142,31 @@ class SharedPrefsUserRepository implements UserRepository {
     final clamped = next < 0 ? 0 : next;
     await setHippoBalanceCents(userId, clamped);
     return clamped;
+  }
+
+  // ------------ Initialization ------------
+
+  Future<void> _initializeTestData() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/test_data.json');
+      final jsonData = jsonDecode(jsonString);
+      final usersList = (jsonData['users'] as List).cast<Map<String, dynamic>>();
+      final users = usersList.map((m) => User.fromJson(m)).toList();
+      await _saveUsers(users);
+    } catch (e) {
+      // If loading test data fails, create a default user
+      final defaultUser = User(
+        id: '1',
+        email: 'john.doe@example.com',
+        password: 'password123',
+        firstName: 'John',
+        lastName: 'Doe',
+        currency: 2500.75,
+        assets: const [],
+        hippoBalanceCents: 0,
+      );
+      await _saveUsers([defaultUser]);
+    }
   }
 
   // ------------ Dev helpers ------------
