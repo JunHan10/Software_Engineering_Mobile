@@ -1,7 +1,9 @@
 // lib/dashboard_page.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 // Screens
 import 'package:software_engineering_mobile/Active_Loans.dart';
@@ -23,11 +25,13 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final _repo = SharedPrefsUserRepository();
   int _hippoBalanceCents = 0;
+  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
     _loadBalance();
+    _loadProfileImage();
   }
 
   Future<void> _loadBalance() async {
@@ -41,6 +45,16 @@ class _DashboardPageState extends State<DashboardPage> {
     final bal = await _repo.getHippoBalanceCents(userId);
     if (!mounted) return;
     setState(() => _hippoBalanceCents = bal);
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPath = prefs.getString('profile_image_path');
+    if (savedPath != null && File(savedPath).existsSync()) {
+      setState(() {
+        _profileImage = File(savedPath);
+      });
+    }
   }
 
   @override
@@ -68,11 +82,19 @@ class _DashboardPageState extends State<DashboardPage> {
                 );
                 if (!mounted) return;
                 _loadBalance(); // refresh after coming back
+                _loadProfileImage(); // refresh profile image
               },
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 18,
-                backgroundImage: AssetImage('assets/login_icon.png'),
                 backgroundColor: Colors.white,
+                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
+                child: _profileImage == null
+                    ? ProfilePicture(
+                        name: 'John King',
+                        radius: 18,
+                        fontsize: 12,
+                      )
+                    : null,
               ),
             ),
           ),
