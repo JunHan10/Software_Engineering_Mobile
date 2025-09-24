@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'models/user.dart';
 import 'repositories/shared_prefs_user_repository.dart';
 import 'services/money_service.dart';
+import 'settings_page.dart';
+import 'login_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -178,170 +180,219 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     if (_loadingUser) {
       return const Scaffold(
-        backgroundColor: Colors.teal,
+        backgroundColor: Color(0xFF87AE73),
         body: Center(child: CircularProgressIndicator(color: Colors.white)),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.teal.shade700,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      backgroundColor: Colors.teal,
-      body: Column(
+      backgroundColor: const Color.fromARGB(255, 231, 228, 213),
+      body: Stack(
         children: [
-          // Top black section with avatar
-          Container(
-            width: double.infinity,
-            height: 300,
-            color: Colors.black,
-            alignment: Alignment.center,
-            child: GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 80,
-                backgroundColor: Colors.white,
-                backgroundImage: _pickedImage != null ? FileImage(_pickedImage!) : null,
-                child: _pickedImage == null
-                    ? ProfilePicture(
-                  name: _user?.firstName ?? 'User',
-                  radius: 80,
-                  fontsize: 40,
-                )
-                    : null,
+          Column(
+            children: [
+              // Top section with profile picture
+              Container(
+                width: double.infinity,
+                height: 300,
+                color: const Color(0xFF87AE73),
+                alignment: Alignment.center,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _pickedImage != null ? FileImage(_pickedImage!) : null,
+                    child: _pickedImage == null
+                        ? ProfilePicture(
+                            name: _user?.firstName ?? 'User',
+                            radius: 80,
+                            fontsize: 40,
+                          )
+                        : null,
+                  ),
+                ),
               ),
-            ),
-          ),
 
-          const Divider(height: 0, thickness: 1, color: Colors.white),
+              const Divider(height: 0, thickness: 1, color: Colors.white),
 
-          // Bottom section
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.teal,
-              alignment: Alignment.topCenter,
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: _pickMultipleImages,
-                            icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Add Images'),
-                          ),
-                          const SizedBox(height: 10),
+              // Bottom section
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  color: const Color.fromARGB(255, 231, 228, 213),
+                  alignment: Alignment.topCenter,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _pickMultipleImages,
+                                icon: const Icon(Icons.add_photo_alternate),
+                                label: const Text('Add Images'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF87AE73),
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
 
-                          // Gallery
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: List.generate(_imageFiles.length, (index) {
-                                return Stack(
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: FileImage(_imageFiles[index]),
-                                          fit: BoxFit.cover,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: Colors.grey[300],
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: () => _removeImage(index),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.black54,
-                                            shape: BoxShape.circle,
+                              // Gallery
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: List.generate(_imageFiles.length, (index) {
+                                    return Stack(
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                                          width: 100,
+                                          height: 100,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: FileImage(_imageFiles[index]),
+                                              fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(8),
+                                            color: Colors.grey[300],
                                           ),
-                                          child: const Icon(Icons.close, size: 16, color: Colors.white),
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }),
-                            ),
-                          ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: GestureDetector(
+                                            onTap: () => _removeImage(index),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(2),
+                                              decoration: const BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                                ),
+                              ),
 
-                          const SizedBox(height: 16),
+                              const SizedBox(height: 16),
 
-                          // Wallet card
-                          Card(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            color: Colors.white,
-                            elevation: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Hippo Bucks',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.black87),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    MoneyService.formatCents(_hippoBalanceCents),
-                                    style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black87),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Wrap(
-                                    spacing: 10,
+                              // Wallet card
+                              Card(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                color: Colors.white,
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      ElevatedButton.icon(
-                                        onPressed: _promptAndDeposit,
-                                        icon: const Icon(Icons.add),
-                                        label: const Text('Add'),
+                                      Text(
+                                        'Hippo Bucks',
+                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.black87),
                                       ),
-                                      OutlinedButton.icon(
-                                        onPressed: _promptAndWithdraw,
-                                        icon: const Icon(Icons.remove),
-                                        label: const Text('Spend'),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        MoneyService.formatCents(_hippoBalanceCents),
+                                        style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black87),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 10,
+                                        children: [
+                                          ElevatedButton.icon(
+                                            onPressed: _promptAndDeposit,
+                                            icon: const Icon(Icons.add),
+                                            label: const Text('Add'),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFF87AE73),
+                                              foregroundColor: Colors.white,
+                                            ),
+                                          ),
+                                          OutlinedButton.icon(
+                                            onPressed: _promptAndWithdraw,
+                                            icon: const Icon(Icons.remove),
+                                            label: const Text('Spend'),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: const Color(0xFF87AE73),
+                                              side: const BorderSide(color: Color(0xFF87AE73)),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-
-                          const SizedBox(height: 16),
-
-                          // Done
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.check),
-                              label: const Text('Done'),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
+              ),
+            ],
+          ),
+          
+          // Back button
+          Positioned(
+            top: 50,
+            left: 16,
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+                size: 26,
+              ),
+            ),
+          ),
+          
+          // Settings button
+          Positioned(
+            top: 50,
+            right: 60,
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                ).then((_) {
+                  setState(() {});
+                });
+              },
+              icon: const Icon(
+                Icons.settings,
+                color: Colors.white,
+                size: 26,
+              ),
+            ),
+          ),
+          
+          // Logout button
+          Positioned(
+            top: 50,
+            right: 16,
+            child: IconButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              icon: const Icon(
+                Icons.logout,
+                color: Colors.white,
+                size: 26,
               ),
             ),
           ),
