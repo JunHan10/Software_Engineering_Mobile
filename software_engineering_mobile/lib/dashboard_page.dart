@@ -1,23 +1,18 @@
-// Flutter Material Design imports for UI components
-import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_profile_picture/flutter_profile_picture.dart';
+// lib/dashboard_page.dart
 
-// Import specific loan-related pages for navigation
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Screens
 import 'package:software_engineering_mobile/Active_Loans.dart';
 import 'Loaned_Items.dart';
 import 'login_screen.dart';
 import 'profile.dart';
 
-// Import repository + money service
+// Repos & money formatting
 import 'repositories/shared_prefs_user_repository.dart';
 import 'services/money_service.dart';
 
-/// DashboardPage - Main landing page after successful user authentication
-///
-/// This screen shows the current Hippo Bucks balance in the AppBar.
-/// Balance is loaded from SharedPreferences using SharedPrefsUserRepository.
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -28,32 +23,24 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   final _repo = SharedPrefsUserRepository();
   int _hippoBalanceCents = 0;
-  File? _profileImage;
 
   @override
   void initState() {
     super.initState();
     _loadBalance();
-    _loadProfileImage();
   }
 
   Future<void> _loadBalance() async {
-    // TODO: Replace this with the actual logged-in user ID (e.g., from SharedPreferences).
-    // Until then, this placeholder will just show HB 0.00 unless a user with this id exists.
-    const userId = 'active_user';
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('activeUserId');
+    if (userId == null || userId.isEmpty) {
+      if (!mounted) return;
+      setState(() => _hippoBalanceCents = 0);
+      return;
+    }
     final bal = await _repo.getHippoBalanceCents(userId);
     if (!mounted) return;
     setState(() => _hippoBalanceCents = bal);
-  }
-
-  Future<void> _loadProfileImage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedPath = prefs.getString('profile_image_path');
-    if (savedPath != null && File(savedPath).existsSync()) {
-      setState(() {
-        _profileImage = File(savedPath);
-      });
-    }
   }
 
   @override
@@ -64,37 +51,39 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: const Color(0xFF87AE73),
         foregroundColor: Colors.white,
         actions: [
-          // SHOW HB BALANCE (replaces the old "Currency Here")
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
             child: Text(
-              MoneyService.formatCents(_hippoBalanceCents), // e.g. "HB 0.00"
+              MoneyService.formatCents(_hippoBalanceCents), // "HB 0.00"
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ),
-          // Profile avatar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: GestureDetector(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ProfilePage()),
-                ).then((_) => _loadProfileImage()); // Refresh profile image when returning
+                );
+                if (!mounted) return;
+                _loadBalance(); // refresh after coming back
               },
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 18,
+                backgroundImage: AssetImage('assets/login_icon.png'),
                 backgroundColor: Colors.white,
-                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                child: _profileImage == null
-                    ? ProfilePicture(
-                        name: 'John King',
-                        radius: 18,
-                        fontsize: 12,
-                      )
-                    : null,
               ),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -129,13 +118,71 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 16),
 
+              // Main Navigation Section
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Loaned_Items()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF87AE73),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'View Loaned Items',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ActiveLoans()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF87AE73),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'View Active Loans',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
 
+              const SizedBox(height: 40),
 
-              // Debug: view balance in console
+              // Dev/debug helpers used in your project
               ElevatedButton(
                 onPressed: () async {
-                  const userId = 'active_user';
-                  final balance = await _repo.getHippoBalanceCents(userId);
+                  final prefs = await SharedPreferences.getInstance();
+                  final userId = prefs.getString('activeUserId');
+                  final balance = (userId == null)
+                      ? 0
+                      : await _repo.getHippoBalanceCents(userId);
                   // ignore: avoid_print
                   print("Active user balance: ${MoneyService.formatCents(balance)}");
                 },
@@ -146,8 +193,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: const Text('Debug: View Balance'),
               ),
               const SizedBox(height: 10),
-
-              // Debug: clear all data
               ElevatedButton(
                 onPressed: () async {
                   await _repo.clearAllData();
@@ -158,7 +203,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       backgroundColor: Colors.red,
                     ),
                   );
-                  setState(() => _hippoBalanceCents = 0); // reset UI
+                  setState(() => _hippoBalanceCents = 0);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,

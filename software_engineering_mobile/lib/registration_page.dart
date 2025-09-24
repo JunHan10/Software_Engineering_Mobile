@@ -1,27 +1,16 @@
-// Flutter Material Design imports for UI components
-import 'package:flutter/material.dart';
-// Import authentication service for user registration
-import 'services/auth_service.dart';
-// Import repository for data storage
-import 'repositories/shared_prefs_user_repository.dart';
-// Import User model for creating user objects
-import 'models/user.dart';
+// lib/registration_page.dart
+//
+// Registers a user by saving it into SharedPreferences via the repository,
+// then sets the activeUserId so the session is "logged in".
+// Only logic was changed to remove calls to an old AuthService.register API.
 
-/// RegistrationPage - User account creation form
-/// 
-/// This is a StatefulWidget because it needs to manage:
-/// - Form input state (text controllers)
-/// - Loading state during registration
-/// - Password visibility toggles
-/// - Form validation state
-/// 
-/// Key Features:
-/// - Comprehensive user data collection (personal info + address)
-/// - Real-time form validation with user feedback
-/// - Password confirmation with visibility toggles
-/// - Loading state management during async operations
-/// - Error handling with user-friendly messages
-/// - Responsive layout with grouped fields
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'repositories/shared_prefs_user_repository.dart';
+import 'models/user.dart';
+import 'main_navigation.dart'; // or wherever you go after registration
+
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
 
@@ -29,492 +18,236 @@ class RegistrationPage extends StatefulWidget {
   State<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage>{
-  // Form key for validation - allows us to validate all fields at once
+class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
-  
-  // Loading state to show progress indicator during registration
-  bool _isLoading = false;
-  
-  // Text controllers for form inputs - manage text field state
-  // Each controller is tied to a specific input field
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _streetAddressController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _stateController = TextEditingController();
-  final _zipcodeController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  
-  // Password visibility toggles for better UX
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-  
-  // Age selection - nullable because user might not select initially
-  int? _selectedAge;
 
-  /// Dispose method - Clean up resources when widget is destroyed
-  /// 
-  /// CRITICAL: TextEditingControllers must be disposed to prevent memory leaks
-  /// Each controller creates listeners and holds references that need cleanup
-  /// 
-  /// This is called automatically when the widget is removed from the widget tree
-  @override
-  void dispose() {
-    // Dispose all text controllers to prevent memory leaks
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _streetAddressController.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
-    _zipcodeController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    // Always call super.dispose() last
-    super.dispose();
-  }
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _firstNameCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
+  final _ageCtrl = TextEditingController();
+  final _streetCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
+  final _stateCtrl = TextEditingController();
+  final _zipCtrl = TextEditingController();
 
-  /// Handle user registration process
-  /// 
-  /// Registration Flow:
-  /// 1. Validate all form fields using Flutter's built-in validation
-  /// 2. Show loading indicator to provide user feedback
-  /// 3. Create User object from form data
-  /// 4. Call AuthService to register user (handles business logic)
-  /// 5. Show success/error message and navigate accordingly
-  /// 
-  /// Error Handling:
-  /// - Form validation prevents submission of invalid data
-  /// - Try-catch handles unexpected errors gracefully
-  /// - 'mounted' checks prevent setState calls on disposed widgets
-  /// - User-friendly error messages via SnackBar
-  /// 
-  /// UX Considerations:
-  /// - Loading state disables button and shows progress indicator
-  /// - Success navigates back to login screen
-  /// - Errors keep user on form to fix issues
-  Future<void> _handleRegistration() async{
-    // Validate all form fields before proceeding
-    if(_formKey.currentState!.validate()) {
-      // Show loading state - disables button and shows progress indicator
-      setState(() {
-        _isLoading = true;
-      });
+  final _repo = SharedPrefsUserRepository();
+  bool _busy = false;
+  String? _error;
 
-      try {
-        // Create User object from form data
-        // .trim() removes leading/trailing whitespace from text inputs
-        // .toLowerCase() ensures email is stored in consistent format
-        final newUser = User(
-          email: _emailController.text.trim().toLowerCase(),
-          password: _passwordController.text.trim(),
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          age: _selectedAge, // Can be null if not selected
-          streetAddress: _streetAddressController.text.trim(),
-          city: _cityController.text.trim(),
-          state: _stateController.text.trim(),
-          zipcode: _zipcodeController.text.trim(),
-          currency: 0.0, // New users start with no money
-          assets: [], // New users start with no assets
-        );
+  Future<void> _register() async {
+    if (_busy) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-        // Create AuthService with repository dependency injection
-        final authService = AuthService(SharedPrefsUserRepository());
-        // Attempt to register user - returns boolean for success/failure
-        final success = await authService.register(newUser);
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
 
-        // Hide loading state
-        setState(() {
-          _isLoading = false;
-        });
-
-        // Handle registration result
-        if (success && mounted) {
-          // Success: Show confirmation and return to login
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Navigate back to login screen
-          Navigator.pop(context);
-        } else if (mounted) {
-          // Failure: Show error message (likely duplicate email)
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Email already exists or registration failed'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        // Handle unexpected errors (network, storage, etc.)
-        setState(() {
-          _isLoading = false;
-        });
-        
-        // Show technical error message for debugging
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Registration failed: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+    try {
+      // Ensure email is unique
+      final existing = await _repo.findByEmail(_emailCtrl.text.trim());
+      if (existing != null) {
+        setState(() => _error = 'Email already in use.');
+        return;
       }
+
+      final user = User(
+        id: null, // repo will assign
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text, // (hash in production)
+        firstName: _firstNameCtrl.text.trim(),
+        lastName: _lastNameCtrl.text.trim(),
+        age: int.tryParse(_ageCtrl.text.trim()),
+        streetAddress: _streetCtrl.text.trim().isEmpty
+            ? null
+            : _streetCtrl.text.trim(),
+        city: _cityCtrl.text.trim().isEmpty ? null : _cityCtrl.text.trim(),
+        state: _stateCtrl.text.trim().isEmpty ? null : _stateCtrl.text.trim(),
+        zipcode: _zipCtrl.text.trim().isEmpty ? null : _zipCtrl.text.trim(),
+        currency: 0.0,
+        assets: const [],
+        hippoBalanceCents: 0,
+      );
+
+      final saved = await _repo.save(user);
+
+      // Mark user as logged in by setting activeUserId.
+      final prefs = await SharedPreferences.getInstance();
+      if (saved.id != null) {
+        await prefs.setString('activeUserId', saved.id!);
+      }
+
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+            (route) => false,
+      );
+    } catch (e) {
+      setState(() => _error = 'Registration failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
   @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _ageCtrl.dispose();
+    _streetCtrl.dispose();
+    _cityCtrl.dispose();
+    _stateCtrl.dispose();
+    _zipCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Keep simple look; copy the colors you use elsewhere.
     return Scaffold(
-    
-    backgroundColor: Colors.grey[50],
-    body: SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 60),
-            
-            // Header
-            const Icon(
-              Icons.person_add_outlined,
-              size: 80,
-              color: Color(0xFF87AE73),
-            ),
-            const SizedBox(height: 24),
-            
-            const Text(
-              'Create Account',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 48),
-
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // First Name, Last Name, and Age Row
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _firstNameController,
-                          decoration: InputDecoration(
-                            labelText: 'First',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your first name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _lastNameController,
-                          decoration: InputDecoration(
-                            labelText: 'Last',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your last name';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: DropdownButtonFormField<int>(
-                          initialValue: _selectedAge,
-                          decoration: InputDecoration(
-                            labelText: 'Age',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          menuMaxHeight: 200,
-                          isExpanded: true,
-                          items: List.generate(100, (index) => index + 13)
-                              .map((age) => DropdownMenuItem(
-                                    value: age,
-                                    child: Text(age.toString()),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedAge = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select your age';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Email Field
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Password Field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () {
-                          setState(() {
-                            _isPasswordVisible = !_isPasswordVisible;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Confirm Password Field
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: !_isConfirmPasswordVisible,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () {
-                          setState(() {
-                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                          });
-                        },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your password';
-                      }
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Street Address Field
-                  TextFormField(
-                    controller: _streetAddressController,
-                    decoration: InputDecoration(
-                      labelText: 'Street Address',
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your street address';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // City, State and Zipcode Row
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: TextFormField(
-                          controller: _cityController,
-                          decoration: InputDecoration(
-                            labelText: 'City',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your city';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _stateController,
-                          decoration: InputDecoration(
-                            labelText: 'State',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your state';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _zipcodeController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'ZIP',
-                            border: const OutlineInputBorder(),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xff87ae73), width: 2),
-                            ),
-                          ),
-                          onFieldSubmitted: (value) {
-                            _handleRegistration();
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your zipcode';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-                  // Register Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleRegistration,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF87AE73),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Create Account',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Sign In Link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Already have an account? ",
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Sign In',
-                          style: TextStyle(
-                            color: Color(0xff87ae73),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
+      appBar: AppBar(
+        title: const Text('Register'),
+        backgroundColor: const Color(0xFF87AE73),
+        foregroundColor: Colors.white,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                if (_error != null) ...[
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 8),
                 ],
-              ),
+                TextFormField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Email required' : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _passwordCtrl,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                  (v == null || v.isEmpty) ? 'Password required' : null,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _firstNameCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'First name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _lastNameCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Last name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _ageCtrl,
+                  keyboardType:
+                  const TextInputType.numberWithOptions(signed: false),
+                  decoration: const InputDecoration(
+                    labelText: 'Age (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _streetCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Street address (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _cityCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'City (optional)',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _stateCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'State (optional)',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _zipCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Zip (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton(
+                    onPressed: _busy ? null : _register,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF87AE73),
+                      foregroundColor: Colors.white,
+                    ),
+                    child: _busy
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                        : const Text('Create account'),
+                  ),
+                ),
+              ],
             ),
-
-          ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

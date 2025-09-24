@@ -1,56 +1,24 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
+// lib/repositories/local_user_repository.dart
+//
+// Simple in-memory repository for testing. Not persisted across app restarts.
+
+import 'dart:math';
 import '../models/user.dart';
 import 'user_repository.dart';
 
-/// LocalUserRepository - File-based repository using app documents directory.
-///
-/// This repository reads initial seed data from assets/test_data.json (if needed),
-/// caches in memory, and persists to a JSON file (test_data.json) under the app's
-/// documents directory. It implements the UserRepository interface so it can be
-/// swapped with alternative storage backends without touching UI code.
 class LocalUserRepository implements UserRepository {
-  static const String _fileName = 'test_data.json';
-  List<User>? _cachedUsers; // lazy-initialized in _loadUsers()
+  final Map<String, User> _users = {};
+  final Map<String, int> _balances = {}; // userId -> cents
 
-  // Utility: get the on-device file handle
-  Future<File> _getFile() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/$_fileName');
-  }
-
-  // Load all users: memory → disk → assets fallback
-  Future<List<User>> _loadUsers() async {
-    if (_cachedUsers != null) return _cachedUsers!;
-    final file = await _getFile();
-    if (await file.exists()) {
-      final raw = await file.readAsString();
-      final jsonData = json.decode(raw);
-      _cachedUsers = (jsonData['users'] as List)
-          .map((u) => User.fromJson(u as Map<String, dynamic>))
-          .toList();
-      return _cachedUsers!;
-    }
-    // Initialize from bundled assets if no file exists
-    await _initializeFromAssets();
-    return _cachedUsers ?? <User>[];
-  }
-
-  Future<void> _saveUsers(List<User> users) async {
-    final file = await _getFile();
-    final jsonData = json.encode({
-      'users': users.map((u) => u.toJson()).toList(),
-    });
-    await file.writeAsString(jsonData);
-  }
+  String _newId() =>
+      DateTime.now().microsecondsSinceEpoch.toString() +
+          Random().nextInt(9999).toString();
 
   @override
   Future<User?> findByEmail(String email) async {
-    final users = await _loadUsers();
     try {
-      return users.firstWhere((u) => u.email == email);
+      return _users.values
+          .firstWhere((u) => u.email.toLowerCase() == email.toLowerCase());
     } catch (_) {
       return null;
     }
@@ -58,110 +26,92 @@ class LocalUserRepository implements UserRepository {
 
   @override
   Future<User?> findByEmailAndPassword(String email, String password) async {
-    final users = await _loadUsers();
-    try {
-      return users.firstWhere((u) => u.email == email && u.password == password);
-    } catch (_) {
-      return null;
-    }
+    final u = await findByEmail(email);
+    if (u == null) return null;
+    return (u.password == password) ? u : null;
+    // NOTE: hash your password in production.
   }
 
   @override
+  Future<User?> findById(String id) async => _users[id];
+
+  @override
   Future<User> save(User user) async {
-    final users = await _loadUsers();
-    // Generate ID if null (simple local strategy)
-    final id = user.id ?? _generateId();
-    final idx = users.indexWhere((u) => u.id == id);
-    final toSave = User(
-      id: id,
-      email: user.email,
-      password: user.password,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      age: user.age,
-      streetAddress: user.streetAddress,
-      city: user.city,
-      state: user.state,
-      zipcode: user.zipcode,
-      currency: user.currency,
-      assets: user.assets,
-      hippoBalanceCents: user.hippoBalanceCents, // keep incoming balance
-    );
-    if (idx >= 0) {
-      users[idx] = toSave;
-    } else {
-      users.add(toSave);
-    }
-    await _saveUsers(users);
-    _cachedUsers = users;
+    final id = user.id ?? _newId();
+    final toSave = user.id == null ? userCopyWith(user, id: id) : user;
+    _users[id] = toSave;
+    _balances.putIfAbsent(id, () => 0);
     return toSave;
   }
 
   @override
   Future<void> delete(String id) async {
-    final users = await _loadUsers();
-    users.removeWhere((u) => u.id == id);
-    await _saveUsers(users);
-    _cachedUsers = users;
+    _users.remove(id);
+    _balances.remove(id);
   }
 
-  // NEW: Hippopotamoney helpers ---------------------------------------------
+  // ---------------- Hippo Bucks (HB) ----------------
+
   @override
-  Future<int> getHippoBalanceCents(String userId) async {
-    final users = await _loadUsers();
-    final user = users.firstWhere((u) => u.id == userId, orElse: () => User(
-      id: userId,
-      email: '',
-      password: '',
-      firstName: '',
-      lastName: '',
-      currency: 0.0,
-      assets: const [],
-      hippoBalanceCents: 0,
-    ));
-    return user.hippoBalanceCents;
-  }
+  Future<int> getHippoBalanceCents(String userId) async =>
+      _balances[userId] ?? 0;
 
   @override
   Future<void> setHippoBalanceCents(String userId, int newBalanceCents) async {
-    final users = await _loadUsers();
-    final idx = users.indexWhere((u) => u.id == userId);
-    if (idx == -1) return;
-    users[idx] = users[idx].copyWith(hippoBalanceCents: newBalanceCents);
-    await _saveUsers(users);
-    _cachedUsers = users;
+    // clamp to >= 0 (keep it int)
+    final clamped = newBalanceCents < 0 ? 0 : newBalanceCents;
+    _balances[userId] = clamped;
   }
 
   @override
   Future<int> depositHippoCents(String userId, int amountCents) async {
-    final current = await getHippoBalanceCents(userId);
-    final next = current + amountCents;
+    final add = amountCents < 0 ? 0 : amountCents;
+    final cur = await getHippoBalanceCents(userId);
+    final next = cur + add; // stays int
     await setHippoBalanceCents(userId, next);
     return next;
   }
 
   @override
   Future<int> withdrawHippoCents(String userId, int amountCents) async {
-    final current = await getHippoBalanceCents(userId);
-    final next = current - amountCents;
-    await setHippoBalanceCents(userId, next < 0 ? 0 : next);
-    return next < 0 ? 0 : next;
+    final sub = amountCents < 0 ? 0 : amountCents;
+    final cur = await getHippoBalanceCents(userId);
+    final next = cur - sub;
+    final clamped = next < 0 ? 0 : next;
+    await setHippoBalanceCents(userId, clamped);
+    return clamped;
   }
 
-  // Seed from assets/test_data.json if no local file exists yet
-  Future<void> _initializeFromAssets() async {
-    try {
-      final jsonString = await rootBundle.loadString('assets/test_data.json');
-      final jsonData = json.decode(jsonString);
-      _cachedUsers = (jsonData['users'] as List)
-          .map((userJson) => User.fromJson(userJson))
-          .toList();
-      await _saveUsers(_cachedUsers!);
-    } catch (e) {
-      _cachedUsers = [];
+  // ---------------- Dev helpers ----------------
+
+  @override
+  Future<void> clearAllData() async {
+    _users.clear();
+    _balances.clear();
+  }
+
+  @override
+  Future<void> printAllUsers() async {
+    // ignore: avoid_print
+    for (final u in _users.values) {
+      print('User: ${u.id} ${u.email} ${u.firstName} ${u.lastName}');
     }
   }
 
-  // Simple local ID generator
-  String _generateId() => DateTime.now().microsecondsSinceEpoch.toString();
+  // helper to avoid depending on a model copyWith
+  User userCopyWith(User u, {String? id}) => User(
+    id: id ?? u.id,
+    email: u.email,
+    password: u.password,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    age: u.age,
+    streetAddress: u.streetAddress,
+    city: u.city,
+    state: u.state,
+    zipcode: u.zipcode,
+    currency: u.currency,
+    assets: u.assets,
+    hippoBalanceCents: u.hippoBalanceCents,
+  );
 }
