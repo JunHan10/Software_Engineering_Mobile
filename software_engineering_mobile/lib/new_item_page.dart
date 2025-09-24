@@ -78,10 +78,10 @@ class _NewItemPageState extends State<NewItemPage> {
       );
 
       final user = _currentUser!;
-      // Null-safe spread; if user.assets is null, it spreads nothing.
+      // Spread user.assets (not null) and add newAsset.
       final updated = _copyUser(
         user,
-        assets: <Asset>[...?user.assets, newAsset],
+        assets: <Asset>[...user.assets, newAsset],
       );
 
       await _repo.save(updated);
