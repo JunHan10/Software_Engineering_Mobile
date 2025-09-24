@@ -116,45 +116,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 40),
-
-              // Dev/debug helpers used in your project
-              ElevatedButton(
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final userId = prefs.getString('activeUserId');
-                  final balance = (userId == null)
-                      ? 0
-                      : await _repo.getHippoBalanceCents(userId);
-                  // ignore: avoid_print
-                  print("Active user balance: ${MoneyService.formatCents(balance)}");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Debug: View Balance'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  await _repo.clearAllData();
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('All data cleared! App will reload original test data.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                  setState(() => _hippoBalanceCents = 0);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Clear All Data'),
-              ),
             ],
           ),
         ),
