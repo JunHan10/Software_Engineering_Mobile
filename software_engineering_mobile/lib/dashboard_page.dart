@@ -98,15 +98,8 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-          ),
+          //old top right constant logout button used to be here
+          
         ],
       ),
       body: SafeArea(
