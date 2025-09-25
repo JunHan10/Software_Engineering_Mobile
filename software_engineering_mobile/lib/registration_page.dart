@@ -3,13 +3,14 @@
 // Registers a user by saving it into SharedPreferences via the repository,
 // then sets the activeUserId so the session is "logged in".
 // Only logic was changed to remove calls to an old AuthService.register API.
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:logger/logger.dart';
 
-import 'repositories/shared_prefs_user_repository.dart';
-import 'models/user.dart';
 import 'main_navigation.dart'; // or wherever you go after registration
+import 'api/api.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -31,65 +32,72 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _stateCtrl = TextEditingController();
   final _zipCtrl = TextEditingController();
 
-  final _repo = SharedPrefsUserRepository();
   bool _busy = false;
   String? _error;
 
-  Future<void> _register() async {
-    if (_busy) return;
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+final logger = Logger();
 
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
+Future<void> _register() async {
+  if (_busy) return;
+  if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    try {
-      // Ensure email is unique
-      final existing = await _repo.findByEmail(_emailCtrl.text.trim());
-      if (existing != null) {
-        setState(() => _error = 'Email already in use.');
-        return;
-      }
+  setState(() {
+    _busy = true;
+    _error = null;
+  });
 
-      final user = User(
-        id: null, // repo will assign
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text, // (hash in production)
-        firstName: _firstNameCtrl.text.trim(),
-        lastName: _lastNameCtrl.text.trim(),
-        age: int.tryParse(_ageCtrl.text.trim()),
-        streetAddress: _streetCtrl.text.trim().isEmpty
-            ? null
-            : _streetCtrl.text.trim(),
-        city: _cityCtrl.text.trim().isEmpty ? null : _cityCtrl.text.trim(),
-        state: _stateCtrl.text.trim().isEmpty ? null : _stateCtrl.text.trim(),
-        zipcode: _zipCtrl.text.trim().isEmpty ? null : _zipCtrl.text.trim(),
-        currency: 0.0,
-        assets: const [],
-        hippoBalanceCents: 0,
-      );
+  final userPayload = {
+    "email": _emailCtrl.text.trim(),
+    "password": _passwordCtrl.text, // hash in production!
+    "firstName": _firstNameCtrl.text.trim(),
+    "lastName": _lastNameCtrl.text.trim(),
+    "age": int.tryParse(_ageCtrl.text.trim()),
+    "streetAddress": _streetCtrl.text.trim(),
+    "city": _cityCtrl.text.trim(),
+    "state": _stateCtrl.text.trim(),
+    "zipcode": _zipCtrl.text.trim(),
+    "currency": 0.0,
+    "assets": [],
+    "hippoBalanceCents": 0
+  };
 
-      final saved = await _repo.save(user);
+  logger.i("Starting registration with payload: $userPayload");
 
-      // Mark user as logged in by setting activeUserId.
+  try {
+    final response = await http.post(
+      Uri.parse(ApiConfig.register),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(userPayload),
+    );
+
+    logger.i("Received response with status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      final body = jsonDecode(response.body);
       final prefs = await SharedPreferences.getInstance();
-      if (saved.id != null) {
-        await prefs.setString('activeUserId', saved.id!);
-      }
+      await prefs.setString('activeUserId', body['id']);
+      logger.i("Registration successful. User ID: ${body['id']}");
 
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigation()),
-            (route) => false,
+        (route) => false,
       );
-    } catch (e) {
-      setState(() => _error = 'Registration failed. Please try again.');
-    } finally {
-      if (mounted) setState(() => _busy = false);
+    } else {
+      final error = jsonDecode(response.body)['error'];
+      setState(() => _error = error ?? 'Registration failed.');
+      logger.w("Registration failed: $_error");
     }
+  } catch (e, stackTrace) {
+    setState(() => _error = 'Registration failed. Please try again.');
+  logger.e("Exception during registration", error: e, stackTrace: stackTrace);
+  } finally {
+    if (mounted) setState(() => _busy = false);
+    logger.i("Registration process ended");
   }
+}
+
 
   @override
   void dispose() {
