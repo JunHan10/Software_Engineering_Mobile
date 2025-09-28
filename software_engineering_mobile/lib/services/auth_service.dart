@@ -1,45 +1,79 @@
-// lib/services/auth_service.dart
-//
-// Central place to manage "who is logged in" for the app.
-// - We authenticate using SharedPrefsUserRepository (local JSON in SharedPreferences).
-// - The active userId is stored in SharedPreferences under 'activeUserId'.
-// - Other screens (Dashboard/Profile/Active Loans) can read that id.
-
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../repositories/shared_prefs_user_repository.dart';
+import '../repositories/user_repository.dart' as repo;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
+import '../api/api.dart';
 
 class AuthService {
-  static const _activeUserKey = 'activeUserId';
-  final _repo = SharedPrefsUserRepository();
+  static const String _activeUserKey = 'active_user_id';
 
-  /// Attempt to log in with email + password.
-  /// Returns the User on success, or null if credentials are invalid.
-  Future<User?> loginWithEmailPassword(String email, String password) async {
-    final user = await _repo.findByEmailAndPassword(email, password);
-    if (user != null && user.id != null) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_activeUserKey, user.id!);
-    }
-    return user;
+  // Use the alias here
+  final repo.UserRepository _userRepository;
+
+  // Constructor
+  AuthService({repo.UserRepository? userRepository})
+      : _userRepository = userRepository ?? SharedPrefsUserRepository();
+
+  /// Store the active user ID
+  Future<void> setCurrentUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_activeUserKey, userId);
   }
 
-  /// Clear session
+  /// Remove active user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_activeUserKey);
   }
 
-  /// Returns the active user id if someone is logged in, else null.
+  /// Get the active user ID
   Future<String?> getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_activeUserKey);
   }
 
-  /// Convenience: fetch the full active User (or null)
+  /// Get the currently logged-in User object
   Future<User?> getCurrentUser() async {
-    final id = await getCurrentUserId();
-    if (id == null) return null;
-    return _repo.findById(id);
+    final userId = await getCurrentUserId();
+    if (userId == null) return null;
+    return await _userRepository.findById(userId); // use findById from repo.UserRepository
+  }
+
+  /// Login with email & password
+  Future<User?> login(String email, String password) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse(ApiConfig.login),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({"email": email, "password": password}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        final String id = body['id']?.toString() ?? '';
+        if (id.isEmpty) return null;
+        await setCurrentUserId(id);
+        return User(
+          id: id,
+          email: email,
+          password: '',
+          firstName: '',
+          lastName: '',
+          currency: 0,
+          assets: const [],
+          hippoBalanceCents: 0,
+        );
+      }
+      return null;
+    } on TimeoutException {
+      return null;
+    } catch (_) {
+      return null;
+    }
   }
 }

@@ -9,9 +9,10 @@ import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
-import 'user_repository.dart';
+import 'user_repository.dart' as repo;
 
-class SharedPrefsUserRepository implements UserRepository {
+
+class SharedPrefsUserRepository implements repo.UserRepository {
   static const _usersKey = 'users_json';
   static String _balKey(String userId) => 'balance_$userId';
 

@@ -6,10 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 // Screens
-import 'package:software_engineering_mobile/Active_Loans.dart';
-import 'Loaned_Items.dart';
 import 'login_screen.dart';
-import 'profile.dart';
+import 'profile/profile_page.dart';
 
 // Repos & money formatting
 import 'repositories/shared_prefs_user_repository.dart';
