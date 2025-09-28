@@ -68,6 +68,11 @@ Future<void> _register() async {
       Uri.parse(ApiConfig.register),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(userPayload),
+    ).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        throw Exception('Registration timeout. Please check your connection and try again.');
+      },
     );
 
     logger.i("Received response with status: ${response.statusCode}");
@@ -86,14 +91,22 @@ Future<void> _register() async {
       );
     } else {
       final error = jsonDecode(response.body)['error'];
-      setState(() => _error = error ?? 'Registration failed.');
+      if (mounted) {
+        setState(() => _error = error ?? 'Registration failed.');
+      }
       logger.w("Registration failed: $_error");
     }
   } catch (e, stackTrace) {
-    setState(() => _error = 'Registration failed. Please try again.');
-  logger.e("Exception during registration", error: e, stackTrace: stackTrace);
+    if (mounted) {
+      setState(() => _error = e.toString().contains('timeout') 
+          ? e.toString() 
+          : 'Registration failed. Please try again.');
+    }
+    logger.e("Exception during registration", error: e, stackTrace: stackTrace);
   } finally {
-    if (mounted) setState(() => _busy = false);
+    if (mounted) {
+      setState(() => _busy = false);
+    }
     logger.i("Registration process ended");
   }
 }
@@ -130,8 +143,27 @@ Future<void> _register() async {
             child: Column(
               children: [
                 if (_error != null) ...[
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.red.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red.shade700),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
                 TextFormField(
                   controller: _emailCtrl,
@@ -239,15 +271,21 @@ Future<void> _register() async {
                       foregroundColor: Colors.white,
                     ),
                     child: _busy
-                        ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text('Creating account...'),
+                            ],
+                          )
                         : const Text('Create account'),
                   ),
                 ),
