@@ -89,7 +89,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
                 child: _profileImage == null
                     ? ProfilePicture(
-                        name: 'John King',
+                        name: 'John Doe',
                         radius: 18,
                         fontsize: 12,
                       )
