@@ -12,6 +12,7 @@ import '../login_screen.dart';
 import 'profile_avatar.dart';
 import 'profile_background.dart';
 import 'profile_wallet.dart';
+import 'profile_gallery.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -216,9 +217,10 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        GalleryWidget(
-                          images: _imageFiles,
-                          onRemove: _removeImage,
+                        ProfileGallery(
+                          imageFiles: _imageFiles,
+                          onAddImages: _pickMultipleImages,
+                          onRemoveImage: _removeImage,
                         ),
 
                         const SizedBox(height: 16),

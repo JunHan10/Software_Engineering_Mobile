@@ -6,6 +6,8 @@ import 'dashboard_page.dart';
 import 'messages.dart';
 import 'Loaned_Items.dart';
 import 'Active_Loans.dart';
+//import 'profile/profile_page.dart';
+import 'legacy_profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -25,6 +27,7 @@ class _MainNavigationState extends State<MainNavigation> {
     Loaned_Items(),
     ActiveLoans(),
     MessagesPage(),
+    ProfilePage(),
   ];
 
 
@@ -142,6 +145,7 @@ class _MainNavigationState extends State<MainNavigation> {
             _buildNavButton(1, Icons.upload, 'Post'),
             _buildNavButton(2, Icons.download, 'Borrow'),
             _buildNavButton(3, Icons.message, 'Inbox'),
+            _buildNavButton(4, Icons.person, 'Profile'),
           ],
         ),
       ),

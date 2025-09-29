@@ -7,7 +7,8 @@ import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 // Screens
 import 'login_screen.dart';
-import 'profile/profile_page.dart';
+//import 'profile/profile_page.dart';
+import 'legacy_profile.dart';
 
 // Repos & money formatting
 import 'repositories/shared_prefs_user_repository.dart';
