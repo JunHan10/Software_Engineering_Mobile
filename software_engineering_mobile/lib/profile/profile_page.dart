@@ -82,7 +82,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_isPickingImage) return;
     _isPickingImage = true;
     try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (pickedFile != null) {
         final path = pickedFile.path;
         final prefs = await SharedPreferences.getInstance();
@@ -121,8 +123,14 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: const InputDecoration(prefixText: 'HB '),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Add')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Add'),
+          ),
         ],
       ),
     );
@@ -148,8 +156,14 @@ class _ProfilePageState extends State<ProfilePage> {
           decoration: const InputDecoration(prefixText: 'HB '),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Spend')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Spend'),
+          ),
         ],
       ),
     );
@@ -243,11 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
             left: 16,
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                size: 26,
-              ),
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
             ),
           ),
 
@@ -258,16 +268,14 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const settings.SettingsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const settings.SettingsPage(),
+                  ),
                 ).then((_) {
                   setState(() {});
                 });
               },
-              icon: const Icon(
-                Icons.settings,
-                color: Colors.white,
-                size: 26,
-              ),
+              icon: const Icon(Icons.settings, color: Colors.white, size: 26),
             ),
           ),
 
@@ -281,11 +289,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
-              icon: const Icon(
-                Icons.logout,
-                color: Colors.white,
-                size: 26,
-              ),
+              icon: const Icon(Icons.logout, color: Colors.white, size: 26),
             ),
           ),
         ],
@@ -293,5 +297,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-
-
