@@ -30,7 +30,6 @@ class _MainNavigationState extends State<MainNavigation> {
     ProfilePage(),
   ];
 
-
   void _onItemTapped(int index) {
     HapticFeedback.mediumImpact();
     // Force animation by briefly setting pressed state
@@ -49,7 +48,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final bool isPressed = _pressedIndex == index;
     final double dy = isPressed ? 6.0 : (isSelected ? 2.0 : 0.0);
     final baseColor = Color.fromARGB(255, 231, 228, 213);
-    
+
     return Expanded(
       child: Container(
         height: 70,
@@ -87,14 +86,18 @@ class _MainNavigationState extends State<MainNavigation> {
                       boxShadow: [
                         // Top inset shadow - deeper when pressed
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: isPressed ? 0.4 : 0.2),
+                          color: Colors.black.withValues(
+                            alpha: isPressed ? 0.4 : 0.2,
+                          ),
                           offset: Offset(0, isPressed ? 4 : 2),
                           blurRadius: isPressed ? 8 : 4,
                           inset: true,
                         ),
                         // Bottom inset highlight
                         BoxShadow(
-                          color: Colors.white.withValues(alpha: isPressed ? 0.8 : 0.6),
+                          color: Colors.white.withValues(
+                            alpha: isPressed ? 0.8 : 0.6,
+                          ),
                           offset: Offset(0, isPressed ? -2 : -1),
                           blurRadius: isPressed ? 4 : 2,
                           inset: true,
@@ -121,7 +124,9 @@ class _MainNavigationState extends State<MainNavigation> {
                     style: TextStyle(
                       fontSize: 12,
                       color: isSelected ? Color(0xFF87AE73) : Colors.grey[600],
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 ],
