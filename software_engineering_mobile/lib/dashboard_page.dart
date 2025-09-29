@@ -67,7 +67,7 @@ class _DashboardPageState extends State<DashboardPage> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
             child: Text(
-              MoneyService.formatCents(_hippoBalanceCents), // "HB 0.00"
+              MoneyService.formatCents(_hippoBalanceCents),
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ),
@@ -80,8 +80,8 @@ class _DashboardPageState extends State<DashboardPage> {
                   MaterialPageRoute(builder: (context) => const ProfilePage()),
                 );
                 if (!mounted) return;
-                _loadBalance(); // refresh after coming back
-                _loadProfileImage(); // refresh profile image
+                _loadBalance();
+                _loadProfileImage();
               },
               child: CircleAvatar(
                 radius: 18,
@@ -97,14 +97,12 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
           ),
-          //old top right constant logout button used to be here
-          
         ],
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: ListView(
             children: [
               // Search Bar
               Padding(
@@ -129,6 +127,60 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              // Marketplace-style grid
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1,
+                ),
+                itemCount: 8,
+                itemBuilder: (context, index) {
+                  final items = [
+                    {"title": "Mountain Bike", "price": "HB 120.00", "image": Icons.directions_bike},
+                    {"title": "Laptop", "price": "HB 350.00", "image": Icons.laptop_mac},
+                    {"title": "Guitar", "price": "HB 80.00", "image": Icons.music_note},
+                    {"title": "Desk Chair", "price": "HB 45.00", "image": Icons.chair},
+                    {"title": "Textbooks", "price": "HB 60.00", "image": Icons.menu_book},
+                    {"title": "Coffee Maker", "price": "HB 25.00", "image": Icons.coffee},
+                    {"title": "Headphones", "price": "HB 30.00", "image": Icons.headphones},
+                    {"title": "Soccer Ball", "price": "HB 15.00", "image": Icons.sports_soccer},
+                  ];
+                  final item = items[index];
+                  return Card(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 3,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(item["image"] as IconData, size: 48, color: Color(0xFF87AE73)),
+                            const SizedBox(height: 12),
+                            Text(
+                              item["title"] as String,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              item["price"] as String,
+                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
