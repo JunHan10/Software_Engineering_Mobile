@@ -34,47 +34,37 @@ class _LoginScreenState extends State<LoginScreen> {
   if (!mounted) return;
   setState(() => _isLoading = true);
 
-  logger.i('💡 Attempting login with email: ${_emailController.text.trim()}');
+  final email = _emailController.text.trim();
+  final password = _passwordController.text;
 
-  try {
-    final userId = await _authService.login(
-      _emailController.text.trim(),
-      _passwordController.text,
+  // Hardcoded credentials
+  const hardcodedEmail = 'john.doe@gmail.com';
+  const hardcodedPassword = 'password123';
+
+  await Future.delayed(const Duration(seconds: 1)); // simulate loading
+
+  if (!mounted) return;
+  setState(() => _isLoading = false);
+
+  if (email == hardcodedEmail && password == hardcodedPassword) {
+    // Login successful
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => MainNavigation()),
     );
-
+  } else {
+    // Login failed
     if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (userId != null) {
-      logger.i('✅ Login successful, userId: $userId');
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => MainNavigation()), // remove const
-      );
-    } else {
-      logger.w('⚠️ Login failed: Invalid credentials for email ${_emailController.text.trim()}');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed. Invalid credentials.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  } catch (e, stackTrace) {
-    logger.e('⛔ Exception during login', error: e, stackTrace: stackTrace);
-    if (!mounted) return;
-    setState(() => _isLoading = false);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Login failed. Please try again.'),
+        content: Text('Login failed. Invalid credentials.'),
         backgroundColor: Colors.red,
       ),
     );
   }
-  logger.i('💡 Login process ended');
 }
+
 
 
   @override
