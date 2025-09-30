@@ -22,13 +22,8 @@ class MessagesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat with your friends'),
-        backgroundColor: Colors.blue[800],
-      ),
       body: Column(
         children: [
-          // Horizontal avatars
           SizedBox(
             height: 80,
             child: ListView(
