@@ -11,12 +11,12 @@ class ChatUser {
 
 class MessagesPage extends StatelessWidget {
   final List<ChatUser> users = [
-    ChatUser('Johnny Doe', 'Lorem Ipsum is simply dummy...', 'assets/avatar1.png', '08:10'),
-    ChatUser('Adrian', 'Excepteur sint occaecat...', 'assets/avatar2.png', '03:19'),
-    ChatUser('Fiona', 'Hii... 😎', 'assets/avatar3.png', '02:53'),
-    ChatUser('Emma', 'Consectetur adipiscing elit', 'assets/avatar4.png', '11:39'),
-    ChatUser('Alexander', 'Duis aute irure dolor...', 'assets/avatar5.png', '00:09'),
-    ChatUser('Alsoher', 'Duis aute irure dolor...', 'assets/avatar6.png', '00:09'),
+    ChatUser('Johnny Doe', 'Lorem Ipsum is simply dummy...', 'assets/default_user.png', '08:10'),
+    ChatUser('Adrian', 'Excepteur sint occaecat...', 'assets/default_user.png', '03:19'),
+    ChatUser('Fiona', 'Hii... 😎', 'assets/default_user.png', '02:53'),
+    ChatUser('Emma', 'Consectetur adipiscing elit', 'assets/default_user.png', '11:39'),
+    ChatUser('Alexander', 'Duis aute irure dolor...', 'assets/default_user.png', '00:09'),
+    ChatUser('Alsoher', 'Duis aute irure dolor...', 'assets/default_user.png', '00:09'),
   ];
 
   @override

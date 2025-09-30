@@ -33,11 +33,7 @@ flutter:
   assets:
     - assets/login_icon.png
     - assets/test_data.json
-    - assets/avatar2.png
-    - assets/avatar3.png
-    - assets/avatar4.png
-    - assets/avatar5.png
-    - assets/avatar6.png
+    - assets/default_user.png
 
 flutter_icons:
   android: true
