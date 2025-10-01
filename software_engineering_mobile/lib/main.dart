@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart'; // Import your login screen
 import 'repositories/shared_prefs_user_repository.dart';
+import 'services/notification_service.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+
+
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ Must be first
+
+  // Initialize timezone package
+  tz.initializeTimeZones();
+
+  // Initialize notification service
+  await NotificationService.init();
+
   // Initialize test data
   final repo = SharedPrefsUserRepository();
-  await repo.findByEmail('john.doe@example.com'); // This will trigger initialization
+  await repo.findByEmail('john.doe@example.com'); // triggers initialization
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
