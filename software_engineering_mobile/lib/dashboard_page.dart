@@ -65,35 +65,15 @@ class _DashboardPageState extends State<DashboardPage> {
         foregroundColor: Colors.white,
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 8.0,
+            ),
             child: Text(
               MoneyService.formatCents(_hippoBalanceCents),
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: GestureDetector(
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
-                if (!mounted) return;
-                _loadBalance();
-                _loadProfileImage();
-              },
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.white,
-                backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                child: _profileImage == null
-                    ? ProfilePicture(
-                        name: 'John Doe',
-                        radius: 18,
-                        fontsize: 12,
-                      )
-                    : null,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),
@@ -112,7 +92,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: TextField(
                     style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
                       hintText: 'Search...',
                       prefixIcon: const Icon(Icons.search, size: 20),
                       border: OutlineInputBorder(
@@ -120,7 +103,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFF87AE73), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF87AE73),
+                          width: 2,
+                        ),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -142,18 +128,52 @@ class _DashboardPageState extends State<DashboardPage> {
                 itemCount: 8,
                 itemBuilder: (context, index) {
                   final items = [
-                    {"title": "Mountain Bike", "price": "HB 120.00", "image": Icons.directions_bike},
-                    {"title": "Laptop", "price": "HB 350.00", "image": Icons.laptop_mac},
-                    {"title": "Guitar", "price": "HB 80.00", "image": Icons.music_note},
-                    {"title": "Desk Chair", "price": "HB 45.00", "image": Icons.chair},
-                    {"title": "Textbooks", "price": "HB 60.00", "image": Icons.menu_book},
-                    {"title": "Coffee Maker", "price": "HB 25.00", "image": Icons.coffee},
-                    {"title": "Headphones", "price": "HB 30.00", "image": Icons.headphones},
-                    {"title": "Soccer Ball", "price": "HB 15.00", "image": Icons.sports_soccer},
+                    {
+                      "title": "Mountain Bike",
+                      "price": "HB 120.00",
+                      "image": Icons.directions_bike,
+                    },
+                    {
+                      "title": "Laptop",
+                      "price": "HB 350.00",
+                      "image": Icons.laptop_mac,
+                    },
+                    {
+                      "title": "Guitar",
+                      "price": "HB 80.00",
+                      "image": Icons.music_note,
+                    },
+                    {
+                      "title": "Desk Chair",
+                      "price": "HB 45.00",
+                      "image": Icons.chair,
+                    },
+                    {
+                      "title": "Textbooks",
+                      "price": "HB 60.00",
+                      "image": Icons.menu_book,
+                    },
+                    {
+                      "title": "Coffee Maker",
+                      "price": "HB 25.00",
+                      "image": Icons.coffee,
+                    },
+                    {
+                      "title": "Headphones",
+                      "price": "HB 30.00",
+                      "image": Icons.headphones,
+                    },
+                    {
+                      "title": "Soccer Ball",
+                      "price": "HB 15.00",
+                      "image": Icons.sports_soccer,
+                    },
                   ];
                   final item = items[index];
                   return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     elevation: 3,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
@@ -163,17 +183,27 @@ class _DashboardPageState extends State<DashboardPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(item["image"] as IconData, size: 48, color: Color(0xFF87AE73)),
+                            Icon(
+                              item["image"] as IconData,
+                              size: 48,
+                              color: Color(0xFF87AE73),
+                            ),
                             const SizedBox(height: 12),
                             Text(
                               item["title"] as String,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
                             Text(
                               item["price"] as String,
-                              style: const TextStyle(fontSize: 14, color: Colors.grey),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         ),
