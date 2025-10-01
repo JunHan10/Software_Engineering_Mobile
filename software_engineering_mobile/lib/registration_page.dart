@@ -3,14 +3,13 @@
 // Registers a user by saving it into SharedPreferences via the repository,
 // then sets the activeUserId so the session is "logged in".
 // Only logic was changed to remove calls to an old AuthService.register API.
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logger/logger.dart';
 
+import 'repositories/shared_prefs_user_repository.dart';
+import 'models/user.dart';
 import 'main_navigation.dart'; // or wherever you go after registration
-import 'api/api.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -32,85 +31,65 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _stateCtrl = TextEditingController();
   final _zipCtrl = TextEditingController();
 
+  final _repo = SharedPrefsUserRepository();
   bool _busy = false;
   String? _error;
 
-final logger = Logger();
+  Future<void> _register() async {
+    if (_busy) return;
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-Future<void> _register() async {
-  if (_busy) return;
-  if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
 
-  setState(() {
-    _busy = true;
-    _error = null;
-  });
+    try {
+      // Ensure email is unique
+      final existing = await _repo.findByEmail(_emailCtrl.text.trim());
+      if (existing != null) {
+        setState(() => _error = 'Email already in use.');
+        return;
+      }
 
-  final userPayload = {
-    "email": _emailCtrl.text.trim(),
-    "password": _passwordCtrl.text, // hash in production!
-    "firstName": _firstNameCtrl.text.trim(),
-    "lastName": _lastNameCtrl.text.trim(),
-    "age": int.tryParse(_ageCtrl.text.trim()),
-    "streetAddress": _streetCtrl.text.trim(),
-    "city": _cityCtrl.text.trim(),
-    "state": _stateCtrl.text.trim(),
-    "zipcode": _zipCtrl.text.trim(),
-    "currency": 0.0,
-    "assets": [],
-    "hippoBalanceCents": 0
-  };
+      final user = User(
+        id: null, // repo will assign
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text, // (hash in production)
+        firstName: _firstNameCtrl.text.trim(),
+        lastName: _lastNameCtrl.text.trim(),
+        age: int.tryParse(_ageCtrl.text.trim()),
+        streetAddress: _streetCtrl.text.trim().isEmpty
+            ? null
+            : _streetCtrl.text.trim(),
+        city: _cityCtrl.text.trim().isEmpty ? null : _cityCtrl.text.trim(),
+        state: _stateCtrl.text.trim().isEmpty ? null : _stateCtrl.text.trim(),
+        zipcode: _zipCtrl.text.trim().isEmpty ? null : _zipCtrl.text.trim(),
+        currency: 0.0,
+        assets: const [],
+        hippoBalanceCents: 0,
+      );
 
-  logger.i("Starting registration with payload: $userPayload");
+      final saved = await _repo.save(user);
 
-  try {
-    final response = await http.post(
-      Uri.parse(ApiConfig.register),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(userPayload),
-    ).timeout(
-      const Duration(seconds: 10),
-      onTimeout: () {
-        throw Exception('Registration timeout. Please check your connection and try again.');
-      },
-    );
-
-    logger.i("Received response with status: ${response.statusCode}");
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
+      // Mark user as logged in by setting activeUserId.
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('activeUserId', body['id']);
-      logger.i("Registration successful. User ID: ${body['id']}");
+      if (saved.id != null) {
+        await prefs.setString('activeUserId', saved.id!);
+      }
 
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigation()),
-        (route) => false,
+            (route) => false,
       );
-    } else {
-      final error = jsonDecode(response.body)['error'];
-      if (mounted) {
-        setState(() => _error = error ?? 'Registration failed.');
-      }
-      logger.w("Registration failed: $_error");
+    } catch (e) {
+      setState(() => _error = 'Registration failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
-  } catch (e, stackTrace) {
-    if (mounted) {
-      setState(() => _error = e.toString().contains('timeout') 
-          ? e.toString() 
-          : 'Registration failed. Please try again.');
-    }
-    logger.e("Exception during registration", error: e, stackTrace: stackTrace);
-  } finally {
-    if (mounted) {
-      setState(() => _busy = false);
-    }
-    logger.i("Registration process ended");
   }
-}
-
 
   @override
   void dispose() {
@@ -143,27 +122,8 @@ Future<void> _register() async {
             child: Column(
               children: [
                 if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: Colors.red.shade700),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error!,
-                            style: TextStyle(color: Colors.red.shade700),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 8),
                 ],
                 TextFormField(
                   controller: _emailCtrl,
@@ -271,21 +231,15 @@ Future<void> _register() async {
                       foregroundColor: Colors.white,
                     ),
                     child: _busy
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              const Text('Creating account...'),
-                            ],
-                          )
+                        ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
                         : const Text('Create account'),
                   ),
                 ),
