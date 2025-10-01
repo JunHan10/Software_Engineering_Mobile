@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'new_item_page.dart';
+import 'services/auth_service.dart';
+import 'repositories/shared_prefs_user_repository.dart';
+import 'models/user.dart';
 
 class Loaned_Items extends StatefulWidget {
   const Loaned_Items({super.key});
@@ -10,7 +13,9 @@ class Loaned_Items extends StatefulWidget {
 }
 
 class _Loaned_ItemsState extends State<Loaned_Items> {
-  List<dynamic> _loanedItems = []; // TODO: Replace with your actual item model
+  final _auth = AuthService();
+  final _repo = SharedPrefsUserRepository();
+  List<Asset> _loanedItems = [];
   bool _loading = true;
 
   @override
@@ -20,11 +25,20 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
   }
 
   Future<void> _loadItems() async {
-    // TODO: Fetch user's loaned items from your data source
-    // Example: _loanedItems = await itemRepository.getLoanedItemsByUserId(userId);
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate loading
+    setState(() => _loading = true);
+    final userId = await _auth.getCurrentUserId();
+    if (userId == null) {
+      if (!mounted) return;
+      setState(() {
+        _loanedItems = [];
+        _loading = false;
+      });
+      return;
+    }
+    final user = await _repo.findById(userId);
     if (!mounted) return;
     setState(() {
+      _loanedItems = user?.assets ?? [];
       _loading = false;
     });
   }
@@ -68,12 +82,15 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 HapticFeedback.mediumImpact();
-                Navigator.push(
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const NewItemPage()),
                 );
+                if (result == true) {
+                  await _loadItems();
+                }
               },
               icon: const Icon(Icons.add),
               label: const Text('Post Your First Item'),
@@ -121,15 +138,13 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
       padding: const EdgeInsets.all(16),
       itemCount: _loanedItems.length,
       itemBuilder: (context, index) {
-        final _item = _loanedItems[index]; // ignore: unused_local_variable
-        // TODO: Replace with your actual item widget
-        // Example: return LoanedItemWidget(item: item);
+        final item = _loanedItems[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
             leading: const Icon(Icons.inventory),
-            title: Text('Item #${index + 1}'), // TODO: Replace with item.name
-            subtitle: Text('Status: Available'), // TODO: Replace with item.status
+            title: Text(item.name),
+            subtitle: Text('HB ${item.value.toStringAsFixed(2)}'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // TODO: Navigate to item details or edit
@@ -159,12 +174,13 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           HapticFeedback.mediumImpact();
-          final _result = await Navigator.push( // ignore: unused_local_variable
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const NewItemPage()),
           );
-          // TODO: Refresh the items list when returning from NewItemPage
-          // if (_result == true) _loadItems();
+          if (result == true) {
+            await _loadItems();
+          }
         },
         backgroundColor: Color(0xFF87AE73),
         child: const Icon(Icons.add, color: Colors.white),
