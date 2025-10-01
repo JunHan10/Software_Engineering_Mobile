@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'login_screen.dart'; // Import your login screen
 import 'repositories/shared_prefs_user_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase
+  await Firebase.initializeApp();
   // Initialize test data
   final repo = SharedPrefsUserRepository();
   await repo.findByEmail('john.doe@example.com'); // This will trigger initialization

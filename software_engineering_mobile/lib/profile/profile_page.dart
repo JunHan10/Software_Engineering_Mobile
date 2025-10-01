@@ -6,13 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../repositories/shared_prefs_user_repository.dart';
 import '../services/money_service.dart';
-import '../setting/settings_ui.dart' as settings;
 import '../login_screen.dart';
-
-import 'profile_avatar.dart';
-import 'profile_background.dart';
-import 'profile_wallet.dart';
-import 'profile_gallery.dart';
+import '../setting/settings_ui_api.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -202,10 +197,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 300,
                 color: const Color(0xFF87AE73),
                 alignment: Alignment.center,
-                child: ProfileImageWidget(
-                  pickedImage: _pickedImage,
-                  displayName: _user?.firstName ?? 'User',
+                child: GestureDetector(
                   onTap: _pickImage,
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _pickedImage != null ? FileImage(_pickedImage!) : null,
+                    child: _pickedImage == null
+                        ? const Icon(Icons.person, size: 80, color: Colors.grey)
+                        : null,
+                  ),
                 ),
               ),
 
@@ -231,18 +232,93 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        ProfileGallery(
-                          imageFiles: _imageFiles,
-                          onAddImages: _pickMultipleImages,
-                          onRemoveImage: _removeImage,
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(_imageFiles.length, (index) {
+                              return Stack(
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: FileImage(_imageFiles[index]),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Colors.grey[300],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black54,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                          ),
                         ),
 
                         const SizedBox(height: 16),
 
-                        ProfileWallet(
-                          balanceCents: _hippoBalanceCents,
-                          onDeposit: _promptAndDeposit,
-                          onWithdraw: _promptAndWithdraw,
+                        Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          color: Colors.white,
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Hippo Bucks',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  MoneyService.formatCents(_hippoBalanceCents),
+                                  style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black87),
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 10,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      onPressed: _promptAndDeposit,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Add'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF87AE73),
+                                        foregroundColor: Colors.white,
+                                      ),
+                                    ),
+                                    OutlinedButton.icon(
+                                      onPressed: _promptAndWithdraw,
+                                      icon: const Icon(Icons.remove),
+                                      label: const Text('Spend'),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: const Color(0xFF87AE73),
+                                        side: const BorderSide(color: Color(0xFF87AE73)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -269,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const settings.SettingsPage(),
+                    builder: (context) => const SettingsPage(),
                   ),
                 ).then((_) {
                   setState(() {});

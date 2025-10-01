@@ -10,7 +10,9 @@ class ChatUser {
 }
 
 class MessagesPage extends StatelessWidget {
-  final List<ChatUser> users = [
+  const MessagesPage({super.key});
+  
+  List<ChatUser> get users => [
     ChatUser('Johnny Doe', 'Lorem Ipsum is simply dummy...', 'assets/default_user.png', '08:10'),
     ChatUser('Adrian', 'Excepteur sint occaecat...', 'assets/default_user.png', '03:19'),
     ChatUser('Fiona', 'Hii... 😎', 'assets/default_user.png', '02:53'),
