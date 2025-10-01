@@ -33,13 +33,12 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    // assign SharedPrefsUserRepository, casted to interface type
     _userRepository = SharedPrefsUserRepository();
     _loadCurrentUserData();
   }
 
   Future<void> _loadCurrentUserData() async {
-    final authService = AuthService(userRepository: _userRepository);
+    final authService = AuthService();
     final currentUser = await authService.getCurrentUser();
     if (currentUser != null) {
       _firstNameController.text = currentUser.firstName;
@@ -61,7 +60,7 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     try {
-      final authService = AuthService(userRepository: _userRepository);
+      final authService = AuthService();
       final currentUser = await authService.getCurrentUser();
       if (currentUser == null) {
         _showErrorSnackBar('No user logged in');
@@ -90,7 +89,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Profile updated successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF4CAF50),
           ),
         );
         Navigator.pop(context);
@@ -108,7 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(message), backgroundColor: const Color(0xFFE53E3E)),
     );
   }
 
@@ -233,6 +232,9 @@ class _SettingsPageState extends State<SettingsPage> {
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    return TextEditingValue(text: newValue.text.toUpperCase(), selection: newValue.selection);
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
   }
 }
