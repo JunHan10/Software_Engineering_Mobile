@@ -72,8 +72,6 @@ pnpm-lock.yaml
 .svn/
 migrate_working_dir/
 
-*.png
-
 # IntelliJ related
 *.iml
 *.ipr
