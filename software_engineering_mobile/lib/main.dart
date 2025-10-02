@@ -8,20 +8,9 @@ import 'package:timezone/data/latest_all.dart' as tz;
 
 
 void main() async {
-<<<<<<< HEAD
-  WidgetsFlutterBinding.ensureInitialized(); // ✅ Must be first
-
-  // Initialize timezone package
-  tz.initializeTimeZones();
-
-  // Initialize notification service
-  await NotificationService.init();
-
-=======
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Firebase
   await Firebase.initializeApp();
->>>>>>> 0eb0c3cb499d11bfd9910cb657691f96332f11ce
   // Initialize test data
   final repo = SharedPrefsUserRepository();
   await repo.findByEmail('john.doe@example.com'); // triggers initialization

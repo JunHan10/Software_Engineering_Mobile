@@ -12,3 +12,14 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Firebase config should never be committed
+app/google-services.json
+
+# Build outputs
+/build/
+**/build/
+**/intermediates/
+**/outputs/
+**/generated/
+**/tmp/

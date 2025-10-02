@@ -62,8 +62,8 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const iosDetails = DarwinNotificationDetails();
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final iosDetails = DarwinNotificationDetails();
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _notifications.show(id, title, body, details);
   }
@@ -93,8 +93,8 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const iosDetails = DarwinNotificationDetails();
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final iosDetails = DarwinNotificationDetails();
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _notifications.zonedSchedule(
       id,

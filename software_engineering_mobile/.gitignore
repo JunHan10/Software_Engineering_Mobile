@@ -1,3 +1,65 @@
+# ---- General ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+*.log
+
+# ---- Dart/Flutter ----
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.fvm/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# ---- Firebase configs (keep secrets out of git) ----
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# ---- Android ----
+android/.gradle/
+android/captures/
+android/local.properties
+android/**/.cxx/
+android/**/release/
+android/**/debug/
+android/build/
+
+# ---- iOS ----
+ios/Flutter/.last_build_id
+ios/.symlinks/
+ios/Pods/
+ios/Flutter/ephemeral/
+
+# ---- macOS ----
+macos/Flutter/ephemeral/
+macos/Pods/
+
+# ---- Windows ----
+windows/flutter/ephemeral/
+
+# ---- Linux ----
+linux/flutter/ephemeral/
+
+# ---- Web ----
+.firebase/
+
+# ---- Node/NPM (e.g., tools or scripts) ----
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+.pnpm-debug.log*
+
+# ---- Env/Secrets ----
+.env
+.env.*
+
 # Miscellaneous
 *.class
 *.log
