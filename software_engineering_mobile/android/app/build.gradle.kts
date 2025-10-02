@@ -41,14 +41,12 @@ flutter {
 }
 
 dependencies {
-<<<<<<< HEAD
-coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-=======
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     
     // Firebase products
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
->>>>>>> 0eb0c3cb499d11bfd9910cb657691f96332f11ce
 }
