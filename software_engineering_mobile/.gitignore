@@ -171,3 +171,5 @@ lcov.info
 # Local development
 .vscode/settings.json
 .vscode/launch.json
+
+*.png
