@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "392144397743",
+    "project_id": "hippo-exchange",
+    "storage_bucket": "hippo-exchange.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392144397743:android:b93b97e28fedefc10dfb5a",
+        "android_client_info": {
+          "package_name": "com.example.software_engineering_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "392144397743-0qpje4l97lgumatl3k8abkjbkjf17ptd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.software_engineering_mobile",
+            "certificate_hash": "2396d93eefcd5b9e241d3d924f42efc7cbe16206"
+          }
+        },
+        {
+          "client_id": "392144397743-doi8h2ra9879orf0f5ehp4nmenode2sl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRiMB7cDClb3k2ZMXZYGw0BHDbY31Jd1k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "392144397743-doi8h2ra9879orf0f5ehp4nmenode2sl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
