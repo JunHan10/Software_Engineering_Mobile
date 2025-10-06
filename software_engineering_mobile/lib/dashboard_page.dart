@@ -506,7 +506,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
             );
-          }).toList(),
+          }),
           const SizedBox(height: 16),
         ],
 
@@ -570,7 +570,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
             );
-          }).toList(),
+          }),
         ],
 
         // No results message
