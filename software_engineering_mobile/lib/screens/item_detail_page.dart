@@ -2,15 +2,92 @@
 
 import 'package:flutter/material.dart';
 import '../services/category_service.dart';
+import '../services/comment_service.dart';
+import '../services/auth_service.dart';
+import '../services/vote_service.dart';
 
-class ItemDetailPage extends StatelessWidget {
+class ItemDetailPage extends StatefulWidget {
   final String itemId;
 
   const ItemDetailPage({super.key, required this.itemId});
 
   @override
+  State<ItemDetailPage> createState() => _ItemDetailPageState();
+}
+
+class _ItemDetailPageState extends State<ItemDetailPage> {
+  final _auth = AuthService();
+  final _commentCtrl = TextEditingController();
+  List<Comment> _comments = const [];
+  bool _loading = true;
+  int _voteScore = 0;
+  int _myVote = 0; // -1, 0, 1
+
+  @override
+  void initState() {
+    super.initState();
+    _loadComments();
+    _loadVotes();
+  }
+
+  Future<void> _loadComments() async {
+    final list = await CommentService.getComments(widget.itemId);
+    if (!mounted) return;
+    setState(() {
+      _comments = list;
+      _loading = false;
+    });
+  }
+
+  Future<void> _submitComment() async {
+    final text = _commentCtrl.text.trim();
+    if (text.isEmpty) return;
+    final user = await _auth.getCurrentUser();
+    final authorId = user?.id ?? 'guest';
+    final authorName = user != null ? '${user.firstName} ${user.lastName}'.trim() : 'Guest';
+    final c = Comment(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      itemId: widget.itemId,
+      authorId: authorId,
+      authorName: authorName.isEmpty ? 'Guest' : authorName,
+      text: text,
+      createdAt: DateTime.now(),
+    );
+    await CommentService.addComment(c);
+    _commentCtrl.clear();
+    await _loadComments();
+  }
+
+  Future<void> _loadVotes() async {
+    final uid = await _auth.getCurrentUserId() ?? 'guest';
+    final score = await VoteService.getScore(widget.itemId);
+    final my = await VoteService.getUserVote(widget.itemId, uid);
+    if (!mounted) return;
+    setState(() {
+      _voteScore = score;
+      _myVote = my;
+    });
+  }
+
+  Future<void> _toggleVote(int desired) async {
+    final uid = await _auth.getCurrentUserId() ?? 'guest';
+    final current = await VoteService.getUserVote(widget.itemId, uid);
+    final next = current == desired ? 0 : desired;
+    final newScore = await VoteService.setVote(
+      itemId: widget.itemId,
+      userId: uid,
+      vote: next,
+    );
+    if (!mounted) return;
+    setState(() {
+      _myVote = next;
+      _voteScore = newScore;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final item = CategoryService.getItemById(itemId);
+    final item = CategoryService.getItemById(widget.itemId);
 
     if (item == null) {
       return Scaffold(
@@ -96,6 +173,8 @@ class ItemDetailPage extends StatelessWidget {
                     ],
                   ),
 
+                  const SizedBox(height: 8),
+
                   const SizedBox(height: 16),
 
                   // Owner info
@@ -128,6 +207,53 @@ class ItemDetailPage extends StatelessWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_upward,
+                              color: _myVote == 1
+                                  ? (category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73))
+                                  : Colors.grey[500],
+                              size: 20,
+                            ),
+                            onPressed: () => _toggleVote(1),
+                            tooltip: 'Upvote',
+                          ),
+                          FutureBuilder<int>(
+                            future: VoteService.getScore(widget.itemId),
+                            builder: (context, snapshot) {
+                              final s = snapshot.data ?? _voteScore;
+                              return Text(
+                                s.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_downward,
+                              color: _myVote == -1
+                                  ? (category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73))
+                                  : Colors.grey[500],
+                              size: 20,
+                            ),
+                            onPressed: () => _toggleVote(-1),
+                            tooltip: 'Downvote',
                           ),
                         ],
                       ),
@@ -257,6 +383,104 @@ class ItemDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 32),
+
+                  // Comments Section
+                  const Text(
+                    'Comments',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  if (_loading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (_comments.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(
+                        'No comments yet. Be the first to comment!',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    )
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _comments.length,
+                      separatorBuilder: (_, __) => const Divider(height: 16),
+                      itemBuilder: (context, index) {
+                        final c = _comments[index];
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.grey[300],
+                              child: Text(
+                                (c.authorName.isNotEmpty ? c.authorName[0] : 'G').toUpperCase(),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        c.authorName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatTime(c.createdAt),
+                                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(c.text),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _commentCtrl,
+                          decoration: const InputDecoration(
+                            hintText: 'Add a comment...',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          minLines: 1,
+                          maxLines: 3,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _submitComment,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: category != null
+                              ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                              : const Color(0xFF87AE73),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        ),
+                        child: const Text('Post'),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -264,5 +488,14 @@ class ItemDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatTime(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${dt.month}/${dt.day}/${dt.year}';
   }
 }
