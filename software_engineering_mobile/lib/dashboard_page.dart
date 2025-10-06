@@ -336,7 +336,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
         const SizedBox(height: 16),
 
-        // Items list
+        // Items grid
         Expanded(
           child: _filteredCategoryItems.isEmpty
               ? const Center(
@@ -352,100 +352,144 @@ class _DashboardPageState extends State<DashboardPage> {
                     ],
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _filteredCategoryItems.length,
-                  itemBuilder: (context, index) {
-                    final item = _filteredCategoryItems[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ItemDetailPage(itemId: item.id),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: categoryColor.withOpacity(0.1),
-                                child: Icon(item.icon, color: categoryColor),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      item.description,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          item.formattedPrice,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: categoryColor,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            'by ${item.ownerName}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              FutureBuilder<Widget>(
-                                future: _voteRowForItem(item, categoryColor),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return const SizedBox(
-                                      width: 60,
-                                      height: 24,
-                                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                    );
-                                  }
-                                  return snapshot.data ?? const SizedBox.shrink();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final double width = constraints.maxWidth;
+                    final int crossAxisCount = width >= 900
+                        ? 4
+                        : width >= 600
+                            ? 3
+                            : 2;
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _filteredCategoryItems.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 0.72,
                       ),
+                      itemBuilder: (context, index) {
+                        final item = _filteredCategoryItems[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ItemDetailPage(itemId: item.id),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    color: categoryColor.withOpacity(0.06),
+                                    child: item.imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            item.imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stack) {
+                                              return Center(
+                                                child: Icon(
+                                                  item.icon,
+                                                  size: 40,
+                                                  color: categoryColor,
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Center(
+                                            child: Icon(
+                                              item.icon,
+                                              size: 40,
+                                              color: categoryColor,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        item.description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            item.formattedPrice,
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: categoryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Align(
+                                              alignment: Alignment.centerRight,
+                                              child: FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: FutureBuilder<Widget>(
+                                                  future: _voteRowForItem(item, categoryColor),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                                      return const SizedBox(
+                                                        width: 48,
+                                                        height: 20,
+                                                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                      );
+                                                    }
+                                                    return snapshot.data ?? const SizedBox.shrink();
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        item.ownerName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -573,70 +617,152 @@ class _DashboardPageState extends State<DashboardPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          ..._filteredItems.map((item) {
-            final category = CategoryService.getCategoryById(item.categoryId);
-            final categoryColor = category != null
-                ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                : const Color(0xFF87AE73);
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final double width = constraints.maxWidth;
+              final int crossAxisCount = width >= 900
+                  ? 4
+                  : width >= 600
+                      ? 3
+                      : 2;
 
-            return Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: categoryColor.withOpacity(0.1),
-                  child: Icon(item.icon, color: categoryColor),
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.72,
                 ),
-                title: Text(item.name),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.description),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text(
-                          item.formattedPrice,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: categoryColor,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'by ${item.ownerName}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                itemCount: _filteredItems.length,
+                itemBuilder: (context, index) {
+                  final item = _filteredItems[index];
+                  final category = CategoryService.getCategoryById(item.categoryId);
+                  final Color categoryColor = category != null
+                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                      : const Color(0xFF87AE73);
+
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ],
-                ),
-                trailing: FutureBuilder<Widget>(
-                  future: _voteRowForItem(item, categoryColor),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SizedBox(
-                        width: 60,
-                        height: 24,
-                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      );
-                    }
-                    return snapshot.data ?? const SizedBox.shrink();
-                  },
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ItemDetailPage(itemId: item.id),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItemDetailPage(itemId: item.id),
+                          ),
+                        );
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              color: categoryColor.withOpacity(0.06),
+                              child: item.imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      item.imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stack) {
+                                        return Center(
+                                          child: Icon(
+                                            item.icon,
+                                            size: 40,
+                                            color: categoryColor,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: Icon(
+                                        item.icon,
+                                        size: 40,
+                                        color: categoryColor,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  item.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Text(
+                                      item.formattedPrice,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: categoryColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: FutureBuilder<Widget>(
+                                            future: _voteRowForItem(item, categoryColor),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                return const SizedBox(
+                                                  width: 48,
+                                                  height: 20,
+                                                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                );
+                                              }
+                                              return snapshot.data ?? const SizedBox.shrink();
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.ownerName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
-              ),
-            );
-          }),
+              );
+            },
+          ),
         ],
 
         // No results message

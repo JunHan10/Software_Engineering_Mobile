@@ -75,116 +75,137 @@ class CategoryDetailPage extends StatelessWidget {
             ),
           ),
 
-          // Items list
+          // Items grid
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: category.items.length,
-              itemBuilder: (context, index) {
-                final item = category.items[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final double width = constraints.maxWidth;
+                final int crossAxisCount = width >= 900
+                    ? 4
+                    : width >= 600
+                        ? 3
+                        : 2;
+                final Color categoryColor = Color(
+                  int.parse(category.color.replaceAll('#', '0xFF')),
+                );
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: category.items.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.72,
                   ),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ItemDetailPage(itemId: item.id),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Color(
-                                int.parse(
-                                  category.color.replaceAll('#', '0xFF'),
-                                ),
-                              ).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                  itemBuilder: (context, index) {
+                    final item = category.items[index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ItemDetailPage(itemId: item.id),
                             ),
-                            child: Icon(
-                              item.icon,
-                              size: 30,
-                              color: Color(
-                                int.parse(
-                                  category.color.replaceAll('#', '0xFF'),
-                                ),
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Image header
+                            AspectRatio(
+                              aspectRatio: 16 / 12,
+                              child: Container(
+                                color: categoryColor.withOpacity(0.06),
+                                child: item.imageUrl.isNotEmpty
+                                    ? Image.network(
+                                        item.imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stack) {
+                                          return Center(
+                                            child: Icon(
+                                              item.icon,
+                                              size: 40,
+                                              color: categoryColor,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Center(
+                                        child: Icon(
+                                          item.icon,
+                                          size: 40,
+                                          color: categoryColor,
+                                        ),
+                                      ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                            // Text content
+                            Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  item.description,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    item.description,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[700],
+                                    ),
                                   ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      item.formattedPrice,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(
-                                          int.parse(
-                                            category.color.replaceAll(
-                                              '#',
-                                              '0xFF',
-                                            ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        item.formattedPrice,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: categoryColor,
+                                        ),
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                          item.ownerName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Text(
-                                      'by ${item.ownerName}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[500],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.grey,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ),
