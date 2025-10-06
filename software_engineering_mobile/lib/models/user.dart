@@ -39,6 +39,9 @@ class User {
   // NEW: Hippopotamoney balance stored in cents to avoid floating point issues
   final int hippoBalanceCents;
 
+  // NEW: Total number of completed transactions for the user
+  final int transactionCount;
+
   /// Constructor with named parameters for clarity and flexibility
   /// Required fields are those essential for basic user functionality
   /// Optional fields can be added later or left empty
@@ -57,6 +60,7 @@ class User {
     required this.currency,
     required this.assets,
     this.hippoBalanceCents = 0, // NEW: default to 0
+    this.transactionCount = 0, // NEW: default to 0
   });
 
   // NEW: copyWith method for immutability and easy field updates
@@ -75,6 +79,7 @@ class User {
     double? currency,
     List<Asset>? assets,
     int? hippoBalanceCents,
+    int? transactionCount,
   }) {
     return User(
       id: id ?? this.id,
@@ -91,6 +96,7 @@ class User {
       currency: currency ?? this.currency,
       assets: assets ?? this.assets,
       hippoBalanceCents: hippoBalanceCents ?? this.hippoBalanceCents,
+      transactionCount: transactionCount ?? this.transactionCount,
     );
   }
 
@@ -124,6 +130,7 @@ class User {
           .map((asset) => Asset.fromJson(asset))
           .toList(),
       hippoBalanceCents: (json['hippoBalanceCents'] ?? 0) as int, // NEW
+      transactionCount: (json['transactionCount'] ?? 0) as int, // NEW
     );
   }
 
@@ -154,6 +161,7 @@ class User {
       // Convert assets list to JSON array
       'assets': assets.map((asset) => asset.toJson()).toList(),
       'hippoBalanceCents': hippoBalanceCents, // NEW
+      'transactionCount': transactionCount, // NEW
     };
   }
 }

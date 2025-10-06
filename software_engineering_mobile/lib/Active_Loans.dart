@@ -17,7 +17,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
   final _auth = AuthService();
   String? _userId;
   bool _loading = true;
-  List<dynamic> _loans = []; // TODO: Replace with your actual loan model
+  final List<dynamic> _loans = []; // TODO: Replace with your actual loan model
 
   @override
   void initState() {
@@ -160,7 +160,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
       padding: const EdgeInsets.all(16),
       itemCount: _loans.length,
       itemBuilder: (context, index) {
-        final _loan = _loans[index]; // ignore: unused_local_variable
+        final loan = _loans[index]; // ignore: unused_local_variable
         // TODO: Replace with your actual loan item widget
         // Example: return LoanItemWidget(loan: loan);
         return Card(

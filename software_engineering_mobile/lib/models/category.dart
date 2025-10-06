@@ -33,6 +33,7 @@ class Item {
   final String ownerName;
   final bool isAvailable;
   final List<String> tags;
+  // NEW: simple in-memory comments are stored externally; keep no heavy state here
 
   const Item({
     required this.id,

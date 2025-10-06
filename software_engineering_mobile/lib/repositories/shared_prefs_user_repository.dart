@@ -15,6 +15,7 @@ import 'user_repository.dart' as repo;
 class SharedPrefsUserRepository implements repo.UserRepository {
   static const _usersKey = 'users_json';
   static String _balKey(String userId) => 'balance_$userId';
+  static String _txnKey(String userId) => 'txn_$userId';
 
   // ------------ internal helpers ------------
 
@@ -109,6 +110,7 @@ class SharedPrefsUserRepository implements repo.UserRepository {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_balKey(id));
+    await prefs.remove(_txnKey(id));
   }
 
   // ------------ HB wallet ------------
@@ -145,6 +147,33 @@ class SharedPrefsUserRepository implements repo.UserRepository {
     return clamped;
   }
 
+  // ------------ Transactions ------------
+
+  @override
+  Future<void> incrementTransactionCount(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_txnKey(userId)) ?? 0;
+    await prefs.setInt(_txnKey(userId), current + 1);
+    // Also mirror into user JSON for convenience
+    final users = await _loadUsers();
+    final idx = users.indexWhere((u) => u.id == userId);
+    if (idx != -1) {
+      final updated = users[idx].copyWith(transactionCount: (users[idx].transactionCount + 1));
+      users[idx] = updated;
+      await _saveUsers(users);
+    }
+  }
+
+  @override
+  Future<int> getTransactionCount(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final fromKey = prefs.getInt(_txnKey(userId));
+    if (fromKey != null) return fromKey;
+    // fallback to stored user JSON
+    final user = await findById(userId);
+    return user?.transactionCount ?? 0;
+  }
+
   // ------------ Initialization ------------
 
   Future<void> _initializeTestData() async {
@@ -165,6 +194,7 @@ class SharedPrefsUserRepository implements repo.UserRepository {
         currency: 2500.75,
         assets: const [],
         hippoBalanceCents: 0,
+        transactionCount: 0,
       );
       await _saveUsers([defaultUser]);
     }
@@ -203,6 +233,7 @@ class SharedPrefsUserRepository implements repo.UserRepository {
     firstName: u.firstName,
     lastName: u.lastName,
     age: u.age,
+    phone: u.phone,
     streetAddress: u.streetAddress,
     city: u.city,
     state: u.state,
@@ -210,5 +241,6 @@ class SharedPrefsUserRepository implements repo.UserRepository {
     currency: u.currency,
     assets: u.assets,
     hippoBalanceCents: u.hippoBalanceCents,
+    transactionCount: u.transactionCount,
   );
 }
