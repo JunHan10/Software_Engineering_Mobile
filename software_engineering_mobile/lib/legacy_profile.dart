@@ -35,6 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final _authService = AuthService();
   User? _user;
   int _hippoBalanceCents = 0;
+  int _transactionCount = 0;
 
   // Gallery
   final List<File> _imageFiles = [];
@@ -76,6 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Get full user data
     final user = await _authService.getCurrentUser();
     final bal = await _repo.getHippoBalanceCents(userId);
+    final txns = await _repo.getTransactionCount(userId);
 
     if (!mounted) return;
     setState(() {
@@ -92,6 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
             hippoBalanceCents: bal,
           );
       _hippoBalanceCents = bal;
+      _transactionCount = txns;
     });
   }
 
@@ -621,6 +624,15 @@ class _ProfilePageState extends State<ProfilePage> {
             _completedLoans.toString(),
             Icons.check_circle,
             Colors.green,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildStatCard(
+            'Transactions',
+            _transactionCount.toString(),
+            Icons.receipt_long,
+            const Color(0xFF87AE73),
           ),
         ),
       ],

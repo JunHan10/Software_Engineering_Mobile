@@ -12,6 +12,8 @@ import 'models/category.dart';
 import 'services/category_service.dart';
 import 'repositories/shared_prefs_user_repository.dart';
 import 'services/money_service.dart';
+import 'services/vote_service.dart';
+import 'services/auth_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -22,6 +24,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final _repo = SharedPrefsUserRepository();
+  final _auth = AuthService();
   int _hippoBalanceCents = 0;
 
   // Search functionality
@@ -114,6 +117,49 @@ class _DashboardPageState extends State<DashboardPage> {
       _filteredCategoryItems = category.items;
       _categorySearchController.clear();
     });
+  }
+
+  Future<Widget> _voteRowForItem(Item item, Color accent) async {
+    final userId = await _auth.getCurrentUserId() ?? 'guest';
+    final score = await VoteService.getScore(item.id);
+    final myVote = await VoteService.getUserVote(item.id, userId);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          icon: Icon(Icons.arrow_upward,
+              color: myVote == 1 ? accent : Colors.grey[500], size: 20),
+          onPressed: () async {
+            final current = await VoteService.getUserVote(item.id, userId);
+            final next = current == 1 ? 0 : 1;
+            await VoteService.setVote(itemId: item.id, userId: userId, vote: next);
+            if (!mounted) return;
+            setState(() {});
+          },
+        ),
+        FutureBuilder<int>(
+          future: VoteService.getScore(item.id),
+          builder: (context, snapshot) {
+            final s = snapshot.data ?? score;
+            return Text(
+              s.toString(),
+              style: TextStyle(fontWeight: FontWeight.bold, color: accent),
+            );
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.arrow_downward,
+              color: myVote == -1 ? accent : Colors.grey[500], size: 20),
+          onPressed: () async {
+            final current = await VoteService.getUserVote(item.id, userId);
+            final next = current == -1 ? 0 : -1;
+            await VoteService.setVote(itemId: item.id, userId: userId, vote: next);
+            if (!mounted) return;
+            setState(() {});
+          },
+        ),
+      ],
+    );
   }
 
   void _goBackToCategories() {
@@ -383,10 +429,18 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: Colors.grey[400],
+                              FutureBuilder<Widget>(
+                                future: _voteRowForItem(item, categoryColor),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const SizedBox(
+                                      width: 60,
+                                      height: 24,
+                                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                    );
+                                  }
+                                  return snapshot.data ?? const SizedBox.shrink();
+                                },
                               ),
                             ],
                           ),
@@ -559,7 +613,19 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ],
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                trailing: FutureBuilder<Widget>(
+                  future: _voteRowForItem(item, categoryColor),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                        width: 60,
+                        height: 24,
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      );
+                    }
+                    return snapshot.data ?? const SizedBox.shrink();
+                  },
+                ),
                 onTap: () {
                   Navigator.push(
                     context,

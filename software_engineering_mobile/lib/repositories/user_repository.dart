@@ -21,6 +21,10 @@ abstract class UserRepository {
   Future<int> depositHippoCents(String userId, int amountCents);
   Future<int> withdrawHippoCents(String userId, int amountCents);
 
+  // ---- Transactions ----
+  Future<void> incrementTransactionCount(String userId);
+  Future<int> getTransactionCount(String userId);
+
   // ---- Dev helpers (used in your UI debug buttons) ----
   Future<void> clearAllData();
   Future<void> printAllUsers();
