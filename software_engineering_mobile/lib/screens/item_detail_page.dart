@@ -105,7 +105,9 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(item.name),
-        backgroundColor: const Color(0xFF87AE73),
+        backgroundColor: category != null
+            ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+            : const Color(0xFF87AE73),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -144,7 +146,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Color(0xFF87AE73).withOpacity(0.1),
+                          color: category != null
+                              ? Color(
+                                  int.parse(
+                                    category.color.replaceAll('#', '0xFF'),
+                                  ),
+                                ).withOpacity(0.1)
+                              : const Color(0xFF87AE73).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -152,7 +160,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF87AE73),
+                            color: category != null
+                                ? Color(
+                                    int.parse(
+                                      category.color.replaceAll('#', '0xFF'),
+                                    ),
+                                  )
+                                : const Color(0xFF87AE73),
                           ),
                         ),
                       ),
@@ -167,25 +181,41 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       IconButton(
                         icon: Icon(
                           Icons.arrow_upward,
-                          color: _myVote == 1 ? const Color(0xFF87AE73) : Colors.grey[500],
+                          color: _myVote == 1
+                              ? (category != null
+                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                  : const Color(0xFF87AE73))
+                              : Colors.grey[500],
                           size: 20,
                         ),
                         onPressed: () => _toggleVote(1),
                         tooltip: 'Upvote',
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        _voteScore.toString(),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF87AE73),
-                        ),
+                      FutureBuilder<int>(
+                        future: VoteService.getScore(widget.itemId),
+                        builder: (context, snapshot) {
+                          final s = snapshot.data ?? _voteScore;
+                          return Text(
+                            s.toString(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: category != null
+                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                  : const Color(0xFF87AE73),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(width: 4),
                       IconButton(
                         icon: Icon(
                           Icons.arrow_downward,
-                          color: _myVote == -1 ? const Color(0xFF87AE73) : Colors.grey[500],
+                          color: _myVote == -1
+                              ? (category != null
+                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                  : const Color(0xFF87AE73))
+                              : Colors.grey[500],
                           size: 20,
                         ),
                         onPressed: () => _toggleVote(-1),
@@ -301,7 +331,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           icon: const Icon(Icons.message),
                           label: const Text('Contact Owner'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF87AE73),
+                            backgroundColor: category != null
+                                ? Color(
+                                    int.parse(
+                                      category.color.replaceAll('#', '0xFF'),
+                                    ),
+                                  )
+                                : const Color(0xFF87AE73),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -324,8 +360,22 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           icon: const Icon(Icons.favorite_border),
                           label: const Text('Favorite'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF87AE73),
-                            side: const BorderSide(color: Color(0xFF87AE73)),
+                            foregroundColor: category != null
+                                ? Color(
+                                    int.parse(
+                                      category.color.replaceAll('#', '0xFF'),
+                                    ),
+                                  )
+                                : const Color(0xFF87AE73),
+                            side: BorderSide(
+                              color: category != null
+                                  ? Color(
+                                      int.parse(
+                                        category.color.replaceAll('#', '0xFF'),
+                                      ),
+                                    )
+                                  : const Color(0xFF87AE73),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -423,7 +473,9 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       ElevatedButton(
                         onPressed: _submitComment,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF87AE73),
+                          backgroundColor: category != null
+                              ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                              : const Color(0xFF87AE73),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         ),
