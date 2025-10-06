@@ -174,55 +174,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   ),
 
                   const SizedBox(height: 8),
-                  // Votes near price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_upward,
-                          color: _myVote == 1
-                              ? (category != null
-                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                                  : const Color(0xFF87AE73))
-                              : Colors.grey[500],
-                          size: 20,
-                        ),
-                        onPressed: () => _toggleVote(1),
-                        tooltip: 'Upvote',
-                      ),
-                      const SizedBox(width: 4),
-                      FutureBuilder<int>(
-                        future: VoteService.getScore(widget.itemId),
-                        builder: (context, snapshot) {
-                          final s = snapshot.data ?? _voteScore;
-                          return Text(
-                            s.toString(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: category != null
-                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                                  : const Color(0xFF87AE73),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 4),
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_downward,
-                          color: _myVote == -1
-                              ? (category != null
-                                  ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                                  : const Color(0xFF87AE73))
-                              : Colors.grey[500],
-                          size: 20,
-                        ),
-                        onPressed: () => _toggleVote(-1),
-                        tooltip: 'Downvote',
-                      ),
-                    ],
-                  ),
 
                   const SizedBox(height: 16),
 
@@ -256,6 +207,53 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_upward,
+                              color: _myVote == 1
+                                  ? (category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73))
+                                  : Colors.grey[500],
+                              size: 20,
+                            ),
+                            onPressed: () => _toggleVote(1),
+                            tooltip: 'Upvote',
+                          ),
+                          FutureBuilder<int>(
+                            future: VoteService.getScore(widget.itemId),
+                            builder: (context, snapshot) {
+                              final s = snapshot.data ?? _voteScore;
+                              return Text(
+                                s.toString(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_downward,
+                              color: _myVote == -1
+                                  ? (category != null
+                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      : const Color(0xFF87AE73))
+                                  : Colors.grey[500],
+                              size: 20,
+                            ),
+                            onPressed: () => _toggleVote(-1),
+                            tooltip: 'Downvote',
                           ),
                         ],
                       ),
