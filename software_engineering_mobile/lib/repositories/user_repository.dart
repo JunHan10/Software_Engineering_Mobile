@@ -25,6 +25,7 @@ abstract class UserRepository {
   Future<void> incrementTransactionCount(String userId);
   Future<int> getTransactionCount(String userId);
 
+
   // ---- Dev helpers (used in your UI debug buttons) ----
   Future<void> clearAllData();
   Future<void> printAllUsers();

@@ -35,7 +35,6 @@ class _ProfilePageState extends State<ProfilePage> {
   final _authService = AuthService();
   User? _user;
   int _hippoBalanceCents = 0;
-  int _transactionCount = 0;
 
   // Gallery
   final List<File> _imageFiles = [];
@@ -45,6 +44,7 @@ class _ProfilePageState extends State<ProfilePage> {
   int _activeLoans = 0;
   int _completedLoans = 0;
   double _totalEarnings = 0.0;
+  int _transactionCount = 0;
 
   @override
   void initState() {
@@ -626,15 +626,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Colors.green,
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Transactions',
-            _transactionCount.toString(),
-            Icons.receipt_long,
-            const Color(0xFF87AE73),
-          ),
-        ),
+        // Transactions card removed per request
       ],
     );
   }

@@ -154,11 +154,11 @@ class SharedPrefsUserRepository implements repo.UserRepository {
     final prefs = await SharedPreferences.getInstance();
     final current = prefs.getInt(_txnKey(userId)) ?? 0;
     await prefs.setInt(_txnKey(userId), current + 1);
-    // Also mirror into user JSON for convenience
+    // mirror into users list
     final users = await _loadUsers();
     final idx = users.indexWhere((u) => u.id == userId);
     if (idx != -1) {
-      final updated = users[idx].copyWith(transactionCount: (users[idx].transactionCount + 1));
+      final updated = users[idx].copyWith(transactionCount: users[idx].transactionCount + 1);
       users[idx] = updated;
       await _saveUsers(users);
     }
@@ -167,11 +167,10 @@ class SharedPrefsUserRepository implements repo.UserRepository {
   @override
   Future<int> getTransactionCount(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    final fromKey = prefs.getInt(_txnKey(userId));
-    if (fromKey != null) return fromKey;
-    // fallback to stored user JSON
-    final user = await findById(userId);
-    return user?.transactionCount ?? 0;
+    final v = prefs.getInt(_txnKey(userId));
+    if (v != null) return v;
+    final u = await findById(userId);
+    return u?.transactionCount ?? 0;
   }
 
   // ------------ Initialization ------------
