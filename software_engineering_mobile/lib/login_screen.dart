@@ -320,7 +320,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 24,
                     width: 24,
                     errorBuilder: (context, error, stackTrace) => 
-                        const Icon(Icons.login, color: Colors.red),
+                        Image.asset(
+                          'assets/google_logo.png',
+                          height: 36,
+                          width: 36,
+                          fit: BoxFit.cover,
+                        ),
                   ),
                   label: const Text(
                     'Continue with Google',
