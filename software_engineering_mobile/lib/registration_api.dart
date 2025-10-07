@@ -4,6 +4,7 @@
 // then sets the activeUserId so the session is "logged in".
 // Only logic was changed to remove calls to an old AuthService.register API.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 
@@ -22,15 +23,12 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
   final _firstNameCtrl = TextEditingController();
   final _lastNameCtrl = TextEditingController();
-  final _ageCtrl = TextEditingController();
-  final _streetCtrl = TextEditingController();
-  final _cityCtrl = TextEditingController();
-  final _stateCtrl = TextEditingController();
-  final _zipCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _phoneCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _confirmPasswordCtrl = TextEditingController();
 
   bool _busy = false;
   String? _error;
@@ -51,11 +49,7 @@ Future<void> _register() async {
     "password": _passwordCtrl.text, // hash in production!
     "firstName": _firstNameCtrl.text.trim(),
     "lastName": _lastNameCtrl.text.trim(),
-    "age": int.tryParse(_ageCtrl.text.trim()),
-    "streetAddress": _streetCtrl.text.trim(),
-    "city": _cityCtrl.text.trim(),
-    "state": _stateCtrl.text.trim(),
-    "zipcode": _zipCtrl.text.trim(),
+    "phone": _phoneCtrl.text.trim(),
     "currency": 0.0,
     "assets": [],
     "hippoBalanceCents": 0
@@ -114,15 +108,12 @@ Future<void> _register() async {
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
-    _ageCtrl.dispose();
-    _streetCtrl.dispose();
-    _cityCtrl.dispose();
-    _stateCtrl.dispose();
-    _zipCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _passwordCtrl.dispose();
+    _confirmPasswordCtrl.dispose();
     super.dispose();
   }
 
@@ -165,6 +156,40 @@ Future<void> _register() async {
                   ),
                   const SizedBox(height: 16),
                 ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _firstNameCtrl,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'First name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) =>
+                            (v == null || v.trim().isEmpty)
+                                ? 'First name required'
+                                : null,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _lastNameCtrl,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Last name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (v) =>
+                            (v == null || v.trim().isEmpty)
+                                ? 'Last name required'
+                                : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
@@ -172,8 +197,53 @@ Future<void> _register() async {
                     labelText: 'Email',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Email required' : null,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Email required';
+                    final ok = RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$')
+                        .hasMatch(v.trim());
+                    return ok ? null : 'Enter a valid email';
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9+\-\s\(\)]'),
+                    ),
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '+1 (555) 123-4567 or (555) 123-4567',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Phone number required';
+                    }
+                    final input = v.trim();
+                    final digitsOnly = input.replaceAll(RegExp(r'[^0-9]'), '');
+
+                    // If input includes country code (e.g., starts with '+'),
+                    // require total digits to be 11-13, with the last 10 as national number.
+                    if (input.startsWith('+')) {
+                      if (digitsOnly.length < 11 || digitsOnly.length > 13) {
+                        return 'Include country code (+XX) and 10-digit number';
+                      }
+                      final national = digitsOnly.substring(digitsOnly.length - 10);
+                      if (national.length != 10) {
+                        return 'National number must be 10 digits';
+                      }
+                      return null;
+                    }
+
+                    // No country code provided: require exactly 10 digits (national number).
+                    if (digitsOnly.length != 10) {
+                      return 'Enter a 10-digit number; country code optional';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -183,82 +253,29 @@ Future<void> _register() async {
                     labelText: 'Password',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) =>
-                  (v == null || v.isEmpty) ? 'Password required' : null,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _firstNameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'First name',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _lastNameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Last name',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Password required';
+                    if (v.length < 6) return 'Min 6 characters';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _ageCtrl,
-                  keyboardType:
-                  const TextInputType.numberWithOptions(signed: false),
+                  controller: _confirmPasswordCtrl,
+                  obscureText: true,
                   decoration: const InputDecoration(
-                    labelText: 'Age (optional)',
+                    labelText: 'Confirm password',
                     border: OutlineInputBorder(),
                   ),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _streetCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Street address (optional)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _cityCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'City (optional)',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _stateCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'State (optional)',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _zipCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Zip (optional)',
-                    border: OutlineInputBorder(),
-                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (v != _passwordCtrl.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
