@@ -38,28 +38,32 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Hardcoded credentials
-    const hardcodedEmail = 'john.doe@gmail.com';
-    const hardcodedPassword = 'password123';
-
-    await Future.delayed(const Duration(seconds: 1)); // simulate loading
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    if (email == hardcodedEmail && password == hardcodedPassword) {
-      // Login successful
+    try {
+      final success = await _authService.login(email, password);
+      
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => MainNavigation()),
-      );
-    } else {
-      // Login failed
+      setState(() => _isLoading = false);
+      
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => MainNavigation()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login failed. Invalid credentials.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
       if (!mounted) return;
+      setState(() => _isLoading = false);
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed. Invalid credentials.'),
+        SnackBar(
+          content: Text('Network error: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );

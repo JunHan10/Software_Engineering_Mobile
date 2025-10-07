@@ -8,8 +8,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/user.dart';
 import '../repositories/shared_prefs_user_repository.dart';
+import '../api/api.dart';
 
 class AuthService {
   static const _activeUserKey = 'activeUserId';
@@ -17,7 +20,33 @@ class AuthService {
   final firebase_auth.FirebaseAuth _firebaseAuth = firebase_auth.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  /// Attempt to log in with email + password.
+  /// Attempt to log in with email + password via server API.
+  /// Returns true on success, false on failure.
+  Future<bool> login(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse(ApiConfig.login),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        // Store user session
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_activeUserKey, data['userId'] ?? email);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Attempt to log in with email + password (local fallback).
   /// Returns the User on success, or null if credentials are invalid.
   Future<User?> loginWithEmailPassword(String email, String password) async {
     final user = await _repo.findByEmailAndPassword(email, password);
