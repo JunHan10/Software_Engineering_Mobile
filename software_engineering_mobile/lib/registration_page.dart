@@ -122,7 +122,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         textCapitalization: TextCapitalization.words,
                         decoration: const InputDecoration(
                           labelText: 'First name',
+                          hintText: 'Enter your first name',
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
                           border: OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0xFF87AE73),
+                              width: 2.0,
+                            ),
+                          ),
                         ),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty)
@@ -137,7 +148,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         textCapitalization: TextCapitalization.words,
                         decoration: const InputDecoration(
                           labelText: 'Last name',
+                          hintText: 'Enter your last name',
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
                           border: OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Color(0xFF87AE73),
+                              width: 2.0,
+                            ),
+                          ),
                         ),
                         validator: (v) =>
                             (v == null || v.trim().isEmpty)
@@ -153,7 +175,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     labelText: 'Email',
+                    hintText: 'example@gmail.com',
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF87AE73),
+                        width: 2.0,
+                      ),
+                    ),
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Email required';
@@ -173,8 +206,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ],
                   decoration: const InputDecoration(
                     labelText: 'Phone number',
-                    hintText: '+1 (555) 123-4567 or (555) 123-4567',
+                    hintText: '+1 (555) 123-4567',
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF87AE73),
+                        width: 2.0,
+                      ),
+                    ),
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
@@ -206,7 +249,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
+                    hintText: 'At least 6 characters',
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF87AE73),
+                        width: 2.0,
+                      ),
+                    ),
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Password required';
@@ -220,7 +274,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Confirm password',
+                    hintText: 'Re-enter your password',
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF87AE73),
+                        width: 2.0,
+                      ),
+                    ),
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
