@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Wallet card widget for ProfileV2
 /// Displays Hippo Bucks balance and provides deposit/withdraw functionality
@@ -63,10 +64,7 @@ class WalletCard extends StatelessWidget {
         GestureDetector(
           onTap: onShowHistory,
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
@@ -98,7 +96,7 @@ class WalletCard extends StatelessWidget {
         Expanded(
           child: ElevatedButton.icon(
             onPressed: onDeposit,
-            icon: const Icon(Icons.add, size: 18),
+            icon: const FaIcon(FontAwesomeIcons.plus, size: 18),
             label: const Text('Add Money'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -113,7 +111,7 @@ class WalletCard extends StatelessWidget {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: onWithdraw,
-            icon: const Icon(Icons.remove, size: 18),
+            icon: const FaIcon(FontAwesomeIcons.minus, size: 18),
             label: const Text('Spend'),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,

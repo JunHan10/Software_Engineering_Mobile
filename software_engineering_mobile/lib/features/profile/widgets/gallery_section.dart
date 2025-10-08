@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Gallery section widget for ProfileV2
 /// Displays and manages photo gallery functionality
@@ -41,11 +42,9 @@ class GallerySection extends StatelessWidget {
         ),
         TextButton.icon(
           onPressed: onAddImages,
-          icon: const Icon(Icons.add_photo_alternate, size: 18),
+          icon: const FaIcon(FontAwesomeIcons.images, size: 18),
           label: const Text('Add Photos'),
-          style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF87AE73),
-          ),
+          style: TextButton.styleFrom(foregroundColor: const Color(0xFF87AE73)),
         ),
       ],
     );
@@ -64,16 +63,13 @@ class GallerySection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey[300]!,
-          style: BorderStyle.solid,
-        ),
+        border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid),
       ),
       child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.photo_library, color: Colors.grey, size: 32),
+            FaIcon(FontAwesomeIcons.images, color: Colors.grey, size: 32),
             SizedBox(height: 8),
             Text('No photos yet', style: TextStyle(color: Colors.grey)),
           ],
@@ -115,8 +111,8 @@ class GallerySection extends StatelessWidget {
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.close,
+                      child: const FaIcon(
+                        FontAwesomeIcons.xmark,
                         size: 16,
                         color: Colors.white,
                       ),

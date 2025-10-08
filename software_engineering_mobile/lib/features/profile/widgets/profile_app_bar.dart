@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../shared/widgets/app_settings_page.dart';
 import '../../../shared/widgets/edit_profile_page.dart';
@@ -33,8 +34,8 @@ class ProfileAppBar extends StatelessWidget {
       backgroundColor: const Color(0xFF87AE73),
       actions: [
         PopupMenuButton<String>(
-          icon: const Icon(
-            Icons.more_vert,
+          icon: const FaIcon(
+            FontAwesomeIcons.ellipsisVertical,
             color: Colors.white,
             size: 26,
           ),
@@ -44,7 +45,10 @@ class ProfileAppBar extends StatelessWidget {
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, color: Color(0xFF87AE73)),
+                  FaIcon(
+                    FontAwesomeIcons.penToSquare,
+                    color: Color(0xFF87AE73),
+                  ),
                   SizedBox(width: 8),
                   Text('Edit Profile'),
                 ],
@@ -54,7 +58,7 @@ class ProfileAppBar extends StatelessWidget {
               value: 'settings',
               child: Row(
                 children: [
-                  Icon(Icons.settings, color: Color(0xFF87AE73)),
+                  FaIcon(FontAwesomeIcons.gear, color: Color(0xFF87AE73)),
                   SizedBox(width: 8),
                   Text('Settings'),
                 ],
@@ -64,7 +68,10 @@ class ProfileAppBar extends StatelessWidget {
               value: 'logout',
               child: Row(
                 children: [
-                  Icon(Icons.logout, color: Colors.red),
+                  FaIcon(
+                    FontAwesomeIcons.arrowRightFromBracket,
+                    color: Colors.red,
+                  ),
                   SizedBox(width: 8),
                   Text('Logout'),
                 ],
@@ -165,13 +172,11 @@ class ProfileAppBar extends StatelessWidget {
           child: CircleAvatar(
             radius: 60,
             backgroundColor: Colors.white,
-            backgroundImage: profileImage != null ? FileImage(profileImage!) : null,
+            backgroundImage: profileImage != null
+                ? FileImage(profileImage!)
+                : null,
             child: profileImage == null
-                ? ProfilePicture(
-                    name: displayName,
-                    radius: 60,
-                    fontsize: 30,
-                  )
+                ? ProfilePicture(name: displayName, radius: 60, fontsize: 30)
                 : null,
           ),
         ),
@@ -185,10 +190,7 @@ class ProfileAppBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF87AE73),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white, width: 2),
               ),
               child: isPickingImage
                   ? const SizedBox(
@@ -199,8 +201,8 @@ class ProfileAppBar extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : const Icon(
-                      Icons.camera_alt,
+                  : const FaIcon(
+                      FontAwesomeIcons.camera,
                       color: Colors.white,
                       size: 16,
                     ),
@@ -216,25 +218,19 @@ class ProfileAppBar extends StatelessWidget {
       case 'edit':
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const EditProfilePage(),
-          ),
+          MaterialPageRoute(builder: (context) => const EditProfilePage()),
         );
         break;
       case 'settings':
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const AppSettingsPage(),
-          ),
+          MaterialPageRoute(builder: (context) => const AppSettingsPage()),
         );
         break;
       case 'logout':
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
         break;
     }

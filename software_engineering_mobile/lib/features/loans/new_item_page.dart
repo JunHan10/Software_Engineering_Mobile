@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:io';
 import '../../core/services/auth_service.dart';
 import '../../core/repositories/shared_prefs_user_repository.dart';
@@ -370,8 +371,8 @@ class _NewItemPageState extends State<NewItemPage> {
                       ),
                       child: Center(
                         child: isCompleted
-                            ? const Icon(
-                                Icons.check,
+                            ? const FaIcon(
+                                FontAwesomeIcons.check,
                                 color: Colors.white,
                                 size: 16,
                               )
@@ -530,8 +531,8 @@ class _NewItemPageState extends State<NewItemPage> {
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.add_photo_alternate_outlined,
+                        FaIcon(
+                          FontAwesomeIcons.images,
                           size: 48,
                           color: Colors.grey[400],
                         ),
@@ -547,7 +548,10 @@ class _NewItemPageState extends State<NewItemPage> {
                           children: [
                             ElevatedButton.icon(
                               onPressed: _pickImages,
-                              icon: const Icon(Icons.photo_library, size: 18),
+                              icon: const FaIcon(
+                                FontAwesomeIcons.images,
+                                size: 18,
+                              ),
                               label: const Text('Gallery'),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF87AE73),
@@ -561,7 +565,10 @@ class _NewItemPageState extends State<NewItemPage> {
                             const SizedBox(width: 12),
                             OutlinedButton.icon(
                               onPressed: _pickImageFromCamera,
-                              icon: const Icon(Icons.camera_alt, size: 18),
+                              icon: const FaIcon(
+                                FontAwesomeIcons.camera,
+                                size: 18,
+                              ),
                               label: const Text('Camera'),
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(
@@ -589,8 +596,8 @@ class _NewItemPageState extends State<NewItemPage> {
                               Expanded(
                                 child: ElevatedButton.icon(
                                   onPressed: _pickImages,
-                                  icon: const Icon(
-                                    Icons.photo_library,
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.images,
                                     size: 16,
                                   ),
                                   label: const Text('Gallery'),
@@ -607,7 +614,10 @@ class _NewItemPageState extends State<NewItemPage> {
                               Expanded(
                                 child: OutlinedButton.icon(
                                   onPressed: _pickImageFromCamera,
-                                  icon: const Icon(Icons.camera_alt, size: 16),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.camera,
+                                    size: 16,
+                                  ),
                                   label: const Text('Camera'),
                                   style: OutlinedButton.styleFrom(
                                     side: const BorderSide(
@@ -658,8 +668,8 @@ class _NewItemPageState extends State<NewItemPage> {
                                           color: Colors.red,
                                           shape: BoxShape.circle,
                                         ),
-                                        child: const Icon(
-                                          Icons.close,
+                                        child: const FaIcon(
+                                          FontAwesomeIcons.xmark,
                                           size: 16,
                                           color: Colors.white,
                                         ),
@@ -721,7 +731,7 @@ class _NewItemPageState extends State<NewItemPage> {
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.blue[700]),
+                FaIcon(FontAwesomeIcons.circleInfo, color: Colors.blue[700]),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -807,7 +817,11 @@ class _NewItemPageState extends State<NewItemPage> {
               flex: 3,
               child: Text(value, style: TextStyle(color: Colors.grey[700])),
             ),
-            Icon(Icons.edit, size: 16, color: Colors.grey[400]),
+            FaIcon(
+              FontAwesomeIcons.penToSquare,
+              size: 16,
+              color: Colors.grey[400],
+            ),
           ],
         ),
       ),
@@ -858,7 +872,7 @@ class _NewItemPageState extends State<NewItemPage> {
         backgroundColor: const Color(0xFF87AE73),
         foregroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const FaIcon(FontAwesomeIcons.xmark),
           onPressed: _showQuitDialog,
         ),
         actions: [
@@ -908,7 +922,10 @@ class _NewItemPageState extends State<NewItemPage> {
               color: Colors.red[50],
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red[700]),
+                  FaIcon(
+                    FontAwesomeIcons.circleExclamation,
+                    color: Colors.red[700],
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -918,7 +935,10 @@ class _NewItemPageState extends State<NewItemPage> {
                   ),
                   IconButton(
                     onPressed: () => setState(() => _error = null),
-                    icon: Icon(Icons.close, color: Colors.red[700]),
+                    icon: FaIcon(
+                      FontAwesomeIcons.xmark,
+                      color: Colors.red[700],
+                    ),
                   ),
                 ],
               ),
@@ -962,7 +982,7 @@ class _NewItemPageState extends State<NewItemPage> {
                       Navigator.pop(context);
                     }
                   },
-                  icon: const Icon(Icons.save_outlined),
+                  icon: const FaIcon(FontAwesomeIcons.floppyDisk),
                   label: const Text('Save Draft'),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF87AE73)),
@@ -976,7 +996,7 @@ class _NewItemPageState extends State<NewItemPage> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _previousStep,
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const FaIcon(FontAwesomeIcons.arrowLeft),
                     label: const Text('Back'),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey[400]!),
