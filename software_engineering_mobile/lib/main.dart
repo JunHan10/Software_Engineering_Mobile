@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'login_screen.dart'; // Import your login screen
-import 'repositories/shared_prefs_user_repository.dart';
-import 'services/notification_service.dart';
+import 'features/auth/firebase_options.dart';
+import 'features/auth/login_screen.dart'; // Import your login screen
+import 'core/repositories/shared_prefs_user_repository.dart';
+import 'core/services/notification_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // ✅ Must be first
-
-  WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Firebase
   await Firebase.initializeApp(
@@ -23,9 +21,6 @@ void main() async {
   
   // Initialize notification service
   await NotificationService.init();
-  WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Firebase
-  await Firebase.initializeApp();
   
   // Initialize test data
   final repo = SharedPrefsUserRepository();
