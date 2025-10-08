@@ -451,7 +451,10 @@ class _NewItemPageState extends State<NewItemPage> {
               labelText: 'Item Name',
               hintText: 'e.g., Vintage Camera, Gaming Chair',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.label_outline),
+              prefixIcon: SizedBox(
+                width: 48,
+                child: Center(child: FaIcon(FontAwesomeIcons.tag, size: 18)),
+              ),
             ),
             onChanged: (value) => _updateFormData(),
           ),
@@ -479,7 +482,16 @@ class _NewItemPageState extends State<NewItemPage> {
               hintText:
                   'Describe the condition, features, and any relevant details...',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.description_outlined),
+              prefixIcon: SizedBox(
+                width: 48,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: FaIcon(FontAwesomeIcons.fileLines, size: 18),
+                  ),
+                ),
+              ),
             ),
             onChanged: (value) => _updateFormData(),
           ),
@@ -492,7 +504,16 @@ class _NewItemPageState extends State<NewItemPage> {
               hintText:
                   'Any special care instructions or maintenance needed...',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.build_outlined),
+              prefixIcon: SizedBox(
+                width: 48,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 12),
+                    child: FaIcon(FontAwesomeIcons.wrench, size: 18),
+                  ),
+                ),
+              ),
             ),
             onChanged: (value) => _updateFormData(),
           ),
@@ -716,7 +737,12 @@ class _NewItemPageState extends State<NewItemPage> {
               labelText: 'Price per day (HB) *',
               hintText: '0.00',
               border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.attach_money),
+              prefixIcon: SizedBox(
+                width: 48,
+                child: Center(
+                  child: FaIcon(FontAwesomeIcons.dollarSign, size: 18),
+                ),
+              ),
               prefixText: 'HB ',
             ),
             onChanged: (value) => _updateFormData(),

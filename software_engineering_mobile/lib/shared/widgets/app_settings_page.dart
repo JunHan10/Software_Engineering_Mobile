@@ -124,7 +124,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.dark_mode_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.moon, size: 20),
+                  ),
                   title: const Text('Dark mode'),
                   value: _darkMode,
                   onChanged: (v) => _setDarkMode(v),
@@ -154,7 +159,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.notifications_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.bell, size: 20),
+                  ),
                   title: const Text('Push notifications'),
                   value: _pushNotifications,
                   onChanged: (v) {
@@ -164,7 +174,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 const Divider(height: 0),
                 SwitchListTile(
-                  secondary: const Icon(Icons.email_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.envelope, size: 20),
+                  ),
                   title: const Text('Email notifications'),
                   value: _emailNotifications,
                   onChanged: (v) {

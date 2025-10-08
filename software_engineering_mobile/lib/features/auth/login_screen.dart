@@ -117,7 +117,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIcon: Container(
+                          width: 48,
+                          alignment: Alignment.center,
+                          child: const FaIcon(
+                            FontAwesomeIcons.envelope,
+                            size: 18,
+                          ),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -155,12 +162,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
+                        prefixIcon: Container(
+                          width: 48,
+                          alignment: Alignment.center,
+                          child: const FaIcon(FontAwesomeIcons.lock, size: 18),
+                        ),
                         suffixIcon: IconButton(
-                          icon: Icon(
+                          icon: FaIcon(
                             _isPasswordVisible
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                                ? FontAwesomeIcons.eye
+                                : FontAwesomeIcons.eyeSlash,
+                            size: 18,
                           ),
                           onPressed: () {
                             setState(() {

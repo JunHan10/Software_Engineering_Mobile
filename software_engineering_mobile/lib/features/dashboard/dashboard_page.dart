@@ -186,10 +186,17 @@ class _DashboardPageState extends State<DashboardPage> {
                     horizontal: 12,
                   ),
                   hintText: 'Search items...',
-                  prefixIcon: const Icon(Icons.search, size: 20),
+                  prefixIcon: Container(
+                    width: 48,
+                    alignment: Alignment.center,
+                    child: const FaIcon(
+                      FontAwesomeIcons.magnifyingGlass,
+                      size: 18,
+                    ),
+                  ),
                   suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear),
+                          icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
                           onPressed: () {
                             _searchController.clear();
                           },
