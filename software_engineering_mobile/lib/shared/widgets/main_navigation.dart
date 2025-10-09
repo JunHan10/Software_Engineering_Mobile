@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/services.dart';
 import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../features/dashboard/dashboard_page.dart';
-import 'messages.dart';
 import '../../features/loans/loaned_items.dart';
 import '../../features/loans/active_loans.dart';
-//import 'profile/profile_page.dart';
 import '../../features/profile/profile_page.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -26,7 +25,6 @@ class _MainNavigationState extends State<MainNavigation> {
     DashboardPage(),
     Loaned_Items(),
     ActiveLoans(),
-    MessagesPage(),
     ProfilePageV2(),
   ];
 
@@ -146,11 +144,10 @@ class _MainNavigationState extends State<MainNavigation> {
         color: Color.fromARGB(255, 231, 228, 213),
         child: Row(
           children: [
-            _buildNavButton(0, Icons.home, 'Home'),
-            _buildNavButton(1, Icons.upload, 'Post'),
-            _buildNavButton(2, Icons.download, 'Borrow'),
-            _buildNavButton(3, Icons.message, 'Inbox'),
-            _buildNavButton(4, Icons.person, 'Profile'),
+            _buildNavButton(0, FontAwesomeIcons.house, 'Home'),
+            _buildNavButton(1, FontAwesomeIcons.arrowUp, 'Post'),
+            _buildNavButton(2, FontAwesomeIcons.compass, 'Borrow'),
+            _buildNavButton(3, FontAwesomeIcons.user, 'Profile'),
           ],
         ),
       ),

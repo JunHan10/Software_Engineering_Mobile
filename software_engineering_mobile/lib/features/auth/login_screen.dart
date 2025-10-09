@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../shared/widgets/main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
 import '../../core/services/auth_service.dart';
@@ -116,12 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               // App Logo/Title (unchanged)
-              Center(
-                child: Image.asset(
-                  'assets/login_icon.png',
-                  height: 200,
-                ),
-              ),
+              Center(child: Image.asset('assets/login_icon.png', height: 200)),
               const SizedBox(height: 6),
 
               const Text(
@@ -137,10 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const Text(
                 'Sign in to your account',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -156,7 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email_outlined),
+                        prefixIcon: Container(
+                          width: 48,
+                          alignment: Alignment.center,
+                          child: const FaIcon(
+                            FontAwesomeIcons.envelope,
+                            size: 18,
+                          ),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -178,8 +178,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
                           return 'Please enter a valid email';
                         }
                         return null;
@@ -193,11 +194,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: !_isPasswordVisible,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outlined),
+                        prefixIcon: Container(
+                          width: 48,
+                          alignment: Alignment.center,
+                          child: const FaIcon(FontAwesomeIcons.lock, size: 18),
+                        ),
                         suffixIcon: IconButton(
-                          icon: Icon(_isPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off),
+                          icon: FaIcon(
+                            _isPasswordVisible
+                                ? FontAwesomeIcons.eye
+                                : FontAwesomeIcons.eyeSlash,
+                            size: 18,
+                          ),
                           onPressed: () {
                             setState(() {
                               _isPasswordVisible = !_isPasswordVisible;
@@ -246,9 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: const Text(
                           'Forgot Password?',
-                          style: TextStyle(
-                            color: Color(0xff87ae73),
-                          ),
+                          style: TextStyle(color: Color(0xff87ae73)),
                         ),
                       ),
                     ),
@@ -270,22 +276,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: _isLoading
                             ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
                             : const Text(
-                          'Sign In',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                                'Sign In',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -364,9 +370,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text(
                       'Sign Up',
-                      style: TextStyle(
-                        color: Color(0xff87ae73),
-                      ),
+                      style: TextStyle(color: Color(0xff87ae73)),
                     ),
                   ),
                 ],

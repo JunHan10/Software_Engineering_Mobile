@@ -1,6 +1,7 @@
 // lib/shared/widgets/item_detail_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/category_service.dart';
 import '../../core/services/comment_service.dart';
 import '../../core/services/auth_service.dart';
@@ -44,7 +45,9 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     if (text.isEmpty) return;
     final user = await _auth.getCurrentUser();
     final authorId = user?.id ?? 'guest';
-    final authorName = user != null ? '${user.firstName} ${user.lastName}'.trim() : 'Guest';
+    final authorName = user != null
+        ? '${user.firstName} ${user.lastName}'.trim()
+        : 'Guest';
     final c = Comment(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       itemId: widget.itemId,
@@ -216,11 +219,18 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                         children: [
                           IconButton(
                             icon: Icon(
-                              Icons.arrow_upward,
+                              FontAwesomeIcons.arrowUp,
                               color: _myVote == 1
                                   ? (category != null
-                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                                      : const Color(0xFF87AE73))
+                                        ? Color(
+                                            int.parse(
+                                              category.color.replaceAll(
+                                                '#',
+                                                '0xFF',
+                                              ),
+                                            ),
+                                          )
+                                        : const Color(0xFF87AE73))
                                   : Colors.grey[500],
                               size: 20,
                             ),
@@ -236,7 +246,14 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: category != null
-                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                                      ? Color(
+                                          int.parse(
+                                            category.color.replaceAll(
+                                              '#',
+                                              '0xFF',
+                                            ),
+                                          ),
+                                        )
                                       : const Color(0xFF87AE73),
                                 ),
                               );
@@ -244,11 +261,18 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           ),
                           IconButton(
                             icon: Icon(
-                              Icons.arrow_downward,
+                              FontAwesomeIcons.arrowDown,
                               color: _myVote == -1
                                   ? (category != null
-                                      ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-                                      : const Color(0xFF87AE73))
+                                        ? Color(
+                                            int.parse(
+                                              category.color.replaceAll(
+                                                '#',
+                                                '0xFF',
+                                              ),
+                                            ),
+                                          )
+                                        : const Color(0xFF87AE73))
                                   : Colors.grey[500],
                               size: 20,
                             ),
@@ -326,7 +350,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.message),
+                          icon: const FaIcon(FontAwesomeIcons.message),
                           label: const Text('Contact Owner'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: category != null
@@ -355,7 +379,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.favorite_border),
+                          icon: const FaIcon(FontAwesomeIcons.heart),
                           label: const Text('Favorite'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: category != null
@@ -418,7 +442,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             CircleAvatar(
                               backgroundColor: Colors.grey[300],
                               child: Text(
-                                (c.authorName.isNotEmpty ? c.authorName[0] : 'G').toUpperCase(),
+                                (c.authorName.isNotEmpty
+                                        ? c.authorName[0]
+                                        : 'G')
+                                    .toUpperCase(),
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
@@ -428,7 +455,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         c.authorName,
@@ -438,7 +466,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                       ),
                                       Text(
                                         _formatTime(c.createdAt),
-                                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -472,10 +503,17 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                         onPressed: _submitComment,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: category != null
-                              ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                              ? Color(
+                                  int.parse(
+                                    category.color.replaceAll('#', '0xFF'),
+                                  ),
+                                )
                               : const Color(0xFF87AE73),
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                         ),
                         child: const Text('Post'),
                       ),

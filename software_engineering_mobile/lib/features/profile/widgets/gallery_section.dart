@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/models/user.dart';
 
 /// Posts section widget for ProfileV2
@@ -55,6 +56,10 @@ class _PostsSectionState extends State<PostsSection> {
           style: TextButton.styleFrom(
             foregroundColor: const Color(0xFF87AE73),
           ),
+          onPressed: onAddImages,
+          icon: const FaIcon(FontAwesomeIcons.images, size: 18),
+          label: const Text('Add Photos'),
+          style: TextButton.styleFrom(foregroundColor: const Color(0xFF87AE73)),
         ),
       ],
     );
@@ -83,6 +88,9 @@ class _PostsSectionState extends State<PostsSection> {
           color: Colors.grey[300]!,
           style: BorderStyle.solid,
         ),
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!, style: BorderStyle.solid),
       ),
       child: const Center(
         child: Column(
@@ -102,6 +110,7 @@ class _PostsSectionState extends State<PostsSection> {
                 fontWeight: FontWeight.w500,
               ),
             ),
+            FaIcon(FontAwesomeIcons.images, color: Colors.grey, size: 32),
             SizedBox(height: 8),
             Text(
               'Create your first post to get started!', 
@@ -242,6 +251,33 @@ class _PostsSectionState extends State<PostsSection> {
                           ],
                         ),
                       ],
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: FileImage(images[index]),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: GestureDetector(
+                    onTap: () => onRemoveImage(index),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const FaIcon(
+                        FontAwesomeIcons.xmark,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),

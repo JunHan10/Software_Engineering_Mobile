@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'login_screen.dart';
 import '../../core/repositories/shared_prefs_user_repository.dart';
 
@@ -41,7 +42,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Future<void> _pickThemeColor() async {
-    final List<int> options = [0xFF87AE73, 0xFF6B8E5B, 0xFF4F6E43, 0xFF334E2B, 0xFF172E13];
+    final List<int> options = [
+      0xFF87AE73,
+      0xFF6B8E5B,
+      0xFF4F6E43,
+      0xFF334E2B,
+      0xFF172E13,
+    ];
     final chosen = await showDialog<int>(
       context: context,
       builder: (_) => AlertDialog(
@@ -56,12 +63,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(color: Color(c), shape: BoxShape.circle, border: Border.all(color: Colors.black12)),
+                  decoration: BoxDecoration(
+                    color: Color(c),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black12),
+                  ),
                 ),
               ),
           ],
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
     if (chosen == null) return;
@@ -69,7 +85,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     await prefs.setInt('theme_primary_color', chosen);
     if (!mounted) return;
     setState(() => _themeColor = chosen);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Theme color saved. Restart app to apply.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Theme color saved. Restart app to apply.')),
+    );
   }
 
   Future<void> _setNotif(String key, bool value) async {
@@ -95,14 +113,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         children: [
           const Text(
             'Appearance',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF87AE73)),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF87AE73),
+            ),
           ),
           const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.dark_mode_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.moon, size: 20),
+                  ),
                   title: const Text('Dark mode'),
                   value: _darkMode,
                   onChanged: (v) => _setDarkMode(v),
@@ -121,14 +148,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           const SizedBox(height: 16),
           const Text(
             'Notifications',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF87AE73)),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF87AE73),
+            ),
           ),
           const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.notifications_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.bell, size: 20),
+                  ),
                   title: const Text('Push notifications'),
                   value: _pushNotifications,
                   onChanged: (v) {
@@ -138,7 +174,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 const Divider(height: 0),
                 SwitchListTile(
-                  secondary: const Icon(Icons.email_outlined),
+                  secondary: Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    child: const FaIcon(FontAwesomeIcons.envelope, size: 20),
+                  ),
                   title: const Text('Email notifications'),
                   value: _emailNotifications,
                   onChanged: (v) {
@@ -153,14 +194,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           const SizedBox(height: 16),
           const Text(
             'Data & privacy',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF87AE73)),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF87AE73),
+            ),
           ),
           const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
+                  leading: const FaIcon(
+                    FontAwesomeIcons.trashCan,
+                    color: Colors.red,
+                  ),
                   title: const Text('Reset App'),
                   subtitle: const Text('Remove cached users and balances'),
                   onTap: () async {
@@ -168,10 +216,18 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       context: context,
                       builder: (_) => AlertDialog(
                         title: const Text('Reset App?'),
-                        content: const Text('This will remove locally stored users and balances.'),
+                        content: const Text(
+                          'This will remove locally stored users and balances.',
+                        ),
                         actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Reset')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Reset'),
+                          ),
                         ],
                       ),
                     );
@@ -187,7 +243,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 //const Divider(height: 0),
                 /*
                 ListTile(
-                  leading: const Icon(Icons.logout),
+                  leading: const FaIcon(FontAwesomeIcons.arrowRightFromBracket),
                   title: const Text('Log out'),
                   onTap: () {
                     Navigator.pushAndRemoveUntil(
@@ -215,13 +271,13 @@ class _SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const Text('Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      title: const Text(
+        'Settings',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
       backgroundColor: const Color(0xFF87AE73),
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.white),
     );
   }
 }
-
-
-

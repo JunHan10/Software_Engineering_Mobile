@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/profile_state.dart';
 
 /// Statistics section widget for ProfileV2
@@ -6,10 +7,7 @@ import '../models/profile_state.dart';
 class StatisticsSection extends StatelessWidget {
   final ProfileStatistics statistics;
 
-  const StatisticsSection({
-    super.key,
-    required this.statistics,
-  });
+  const StatisticsSection({super.key, required this.statistics});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +17,7 @@ class StatisticsSection extends StatelessWidget {
           child: _buildStatCard(
             'Total Loans',
             statistics.totalLoans.toString(),
-            Icons.account_balance_wallet,
+            FontAwesomeIcons.wallet,
             Colors.blue,
           ),
         ),
@@ -28,7 +26,7 @@ class StatisticsSection extends StatelessWidget {
           child: _buildStatCard(
             'Active',
             statistics.activeLoans.toString(),
-            Icons.trending_up,
+            FontAwesomeIcons.arrowTrendUp,
             Colors.orange,
           ),
         ),
@@ -37,7 +35,7 @@ class StatisticsSection extends StatelessWidget {
           child: _buildStatCard(
             'Completed',
             statistics.completedLoans.toString(),
-            Icons.check_circle,
+            FontAwesomeIcons.circleCheck,
             Colors.green,
           ),
         ),
@@ -66,7 +64,7 @@ class StatisticsSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, color: color, size: 24),
+          FaIcon(icon, color: color, size: 24),
           const SizedBox(height: 8),
           Text(
             value,

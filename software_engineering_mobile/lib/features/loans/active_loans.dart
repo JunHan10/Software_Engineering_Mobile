@@ -4,6 +4,7 @@
 // real loans data source, fetch by userId inside _load().
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/auth_service.dart';
 
 class ActiveLoans extends StatefulWidget {
@@ -45,8 +46,8 @@ class _ActiveLoansState extends State<ActiveLoans> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.login,
+            FaIcon(
+              FontAwesomeIcons.arrowRightToBracket,
               size: 80,
               color: Colors.grey[400],
             ),
@@ -62,10 +63,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
             const SizedBox(height: 12),
             Text(
               'Sign in to view your active loans and borrowing history.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -87,8 +85,8 @@ class _ActiveLoansState extends State<ActiveLoans> {
                 color: const Color(0xFF87AE73).withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.download_outlined,
+              child: FaIcon(
+                FontAwesomeIcons.download,
                 size: 80,
                 color: const Color(0xFF87AE73),
               ),
@@ -105,10 +103,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
             const SizedBox(height: 12),
             Text(
               'You haven\'t borrowed any items yet.\nStart exploring the marketplace to find items you need!',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -117,12 +112,15 @@ class _ActiveLoansState extends State<ActiveLoans> {
                 // Navigate to dashboard (Home tab)
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
-              icon: const Icon(Icons.explore),
+              icon: const FaIcon(FontAwesomeIcons.compass),
               label: const Text('Browse Marketplace'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF87AE73),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -137,16 +135,21 @@ class _ActiveLoansState extends State<ActiveLoans> {
                 // For now, just show a message
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Switch to the "Post" tab to lend your items!'),
+                    content: Text(
+                      'Switch to the "Post" tab to lend your items!',
+                    ),
                     backgroundColor: Color(0xFF87AE73),
                   ),
                 );
               },
-              icon: const Icon(Icons.upload),
+              icon: const FaIcon(FontAwesomeIcons.arrowUp),
               label: const Text('Lend Your Items Instead'),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFF87AE73),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -166,10 +169,10 @@ class _ActiveLoansState extends State<ActiveLoans> {
         return Card(
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            leading: const Icon(Icons.receipt_long),
+            leading: const FaIcon(FontAwesomeIcons.receipt),
             title: Text('Loan #${index + 1}'), // TODO: Replace with loan.title
             subtitle: Text('Status: Active'), // TODO: Replace with loan.status
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: const FaIcon(FontAwesomeIcons.chevronRight),
             onTap: () {
               // TODO: Navigate to loan details
               // Navigator.push(context, MaterialPageRoute(builder: (context) => LoanDetailsPage(loan: loan)));
