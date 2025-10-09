@@ -229,6 +229,63 @@ class _NewItemPageState extends State<NewItemPage> {
   }
 
   // ---- Phase 4: Asset Creation ----
+  Future<void> _submitItemAsDone() async {
+    if (_saving) return;
+    if (_currentUser == null) {
+      setState(() => _error = 'No active user. Please log in.');
+      return;
+    }
+
+    _updateFormData();
+
+    if (!_validateCurrentStep() || _itemName.isEmpty || _description.isEmpty) {
+      setState(() => _error = 'Please complete all required fields.');
+      return;
+    }
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+
+    try {
+      final newAsset = Asset(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: _itemName,
+        value: _price,
+        description: _description,
+        imagePaths: _images, // Include the selected image paths
+      );
+
+      final user = _currentUser!;
+      final updated = _copyUser(
+        user,
+        assets: <Asset>[...user.assets, newAsset],
+      );
+
+      await _repo.save(updated);
+      await _clearDraft(); // Clear draft after successful submission
+
+      if (!mounted) return;
+      setState(() => _currentUser = updated);
+
+      // Show success and navigate back
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Item completed and posted successfully!'),
+            backgroundColor: Color(0xFF87AE73),
+          ),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      setState(() => _error = 'Failed to save item.');
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   Future<void> _submitItem() async {
     if (_saving) return;
     if (_currentUser == null) {
@@ -254,6 +311,7 @@ class _NewItemPageState extends State<NewItemPage> {
         name: _itemName,
         value: _price,
         description: _description,
+        imagePaths: _images, // Include the selected image paths
       );
 
       final user = _currentUser!;
@@ -741,78 +799,211 @@ class _NewItemPageState extends State<NewItemPage> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Review your item',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 16),
-          _buildReviewCard(),
+          const SizedBox(height: 8),
+          Text(
+            'This is how your item will appear to other users',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 24),
+          Center(child: _buildReviewCard()),
         ],
       ),
     );
   }
 
   Widget _buildReviewCard() {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildReviewField('Name', _itemName, () => _goToStep(0)),
-            const Divider(),
-            _buildReviewField('Description', _description, () => _goToStep(1)),
-            const Divider(),
-            _buildReviewField(
-              'Maintenance',
-              _maintenance.isEmpty ? 'None specified' : _maintenance,
-              () => _goToStep(1),
-            ),
-            const Divider(),
-            _buildReviewField(
-              'Photos',
-              '${_images.length} photos',
-              () => _goToStep(2),
-            ),
-            const Divider(),
-            _buildReviewField(
-              'Price',
-              'HB ${_price.toStringAsFixed(2)}',
-              () => _goToStep(3),
-            ),
-          ],
+    const Color categoryColor = Color(0xFF87AE73);
+    
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 280),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            // Optional: Add tap functionality to edit
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image header - using the same aspect ratio as category cards
+              AspectRatio(
+                aspectRatio: 16 / 12, // Same ratio as marketplace cards
+                child: Container(
+                  color: categoryColor.withOpacity(0.06),
+                  child: _images.isNotEmpty
+                      ? Image.file(
+                          File(_images.first),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stack) {
+                            return Center(
+                              child: Icon(
+                                Icons.inventory,
+                                size: 40,
+                                color: categoryColor,
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.inventory,
+                            size: 40,
+                            color: categoryColor,
+                          ),
+                        ),
+                ),
+              ),
+              
+              // Text content - using the same layout as marketplace cards
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _itemName.isNotEmpty ? _itemName : 'Item Name',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _description.isNotEmpty ? _description : 'No description',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'HB ${_price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: categoryColor,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: categoryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.photo_camera,
+                                size: 12,
+                                color: categoryColor,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '${_images.length}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: categoryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    // Maintenance note (if any) - compact version
+                    if (_maintenance.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.blue[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.build, size: 12, color: Colors.blue[700]),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _maintenance,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.blue[700],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    
+                    // Edit buttons - compact version
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => _goToStep(0),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: categoryColor,
+                              side: BorderSide(color: categoryColor),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              minimumSize: Size.zero,
+                            ),
+                            child: const Text('Edit', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => _goToStep(2),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: categoryColor,
+                              side: BorderSide(color: categoryColor),
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              minimumSize: Size.zero,
+                            ),
+                            child: const Text('Photos', style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildReviewField(String label, String value, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                label,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Text(value, style: TextStyle(color: Colors.grey[700])),
-            ),
-            Icon(Icons.edit, size: 16, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   // Helper to avoid requiring a copyWith on your model
   User _copyUser(
@@ -945,35 +1136,66 @@ class _NewItemPageState extends State<NewItemPage> {
           ],
         ),
         child: SafeArea(
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    _updateFormData();
-                    await _saveDraft();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Draft saved!'),
-                          backgroundColor: Color(0xFF87AE73),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Save Draft'),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF87AE73)),
-                    foregroundColor: const Color(0xFF87AE73),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+              // Primary action buttons row
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        _updateFormData();
+                        await _saveDraft();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Draft saved!'),
+                              backgroundColor: Color(0xFF87AE73),
+                            ),
+                          );
+                          Navigator.pop(context);
+                        }
+                      },
+                      icon: const Icon(Icons.save_outlined),
+                      label: const Text('Save Draft'),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF87AE73)),
+                        foregroundColor: const Color(0xFF87AE73),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _saving ? null : _submitItemAsDone,
+                      icon: _saving 
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(Colors.white),
+                              ),
+                            )
+                          : const Icon(Icons.check_circle),
+                      label: const Text('Done'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF87AE73),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              
+              // Back button row (only show if not on first step)
               if (_currentStep > 0) ...[
-                const SizedBox(width: 12),
-                Expanded(
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: _previousStep,
                     icon: const Icon(Icons.arrow_back),

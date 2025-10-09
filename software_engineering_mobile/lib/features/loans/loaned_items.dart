@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +6,7 @@ import 'new_item_page.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/repositories/shared_prefs_user_repository.dart';
 import '../../core/models/user.dart';
+import '../../shared/widgets/asset_detail_page.dart';
 
 class Loaned_Items extends StatefulWidget {
   const Loaned_Items({super.key});
@@ -266,33 +268,159 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
   }
 
   Widget _buildItemsList() {
-    return ListView.builder(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      itemCount: _loanedItems.length + (_hasDraft ? 1 : 0),
-      itemBuilder: (context, index) {
-        // Show draft first if it exists
-        if (_hasDraft && index == 0) {
-          return _buildDraftCard();
-        }
-        
-        // Adjust index for actual items if draft exists
-        final itemIndex = _hasDraft ? index - 1 : index;
-        final item = _loanedItems[itemIndex];
-        
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: const Icon(Icons.inventory),
-            title: Text(item.name),
-            subtitle: Text('HB ${item.value.toStringAsFixed(2)}'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // TODO: Navigate to item details or edit
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item: item)));
-            },
-          ),
-        );
-      },
+      child: Column(
+        children: [
+          // Show draft card first if it exists
+          if (_hasDraft) _buildDraftCard(),
+          
+          // Grid layout for loaned items
+          if (_loanedItems.isNotEmpty)
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.50,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: _loanedItems.length,
+              itemBuilder: (context, index) {
+                final item = _loanedItems[index];
+                const Color categoryColor = Color(0xFF87AE73);
+                
+                return Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () async {
+                      HapticFeedback.mediumImpact();
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AssetDetailPage(asset: item),
+                        ),
+                      );
+                      // Refresh the list if asset was updated or deleted
+                      if (result != null) {
+                        await _loadItems();
+                      }
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Image header - dashboard style
+                        Expanded(
+                          flex: 3,
+                          child: Container(
+                            width: double.infinity,
+                            color: categoryColor.withOpacity(0.1),
+                            child: item.imagePaths.isNotEmpty
+                                ? Image.file(
+                                    File(item.imagePaths.first),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stack) {
+                                      return Center(
+                                        child: Icon(
+                                          Icons.inventory,
+                                          size: 40,
+                                          color: categoryColor,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Center(
+                                    child: Icon(
+                                      Icons.inventory,
+                                      size: 40,
+                                      color: categoryColor,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        
+                        // Content section - dashboard style
+                        Expanded(
+                          flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Item name
+                                Text(
+                                  item.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                
+                                // Description (if available)
+                                if (item.description.isNotEmpty)
+                                  Text(
+                                    item.description,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                
+                                const Spacer(),
+                                
+                                // Price section
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: categoryColor,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        'HB ${item.value.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    // Arrow icon like in dashboard
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
     );
   }
 

@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/repositories/shared_prefs_user_repository.dart';
 import '../../core/models/user.dart';
+import '../../core/services/auth_service.dart';
 import '../../shared/widgets/main_navigation.dart'; // or wherever you go after registration
 
 class RegistrationPage extends StatefulWidget {
@@ -30,6 +31,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _confirmPasswordCtrl = TextEditingController();
 
   final _repo = SharedPrefsUserRepository();
+  final _authService = AuthService();
   bool _busy = false;
   String? _error;
 
@@ -78,6 +80,33 @@ class _RegistrationPageState extends State<RegistrationPage> {
       );
     } catch (e) {
       setState(() => _error = 'Registration failed. Please try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    if (_busy) return;
+    
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    try {
+      final user = await _authService.signInWithGoogle();
+
+      if (user != null && mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const MainNavigation()),
+          (route) => false,
+        );
+      } else if (mounted) {
+        setState(() => _error = 'Google sign-in was cancelled or failed');
+      }
+    } catch (e) {
+      setState(() => _error = 'Google sign-in failed. Please try again.');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -318,6 +347,58 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ),
                     )
                         : const Text('Create account'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // OR Divider
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey[300])),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey[300])),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Google Sign-In Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: OutlinedButton(
+                    onPressed: _busy ? null : _handleGoogleSignIn,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/google_logo.png',
+                          height: 20,
+                          width: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Continue with Google',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/models/user.dart';
 import 'models/profile_controller.dart';
 import 'widgets/profile_app_bar.dart';
 import 'widgets/statistics_section.dart';
@@ -7,6 +8,8 @@ import 'widgets/wallet_card.dart';
 import 'widgets/gallery_section.dart';
 import 'widgets/activity_section.dart';
 import 'ui/profile_dialogs.dart';
+import '../loans/new_item_page.dart';
+import '../../shared/widgets/asset_detail_page.dart';
 
 /// ProfileV2 Main Page
 /// Orchestrates all profile components and manages state through ProfileController
@@ -97,11 +100,11 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Image Gallery
-                      GallerySection(
-                        images: state.galleryImages,
-                        onAddImages: _controller.pickGalleryImages,
-                        onRemoveImage: _controller.removeGalleryImage,
+                      // User Posts
+                      PostsSection(
+                        userPosts: state.user?.assets ?? [],
+                        onCreatePost: _handleCreatePost,
+                        onPostTap: _handlePostTap,
                       ),
                       const SizedBox(height: 20),
 
@@ -146,5 +149,33 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
         ProfileDialogs.showSuccessSnackbar(context, 'Money spent successfully!');
       }
     }
+  }
+
+  void _handleCreatePost() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const NewItemPage(),
+      ),
+    ).then((result) {
+      // Refresh the profile data when returning from post creation
+      if (result == true) {
+        _controller.initialize();
+      }
+    });
+  }
+
+  void _handlePostTap(Asset post) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AssetDetailPage(asset: post),
+      ),
+    ).then((result) {
+      // Refresh profile data if asset was updated or deleted
+      if (result != null) {
+        _controller.initialize();
+      }
+    });
   }
 }
