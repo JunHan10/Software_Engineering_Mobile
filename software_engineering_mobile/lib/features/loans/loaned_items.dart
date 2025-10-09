@@ -9,14 +9,14 @@ import '../../core/repositories/shared_prefs_user_repository.dart';
 import '../../core/models/user.dart';
 import '../../shared/widgets/asset_detail_page.dart';
 
-class Loaned_Items extends StatefulWidget {
-  const Loaned_Items({super.key});
+class LoanedItems extends StatefulWidget {
+  const LoanedItems({super.key});
 
   @override
-  State<Loaned_Items> createState() => _Loaned_ItemsState();
+  State<LoanedItems> createState() => _LoanedItemsState();
 }
 
-class _Loaned_ItemsState extends State<Loaned_Items> {
+class _LoanedItemsState extends State<LoanedItems> {
   final _auth = AuthService();
   final _repo = SharedPrefsUserRepository();
   List<Asset> _loanedItems = [];
@@ -332,8 +332,8 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stack) {
                                       return Center(
-                                        child: Icon(
-                                          Icons.inventory,
+                                        child: FaIcon(
+                                          FontAwesomeIcons.box,
                                           size: 40,
                                           color: categoryColor,
                                         ),
@@ -341,8 +341,8 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
                                     },
                                   )
                                 : Center(
-                                    child: Icon(
-                                      Icons.inventory,
+                                    child: FaIcon(
+                                      FontAwesomeIcons.box,
                                       size: 40,
                                       color: categoryColor,
                                     ),
@@ -427,31 +427,6 @@ class _Loaned_ItemsState extends State<Loaned_Items> {
             ),
         ],
       ),
-      itemCount: _loanedItems.length + (_hasDraft ? 1 : 0),
-      itemBuilder: (context, index) {
-        // Show draft first if it exists
-        if (_hasDraft && index == 0) {
-          return _buildDraftCard();
-        }
-
-        // Adjust index for actual items if draft exists
-        final itemIndex = _hasDraft ? index - 1 : index;
-        final item = _loanedItems[itemIndex];
-
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: const FaIcon(FontAwesomeIcons.box),
-            title: Text(item.name),
-            subtitle: Text('HB ${item.value.toStringAsFixed(2)}'),
-            trailing: const FaIcon(FontAwesomeIcons.chevronRight),
-            onTap: () {
-              // TODO: Navigate to item details or edit
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsPage(item: item)));
-            },
-          ),
-        );
-      },
     );
   }
 

@@ -880,8 +880,8 @@ class _NewItemPageState extends State<NewItemPage> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stack) {
                             return Center(
-                              child: Icon(
-                                Icons.inventory,
+                              child: FaIcon(
+                                FontAwesomeIcons.box,
                                 size: 40,
                                 color: categoryColor,
                               ),
@@ -889,8 +889,8 @@ class _NewItemPageState extends State<NewItemPage> {
                           },
                         )
                       : Center(
-                          child: Icon(
-                            Icons.inventory,
+                          child: FaIcon(
+                            FontAwesomeIcons.box,
                             size: 40,
                             color: categoryColor,
                           ),
@@ -947,9 +947,9 @@ class _NewItemPageState extends State<NewItemPage> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                Icons.photo_camera,
-                                size: 12,
+                              FaIcon(
+                                FontAwesomeIcons.camera,
+                                size: 10,
                                 color: categoryColor,
                               ),
                               const SizedBox(width: 2),
@@ -980,7 +980,7 @@ class _NewItemPageState extends State<NewItemPage> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.build, size: 12, color: Colors.blue[700]),
+                            FaIcon(FontAwesomeIcons.wrench, size: 10, color: Colors.blue[700]),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -1039,9 +1039,6 @@ class _NewItemPageState extends State<NewItemPage> {
     );
   }
 
-<<<<<<< HEAD
-
-=======
   Widget _buildReviewField(String label, String value, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -1062,7 +1059,7 @@ class _NewItemPageState extends State<NewItemPage> {
             ),
             FaIcon(
               FontAwesomeIcons.penToSquare,
-              size: 16,
+              size: 14,
               color: Colors.grey[400],
             ),
           ],
@@ -1070,7 +1067,6 @@ class _NewItemPageState extends State<NewItemPage> {
       ),
     );
   }
->>>>>>> 60e6328e3be7d9eec1d455747f4c46b67d4812be
 
   // Helper to avoid requiring a copyWith on your model
   User _copyUser(
@@ -1212,7 +1208,6 @@ class _NewItemPageState extends State<NewItemPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-<<<<<<< HEAD
               // Primary action buttons row
               Row(
                 children: [
@@ -1231,7 +1226,7 @@ class _NewItemPageState extends State<NewItemPage> {
                           Navigator.pop(context);
                         }
                       },
-                      icon: const Icon(Icons.save_outlined),
+                      icon: const FaIcon(FontAwesomeIcons.floppyDisk),
                       label: const Text('Save Draft'),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF87AE73)),
@@ -1239,29 +1234,6 @@ class _NewItemPageState extends State<NewItemPage> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
-=======
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    _updateFormData();
-                    await _saveDraft();
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Draft saved!'),
-                          backgroundColor: Color(0xFF87AE73),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: const FaIcon(FontAwesomeIcons.floppyDisk),
-                  label: const Text('Save Draft'),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF87AE73)),
-                    foregroundColor: const Color(0xFF87AE73),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
->>>>>>> 60e6328e3be7d9eec1d455747f4c46b67d4812be
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1276,7 +1248,7 @@ class _NewItemPageState extends State<NewItemPage> {
                                 valueColor: AlwaysStoppedAnimation(Colors.white),
                               ),
                             )
-                          : const Icon(Icons.check_circle),
+                          : const FaIcon(FontAwesomeIcons.circleCheck),
                       label: const Text('Done'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF87AE73),
@@ -1295,7 +1267,7 @@ class _NewItemPageState extends State<NewItemPage> {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: _previousStep,
-                    icon: const FaIcon(FontAwesomeIcons.arrowLeft),
+                    icon: const Icon(Icons.arrow_back),
                     label: const Text('Back'),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.grey[400]!),

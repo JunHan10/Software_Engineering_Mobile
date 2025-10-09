@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../shared/widgets/main_navigation.dart'; // or wherever you go after registration
 import '../../core/api/api.dart';
@@ -143,7 +144,7 @@ Future<void> _register() async {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red.shade700),
+                        FaIcon(FontAwesomeIcons.triangleExclamation, color: Colors.red.shade700),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

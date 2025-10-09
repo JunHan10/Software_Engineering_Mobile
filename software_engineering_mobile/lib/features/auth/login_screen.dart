@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import '../../shared/widgets/main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
 import '../../core/services/auth_service.dart';

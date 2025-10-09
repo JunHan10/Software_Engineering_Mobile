@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter/services.dart';
-import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
+
 import '../../features/dashboard/dashboard_page.dart';
 import '../../features/loans/loaned_items.dart';
 import '../../features/loans/active_loans.dart';
@@ -23,7 +24,7 @@ class _MainNavigationState extends State<MainNavigation> {
   /// List of pages to navigate
   final List<Widget> _pages = [
     DashboardPage(),
-    Loaned_Items(),
+    LoanedItems(),
     ActiveLoans(),
     ProfilePageV2(),
   ];
@@ -110,10 +111,10 @@ class _MainNavigationState extends State<MainNavigation> {
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.bounceOut,
                     transform: Matrix4.translationValues(0, dy, 0),
-                    child: Icon(
+                    child: FaIcon(
                       icon,
                       color: isSelected ? Color(0xFF87AE73) : Colors.grey[600],
-                      size: 24,
+                      size: 20,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -146,7 +147,7 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             _buildNavButton(0, FontAwesomeIcons.house, 'Home'),
             _buildNavButton(1, FontAwesomeIcons.arrowUp, 'Post'),
-            _buildNavButton(2, FontAwesomeIcons.compass, 'Borrow'),
+            _buildNavButton(2, FontAwesomeIcons.magnifyingGlass, 'Borrow'),
             _buildNavButton(3, FontAwesomeIcons.user, 'Profile'),
           ],
         ),
