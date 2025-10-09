@@ -22,12 +22,26 @@ class _MainNavigationState extends State<MainNavigation> {
   Timer? _pressedTimer;
 
   /// List of pages to navigate
-  final List<Widget> _pages = [
-    DashboardPage(),
-    LoanedItems(),
-    ActiveLoans(),
-    ProfilePageV2(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      DashboardPage(),
+      LoanedItems(),
+      ActiveLoans(onNavigateToHome: _navigateToHome, onNavigateToPost: _navigateToPost),
+      ProfilePageV2(),
+    ];
+  }
+
+  void _navigateToHome() {
+    _onItemTapped(0);
+  }
+
+  void _navigateToPost() {
+    _onItemTapped(1);
+  }
 
   void _onItemTapped(int index) {
     HapticFeedback.mediumImpact();

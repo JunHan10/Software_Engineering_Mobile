@@ -8,7 +8,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/auth_service.dart';
 
 class ActiveLoans extends StatefulWidget {
-  const ActiveLoans({super.key});
+  final VoidCallback? onNavigateToHome;
+  final VoidCallback? onNavigateToPost;
+  
+  const ActiveLoans({super.key, this.onNavigateToHome, this.onNavigateToPost});
 
   @override
   State<ActiveLoans> createState() => _ActiveLoansState();
@@ -110,7 +113,12 @@ class _ActiveLoansState extends State<ActiveLoans> {
             ElevatedButton.icon(
               onPressed: () {
                 // Navigate to dashboard (Home tab)
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                if (widget.onNavigateToHome != null) {
+                  widget.onNavigateToHome!();
+                } else {
+                  // Fallback: try to pop back to first route
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
               },
               icon: const FaIcon(FontAwesomeIcons.compass),
               label: const Text('Browse Marketplace'),
@@ -130,17 +138,19 @@ class _ActiveLoansState extends State<ActiveLoans> {
             TextButton.icon(
               onPressed: () {
                 // Navigate to Post tab (Loaned Items)
-                Navigator.of(context).popUntil((route) => route.isFirst);
-                // This would need to be handled by the parent navigation
-                // For now, just show a message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Switch to the "Post" tab to lend your items!',
+                if (widget.onNavigateToPost != null) {
+                  widget.onNavigateToPost!();
+                } else {
+                  // Fallback: show a message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Switch to the "Post" tab to lend your items!',
+                      ),
+                      backgroundColor: Color(0xFF87AE73),
                     ),
-                    backgroundColor: Color(0xFF87AE73),
-                  ),
-                );
+                  );
+                }
               },
               icon: const FaIcon(FontAwesomeIcons.arrowUp),
               label: const Text('Lend Your Items Instead'),
