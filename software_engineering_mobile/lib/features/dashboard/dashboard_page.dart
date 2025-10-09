@@ -1,6 +1,7 @@
 // lib/features/dashboard/dashboard_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/notification_service.dart';
@@ -148,11 +149,20 @@ class _DashboardPageState extends State<DashboardPage> {
   // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFF87AE73),
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
         backgroundColor: const Color(0xFF87AE73),
         foregroundColor: Colors.white,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Color(0xFF87AE73),
+          statusBarIconBrightness: Brightness.light,
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -169,10 +179,9 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
             children: [
               // -----------------------------------------------------------------------
               // SECTION: Search Bar
@@ -223,8 +232,8 @@ class _DashboardPageState extends State<DashboardPage> {
               // -----------------------------------------------------------------------
               Expanded(child: _buildItemsGrid()),
             ],
-          ),
         ),
+      ),
       ),
     );
   }

@@ -9,7 +9,7 @@ import 'widgets/gallery_section.dart';
 import 'widgets/activity_section.dart';
 import 'ui/profile_dialogs.dart';
 import '../loans/new_item_page.dart';
-import '../../shared/widgets/asset_detail_page.dart';
+import '../../shared/widgets/item_detail_page.dart';
 
 /// ProfileV2 Main Page
 /// Orchestrates all profile components and manages state through ProfileController
@@ -169,7 +169,7 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AssetDetailPage(asset: post),
+        builder: (context) => ItemDetailPage(itemId: post.id ?? ''),
       ),
     ).then((result) {
       // Refresh profile data if asset was updated or deleted

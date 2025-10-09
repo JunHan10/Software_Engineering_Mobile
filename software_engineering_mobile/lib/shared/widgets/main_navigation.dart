@@ -147,7 +147,7 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             _buildNavButton(0, FontAwesomeIcons.house, 'Home'),
             _buildNavButton(1, FontAwesomeIcons.arrowUp, 'Post'),
-            _buildNavButton(2, FontAwesomeIcons.magnifyingGlass, 'Borrow'),
+            _buildNavButton(2, FontAwesomeIcons.arrowDown, 'Borrow'),
             _buildNavButton(3, FontAwesomeIcons.user, 'Profile'),
           ],
         ),

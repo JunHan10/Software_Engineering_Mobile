@@ -7,7 +7,7 @@ import 'new_item_page.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/repositories/shared_prefs_user_repository.dart';
 import '../../core/models/user.dart';
-import '../../shared/widgets/asset_detail_page.dart';
+import '../../shared/widgets/item_detail_page.dart';
 
 class LoanedItems extends StatefulWidget {
   const LoanedItems({super.key});
@@ -309,7 +309,7 @@ class _LoanedItemsState extends State<LoanedItems> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AssetDetailPage(asset: item),
+                          builder: (context) => ItemDetailPage(itemId: item.id ?? ''),
                         ),
                       );
                       // Refresh the list if asset was updated or deleted
