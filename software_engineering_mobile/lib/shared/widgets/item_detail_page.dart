@@ -6,6 +6,7 @@ import '../../core/services/category_service.dart';
 import '../../core/services/comment_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/vote_service.dart';
+import '../../core/services/favorite_service.dart';
 
 class ItemDetailPage extends StatefulWidget {
   final String itemId;
@@ -23,12 +24,14 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   bool _loading = true;
   int _voteScore = 0;
   int _myVote = 0; // -1, 0, 1
+  bool _isFavorited = false;
 
   @override
   void initState() {
     super.initState();
     _loadComments();
     _loadVotes();
+    _loadFavoriteStatus();
   }
 
   Future<void> _loadComments() async {
@@ -70,6 +73,33 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       _voteScore = score;
       _myVote = my;
     });
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    final userId = await _auth.getCurrentUserId() ?? 'guest';
+    final isFavorited = await FavoriteService.isFavorited(widget.itemId, userId);
+    if (!mounted) return;
+    setState(() {
+      _isFavorited = isFavorited;
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    final userId = await _auth.getCurrentUserId() ?? 'guest';
+    await FavoriteService.toggleFavorite(
+      itemId: widget.itemId,
+      userId: userId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _isFavorited = !_isFavorited;
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isFavorited ? 'Added to favorites!' : 'Removed from favorites!'),
+      ),
+    );
   }
 
   Future<void> _toggleVote(int desired) async {
@@ -371,16 +401,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement favorite functionality
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Added to favorites!'),
-                              ),
-                            );
-                          },
-                          icon: const FaIcon(FontAwesomeIcons.heart),
-                          label: const Text('Favorite'),
+                          onPressed: _toggleFavorite,
+                          icon: FaIcon(
+                            _isFavorited ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
+                          ),
+                          label: Text(_isFavorited ? 'Favorited' : 'Favorite'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: category != null
                                 ? Color(

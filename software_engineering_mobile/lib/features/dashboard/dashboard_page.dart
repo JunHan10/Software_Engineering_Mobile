@@ -16,6 +16,7 @@ import '../../core/repositories/shared_prefs_user_repository.dart';
 import '../../core/services/money_service.dart';
 import '../../core/services/vote_service.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/favorite_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -35,6 +36,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Item> _filteredItems = [];
   bool _isSearching = false;
+  bool _showFavoritesOnly = false;
 
   @override
   void initState() {
@@ -60,12 +62,40 @@ class _DashboardPageState extends State<DashboardPage> {
     final query = _searchController.text;
     setState(() {
       _isSearching = query.isNotEmpty;
-      if (_isSearching) {
-        _filteredItems = CategoryService.searchItems(query);
-      } else {
-        _filteredItems = CategoryService.getAllItems();
-      }
+      _updateFilteredItems();
     });
+  }
+
+  void _updateFilteredItems() async {
+    List<Item> items;
+    
+    if (_isSearching) {
+      items = CategoryService.searchItems(_searchController.text);
+    } else {
+      items = CategoryService.getAllItems();
+    }
+
+    if (_showFavoritesOnly) {
+      final userId = await _auth.getCurrentUserId() ?? 'guest';
+      final favorites = await FavoriteService.getUserFavorites(userId);
+      items = items.where((item) => favorites.contains(item.id)).toList();
+    }
+
+    setState(() {
+      _filteredItems = items;
+    });
+  }
+
+  Future<bool> _isItemFavorited(String itemId) async {
+    final userId = await _auth.getCurrentUserId() ?? 'guest';
+    return await FavoriteService.isFavorited(itemId, userId);
+  }
+
+  void _toggleFavoritesFilter() async {
+    setState(() {
+      _showFavoritesOnly = !_showFavoritesOnly;
+    });
+    _updateFilteredItems();
   }
 
   // -----------------------------------------------------------------------
@@ -184,46 +214,73 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
             children: [
               // -----------------------------------------------------------------------
-              // SECTION: Search Bar
+              // SECTION: Search Bar with Heart Button
               // -----------------------------------------------------------------------
-              TextField(
-                controller: _searchController,
-                style: const TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
+                        hintText: 'Search items...',
+                        prefixIcon: Container(
+                          width: 48,
+                          alignment: Alignment.center,
+                          child: const FaIcon(
+                            FontAwesomeIcons.magnifyingGlass,
+                            size: 18,
+                          ),
+                        ),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF87AE73),
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
                   ),
-                  hintText: 'Search items...',
-                  prefixIcon: Container(
+                  const SizedBox(width: 12),
+                  Container(
                     width: 48,
-                    alignment: Alignment.center,
-                    child: const FaIcon(
-                      FontAwesomeIcons.magnifyingGlass,
-                      size: 18,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: _showFavoritesOnly ? const Color(0xFF87AE73) : Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: const Color(0xFF87AE73),
+                        width: 2,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: FaIcon(
+                        FontAwesomeIcons.heart,
+                        color: _showFavoritesOnly ? Colors.white : const Color(0xFF87AE73),
+                        size: 20,
+                      ),
+                      onPressed: _toggleFavoritesFilter,
                     ),
                   ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF87AE73),
-                      width: 2,
-                    ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
+                ],
               ),
               const SizedBox(height: 16),
 
@@ -248,19 +305,21 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FaIcon(
-              FontAwesomeIcons.magnifyingGlass,
+              _showFavoritesOnly ? FontAwesomeIcons.heart : FontAwesomeIcons.magnifyingGlass,
               size: 64,
               color: Colors.grey,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'No items found',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+            Text(
+              _showFavoritesOnly ? 'No favorites yet' : 'No items found',
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Try searching for something else',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Text(
+              _showFavoritesOnly 
+                ? 'Add items to your favorites to see them here'
+                : 'Try searching for something else',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -306,30 +365,59 @@ class _DashboardPageState extends State<DashboardPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Container(
-                        color: itemColor.withOpacity(0.06),
-                        child: item.imageUrl.isNotEmpty
-                            ? Image.network(
-                                item.imageUrl,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stack) {
-                                  return Center(
+                      child: Stack(
+                        children: [
+                          Container(
+                            color: itemColor.withOpacity(0.06),
+                            child: item.imageUrl.isNotEmpty
+                                ? Image.network(
+                                    item.imageUrl,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stack) {
+                                      return Center(
+                                        child: FaIcon(
+                                          FontAwesomeIcons.box,
+                                          size: 40,
+                                          color: itemColor,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Center(
                                     child: FaIcon(
                                       FontAwesomeIcons.box,
                                       size: 40,
                                       color: itemColor,
                                     ),
-                                  );
-                                },
-                              )
-                            : Center(
-                                child: FaIcon(
-                                  FontAwesomeIcons.box,
-                                  size: 40,
-                                  color: itemColor,
-                                ),
-                              ),
+                                  ),
+                          ),
+                          // Favorite indicator
+                          FutureBuilder<bool>(
+                            future: _isItemFavorited(item.id),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData && snapshot.data == true) {
+                                return Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.9),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const FaIcon(
+                                      FontAwesomeIcons.solidHeart,
+                                      size: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Padding(
