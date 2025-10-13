@@ -4,7 +4,6 @@ import '../../core/models/user.dart';
 import 'models/profile_controller.dart';
 import 'widgets/profile_app_bar.dart';
 import 'widgets/statistics_section.dart';
-import 'widgets/wallet_card.dart';
 import 'widgets/gallery_section.dart';
 import 'widgets/activity_section.dart';
 import 'ui/profile_dialogs.dart';
@@ -92,13 +91,13 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
                       const SizedBox(height: 20),
 
                       // Hippo Bucks Card
-                      WalletCard(
-                        formattedBalance: _controller.getFormattedBalance(),
-                        onDeposit: _handleDeposit,
-                        onWithdraw: _handleWithdraw,
-                        onShowHistory: () => ProfileDialogs.showTransactionHistory(context),
-                      ),
-                      const SizedBox(height: 20),
+                      // WalletCard(
+                      //   formattedBalance: _controller.getFormattedBalance(),
+                      //   onDeposit: _handleDeposit,
+                      //   onWithdraw: _handleWithdraw,
+                      //   onShowHistory: () => ProfileDialogs.showTransactionHistory(context),
+                      // ),
+                      // const SizedBox(height: 20),
 
                       // User Posts
                       PostsSection(
@@ -121,35 +120,35 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
     );
   }
 
-  Future<void> _handleDeposit() async {
-    final amount = await ProfileDialogs.showTransactionDialog(
-      context: context,
-      title: 'Add Hippo Bucks',
-      action: 'Add',
-    );
+  // Future<void> _handleDeposit() async {
+  //   final amount = await ProfileDialogs.showTransactionDialog(
+  //     context: context,
+  //     title: 'Add Hippo Bucks',
+  //     action: 'Add',
+  //   );
     
-    if (amount != null && amount.isNotEmpty) {
-      await _controller.depositHippoBucks(amount);
-      if (mounted && _controller.state.errorMessage == null) {
-        ProfileDialogs.showSuccessSnackbar(context, 'Money added successfully!');
-      }
-    }
-  }
+  //   if (amount != null && amount.isNotEmpty) {
+  //     await _controller.depositHippoBucks(amount);
+  //     if (mounted && _controller.state.errorMessage == null) {
+  //       ProfileDialogs.showSuccessSnackbar(context, 'Money added successfully!');
+  //     }
+  //   }
+  // }
 
-  Future<void> _handleWithdraw() async {
-    final amount = await ProfileDialogs.showTransactionDialog(
-      context: context,
-      title: 'Spend Hippo Bucks',
-      action: 'Spend',
-    );
+  // Future<void> _handleWithdraw() async {
+  //   final amount = await ProfileDialogs.showTransactionDialog(
+  //     context: context,
+  //     title: 'Spend Hippo Bucks',
+  //     action: 'Spend',
+  //   );
     
-    if (amount != null && amount.isNotEmpty) {
-      await _controller.withdrawHippoBucks(amount);
-      if (mounted && _controller.state.errorMessage == null) {
-        ProfileDialogs.showSuccessSnackbar(context, 'Money spent successfully!');
-      }
-    }
-  }
+  //   if (amount != null && amount.isNotEmpty) {
+  //     await _controller.withdrawHippoBucks(amount);
+  //     if (mounted && _controller.state.errorMessage == null) {
+  //       ProfileDialogs.showSuccessSnackbar(context, 'Money spent successfully!');
+  //     }
+  //   }
+  // }
 
   void _handleCreatePost() {
     Navigator.push(

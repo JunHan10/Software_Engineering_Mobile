@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/notification_service.dart';
 
@@ -12,8 +11,6 @@ import '../../shared/widgets/item_detail_page.dart';
 // Models & Services
 import '../../core/models/category.dart';
 import '../../core/services/category_service.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
-import '../../core/services/money_service.dart';
 import '../../core/services/vote_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/favorite_service.dart';
@@ -26,9 +23,8 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final _repo = SharedPrefsUserRepository();
   final _auth = AuthService();
-  int _hippoBalanceCents = 0;
+  // int _hippoBalanceCents = 0;
 
   // -----------------------------------------------------------------------
   // PHASE: Search functionality
@@ -44,9 +40,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
     NotificationService.requestPermissionOnce();
 
-    _loadBalance();
+    // _loadBalance();
     _searchController.addListener(_onSearchChanged);
-    _filteredItems = CategoryService.getAllItems();
+    _loadAllItems();
+  }
+
+  Future<void> _loadAllItems() async {
+    final categoryItems = CategoryService.getAllItems();
+    final userItems = await _getUserCreatedItems();
+    setState(() {
+      _filteredItems = [...categoryItems, ...userItems];
+    });
   }
 
   @override
@@ -69,11 +73,28 @@ class _DashboardPageState extends State<DashboardPage> {
   void _updateFilteredItems() async {
     List<Item> items;
     
+    // Get items from CategoryService
+    List<Item> categoryItems;
     if (_isSearching) {
-      items = CategoryService.searchItems(_searchController.text);
+      categoryItems = CategoryService.searchItems(_searchController.text);
     } else {
-      items = CategoryService.getAllItems();
+      categoryItems = CategoryService.getAllItems();
     }
+
+    // Get user-created items
+    List<Item> userItems = await _getUserCreatedItems();
+    
+    // Apply search to user items if searching
+    if (_isSearching) {
+      final query = _searchController.text.toLowerCase();
+      userItems = userItems.where((item) => 
+        item.name.toLowerCase().contains(query) ||
+        item.description.toLowerCase().contains(query)
+      ).toList();
+    }
+    
+    // Combine both lists
+    items = [...categoryItems, ...userItems];
 
     if (_showFavoritesOnly) {
       final userId = await _auth.getCurrentUserId() ?? 'guest';
@@ -84,6 +105,38 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {
       _filteredItems = items;
     });
+  }
+
+  Future<List<Item>> _getUserCreatedItems() async {
+    try {
+      // Get current user's assets only for now
+      final currentUser = await _auth.getCurrentUser();
+      if (currentUser == null) return [];
+      
+      List<Item> userItems = [];
+      for (final asset in currentUser.assets) {
+        // Convert Asset to Item for display
+        final item = Item(
+          id: asset.id ?? '',
+          name: asset.name,
+          description: asset.description,
+          price: asset.value,
+          currency: 'HB',
+          icon: Icons.inventory,
+          imageUrl: asset.imagePaths.isNotEmpty ? asset.imagePaths.first : '',
+          categoryId: 'user-created',
+          ownerId: currentUser.id ?? '',
+          ownerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+          isAvailable: true,
+          tags: [],
+        );
+        userItems.add(item);
+      }
+      
+      return userItems;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<bool> _isItemFavorited(String itemId) async {
@@ -161,18 +214,18 @@ class _DashboardPageState extends State<DashboardPage> {
   // -----------------------------------------------------------------------
   // PHASE: Load Balance
   // -----------------------------------------------------------------------
-  Future<void> _loadBalance() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('activeUserId');
-    if (userId == null || userId.isEmpty) {
-      if (!mounted) return;
-      setState(() => _hippoBalanceCents = 0);
-      return;
-    }
-    final bal = await _repo.getHippoBalanceCents(userId);
-    if (!mounted) return;
-    setState(() => _hippoBalanceCents = bal);
-  }
+  // Future<void> _loadBalance() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final userId = prefs.getString('activeUserId');
+  //   if (userId == null || userId.isEmpty) {
+  //     if (!mounted) return;
+  //     setState(() => _hippoBalanceCents = 0);
+  //     return;
+  //   }
+  //   final bal = await _repo.getHippoBalanceCents(userId);
+  //   if (!mounted) return;
+  //   setState(() => _hippoBalanceCents = bal);
+  // }
 
   // -----------------------------------------------------------------------
   // PHASE: Build Method
@@ -193,21 +246,21 @@ class _DashboardPageState extends State<DashboardPage> {
           statusBarColor: Color(0xFF87AE73),
           statusBarIconBrightness: Brightness.light,
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 16.0,
-              horizontal: 8.0,
-            ),
-            child: Text(
-              MoneyService.formatCents(_hippoBalanceCents),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-        ],
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.symmetric(
+        //       vertical: 16.0,
+        //       horizontal: 8.0,
+        //     ),
+        //     child: Text(
+        //       MoneyService.formatCents(_hippoBalanceCents),
+        //       style: const TextStyle(
+        //         fontSize: 14,
+        //         fontWeight: FontWeight.normal,
+        //       ),
+        //     ),
+        //   ),
+        // ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -447,14 +500,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Text(
-                                item.formattedPrice,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: itemColor,
-                                ),
-                              ),
+                              // Price display removed
                               const SizedBox(width: 8),
                               Flexible(
                                 child: Align(

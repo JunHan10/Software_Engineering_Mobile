@@ -550,7 +550,7 @@ class _AssetDetailPageState extends State<AssetDetailPage> {
                               );
                             },
                             icon: const FaIcon(FontAwesomeIcons.message),
-                            label: const Text('Contact Owner'),
+                            label: const Text('Borrow'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF87AE73),
                               foregroundColor: Colors.white,
@@ -998,7 +998,7 @@ class _AssetDetailPageState extends State<AssetDetailPage> {
                                     );
                                   },
                                   icon: const Icon(Icons.chat),
-                                  label: const Text('Contact Owner'),
+                                  label: const Text('Borrow'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: categoryColor,
                                     foregroundColor: Colors.white,
