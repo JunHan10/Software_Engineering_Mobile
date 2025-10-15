@@ -338,9 +338,28 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 16),
 
               // -----------------------------------------------------------------------
-              // SECTION: Items Grid
+              // SECTION: Items Grid (rounded top container to avoid sharp cutoff)
               // -----------------------------------------------------------------------
-              Expanded(child: _buildItemsGrid()),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      border: Border(
+                        top: BorderSide(
+                          color: const Color(0xFF87AE73).withOpacity(0.25),
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: _buildItemsGrid(),
+                  ),
+                ),
+              ),
             ],
         ),
       ),
