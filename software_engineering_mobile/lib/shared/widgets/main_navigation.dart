@@ -44,7 +44,7 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   void _onItemTapped(int index) {
-    HapticFeedback.mediumImpact();
+    HapticFeedback.lightImpact();
     // Force animation by briefly setting pressed state
     setState(() {
       _pressedIndex = index;

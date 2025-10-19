@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final user = await _authService.loginWithEmailPassword(
         _emailController.text.trim(),
-        _passwordController.text, // keep password as-typed
+        _passwordController.text,
       );
 
       setState(() => _isLoading = false);
@@ -74,11 +74,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
+    
     try {
       final user = await _authService.signInWithGoogle();
-
       setState(() => _isLoading = false);
-
+      
       if (user != null && mounted) {
         Navigator.pushReplacement(
           context,
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Google sign-in was cancelled or failed'),
+            content: Text('Google sign-in cancelled'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -96,8 +96,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Google sign-in failed. Please try again.'),
+        SnackBar(
+          content: Text('Google sign-in failed: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );

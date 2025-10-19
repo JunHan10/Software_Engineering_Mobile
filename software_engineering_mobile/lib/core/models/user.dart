@@ -42,6 +42,10 @@ class User {
   // NEW: Total number of completed transactions for the user
   final int transactionCount;
 
+  // Profile fields to match web API
+  final String? bio;
+  final String? photoUrl;
+
   /// Constructor with named parameters for clarity and flexibility
   /// Required fields are those essential for basic user functionality
   /// Optional fields can be added later or left empty
@@ -61,6 +65,8 @@ class User {
     required this.assets,
     this.hippoBalanceCents = 0, // NEW: default to 0
     this.transactionCount = 0, // NEW: default to 0
+    this.bio,
+    this.photoUrl,
   });
 
   // NEW: copyWith method for immutability and easy field updates
@@ -80,6 +86,8 @@ class User {
     List<Asset>? assets,
     int? hippoBalanceCents,
     int? transactionCount,
+    String? bio,
+    String? photoUrl,
   }) {
     return User(
       id: id ?? this.id,
@@ -97,6 +105,8 @@ class User {
       assets: assets ?? this.assets,
       hippoBalanceCents: hippoBalanceCents ?? this.hippoBalanceCents,
       transactionCount: transactionCount ?? this.transactionCount,
+      bio: bio ?? this.bio,
+      photoUrl: photoUrl ?? this.photoUrl,
     );
   }
 
@@ -131,6 +141,8 @@ class User {
           .toList(),
       hippoBalanceCents: (json['hippoBalanceCents'] ?? 0) as int, // NEW
       transactionCount: (json['transactionCount'] ?? 0) as int, // NEW
+      bio: json['bio'],
+      photoUrl: json['photoUrl'],
     );
   }
 
@@ -162,6 +174,8 @@ class User {
       'assets': assets.map((asset) => asset.toJson()).toList(),
       'hippoBalanceCents': hippoBalanceCents, // NEW
       'transactionCount': transactionCount, // NEW
+      'bio': bio,
+      'photoUrl': photoUrl,
     };
   }
 }

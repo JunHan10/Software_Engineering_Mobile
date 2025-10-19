@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/models/user.dart';
 import '../../core/repositories/shared_prefs_user_repository.dart';
+import '../../core/services/profile_service.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -14,6 +15,7 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   final _repo = SharedPrefsUserRepository();
+  final _profileService = ProfileServiceApi();
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -23,6 +25,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _zipController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
 
   User? _user;
   bool _loading = true;
@@ -53,6 +56,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _cityController.text = user?.city ?? '';
       _stateController.text = user?.state ?? '';
       _zipController.text = user?.zipcode ?? '';
+      _bioController.text = user?.bio ?? '';
       _loading = false;
     });
   }
@@ -60,6 +64,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_user == null) return;
+
+    // Update bio on server if it changed
+    final newBio = _bioController.text.trim();
+    if (newBio != (_user!.bio ?? '')) {
+      final bioResult = await _profileService.updateBio(newBio);
+      if (bioResult != null && bioResult.containsKey('error')) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bio update failed: ${bioResult['error']}')),
+        );
+        return;
+      }
+    }
 
     final updated = _user!.copyWith(
       firstName: _firstNameController.text.trim(),
@@ -70,6 +87,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       city: _cityController.text.trim(),
       state: _stateController.text.trim(),
       zipcode: _zipController.text.trim(),
+      bio: newBio,
     );
     await _repo.save(updated);
     if (!mounted) return;
@@ -110,6 +128,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 12),
               _buildTextField(_phoneController, 'Phone', TextInputType.phone, requiredField: false),
               const SizedBox(height: 12),
+              _buildTextField(_bioController, 'Bio', TextInputType.multiline, requiredField: false, maxLines: 3),
+              const SizedBox(height: 12),
               _buildTextField(_streetController, 'Street address', TextInputType.streetAddress, requiredField: false),
               const SizedBox(height: 12),
               Row(
@@ -146,10 +166,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     TextInputType type, {
     String? Function(String?)? validator,
     bool requiredField = true,
+    int? maxLines = 1,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: type,
+      maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

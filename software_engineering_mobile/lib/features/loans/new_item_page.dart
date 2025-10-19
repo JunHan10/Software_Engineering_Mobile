@@ -250,12 +250,13 @@ class _NewItemPageState extends State<NewItemPage> {
     });
 
     try {
+      // Create item locally
       final newAsset = Asset(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _itemName,
         value: _price,
         description: _description,
-        imagePaths: _images, // Include the selected image paths
+        imagePaths: _images,
       );
 
       final user = _currentUser!;
@@ -265,12 +266,11 @@ class _NewItemPageState extends State<NewItemPage> {
       );
 
       await _repo.save(updated);
-      await _clearDraft(); // Clear draft after successful submission
+      await _clearDraft();
 
       if (!mounted) return;
       setState(() => _currentUser = updated);
 
-      // Show success and navigate back
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -307,12 +307,13 @@ class _NewItemPageState extends State<NewItemPage> {
     });
 
     try {
+      // Create item locally
       final newAsset = Asset(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: _itemName,
         value: _price,
         description: _description,
-        imagePaths: _images, // Include the selected image paths
+        imagePaths: _images,
       );
 
       final user = _currentUser!;
@@ -322,12 +323,11 @@ class _NewItemPageState extends State<NewItemPage> {
       );
 
       await _repo.save(updated);
-      await _clearDraft(); // Clear draft after successful submission
+      await _clearDraft();
 
       if (!mounted) return;
       setState(() => _currentUser = updated);
 
-      // Show success and navigate back
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

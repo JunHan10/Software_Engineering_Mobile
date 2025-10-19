@@ -6,11 +6,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/repositories/shared_prefs_user_repository.dart';
-import '../../core/models/user.dart';
+
 import '../../core/services/auth_service.dart';
+import '../../core/models/user.dart';
+import '../../core/repositories/shared_prefs_user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/widgets/main_navigation.dart'; // or wherever you go after registration
 
 class RegistrationPage extends StatefulWidget {
@@ -30,8 +31,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
 
-  final _repo = SharedPrefsUserRepository();
   final _authService = AuthService();
+  final _userRepository = SharedPrefsUserRepository();
   bool _busy = false;
   String? _error;
 
@@ -45,44 +46,37 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
 
     try {
-      // Ensure email is unique
-      final existing = await _repo.findByEmail(_emailCtrl.text.trim());
-      if (existing != null) {
-        setState(() => _error = 'Email already in use.');
-        return;
-      }
-
+      // Create user locally
       final user = User(
-        id: null, // repo will assign
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text, // (hash in production)
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         firstName: _firstNameCtrl.text.trim(),
         lastName: _lastNameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim(),
+        email: _emailCtrl.text.trim(),
+        password: _passwordCtrl.text,
         currency: 0.0,
         assets: const [],
         hippoBalanceCents: 0,
       );
 
-      final saved = await _repo.save(user);
-
-      // Mark user as logged in by setting activeUserId.
+      // Save user to local repository
+      await _userRepository.save(user);
+      
+      // Set as active user
       final prefs = await SharedPreferences.getInstance();
-      if (saved.id != null) {
-        await prefs.setString('activeUserId', saved.id!);
-      }
-
+      await prefs.setString('activeUserId', user.id!);
+      
       if (!mounted) return;
+      
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigation()),
-            (route) => false,
+        (route) => false,
       );
     } catch (e) {
       setState(() => _error = 'Registration failed. Please try again.');
-    } finally {
-      if (mounted) setState(() => _busy = false);
     }
+    
+    if (mounted) setState(() => _busy = false);
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -95,21 +89,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     try {
       final user = await _authService.signInWithGoogle();
-
-      if (user != null && mounted) {
+      
+      if (!mounted) return;
+      
+      if (user != null) {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const MainNavigation()),
           (route) => false,
         );
-      } else if (mounted) {
-        setState(() => _error = 'Google sign-in was cancelled or failed');
+      } else {
+        setState(() => _error = 'Google sign-in cancelled');
       }
     } catch (e) {
-      setState(() => _error = 'Google sign-in failed. Please try again.');
-    } finally {
-      if (mounted) setState(() => _busy = false);
+      setState(() => _error = 'Google sign-in failed');
     }
+    
+    if (mounted) setState(() => _busy = false);
   }
 
   @override
