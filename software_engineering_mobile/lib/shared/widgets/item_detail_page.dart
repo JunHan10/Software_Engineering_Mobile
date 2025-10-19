@@ -7,6 +7,7 @@ import '../../core/services/comment_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/vote_service.dart';
 import '../../core/services/favorite_service.dart';
+import '../../core/models/category.dart';
 
 class ItemDetailPage extends StatefulWidget {
   final String itemId;
@@ -102,6 +103,48 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     );
   }
 
+  Future<Item?> _getItem() async {
+    // First try to find in CategoryService
+    final categoryItem = CategoryService.getItemById(widget.itemId);
+    if (categoryItem != null) {
+      return categoryItem;
+    }
+    
+    // If not found, try to find in user-created items
+    return await _findUserCreatedItem(widget.itemId);
+  }
+
+  Future<Item?> _findUserCreatedItem(String itemId) async {
+    try {
+      // Get current user's assets only for now
+      final currentUser = await _auth.getCurrentUser();
+      if (currentUser == null) return null;
+      
+      for (final asset in currentUser.assets) {
+        if (asset.id == itemId) {
+          // Convert Asset to Item
+          return Item(
+            id: asset.id ?? '',
+            name: asset.name,
+            description: asset.description,
+            price: asset.value,
+            currency: 'HB',
+            icon: Icons.inventory,
+            imageUrl: asset.imagePaths.isNotEmpty ? asset.imagePaths.first : '',
+            categoryId: 'user-created',
+            ownerId: currentUser.id ?? '',
+            ownerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+            isAvailable: true,
+            tags: [],
+          );
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> _toggleVote(int desired) async {
     final uid = await _auth.getCurrentUserId() ?? 'guest';
     final current = await VoteService.getUserVote(widget.itemId, uid);
@@ -120,20 +163,28 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final item = CategoryService.getItemById(widget.itemId);
+    return FutureBuilder<Item?>(
+      future: _getItem(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (item == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Item Not Found'),
-          backgroundColor: const Color(0xFF87AE73),
-          foregroundColor: Colors.white,
-        ),
-        body: const Center(child: Text('Item not found')),
-      );
-    }
+        final item = snapshot.data;
+        if (item == null) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Item Not Found'),
+              backgroundColor: const Color(0xFF87AE73),
+              foregroundColor: Colors.white,
+            ),
+            body: const Center(child: Text('Item not found')),
+          );
+        }
 
-    final category = CategoryService.getCategoryById(item.categoryId);
+        final category = CategoryService.getCategoryById(item.categoryId);
 
     return Scaffold(
       appBar: AppBar(
@@ -173,36 +224,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: category != null
-                              ? Color(
-                                  int.parse(
-                                    category.color.replaceAll('#', '0xFF'),
-                                  ),
-                                ).withOpacity(0.1)
-                              : const Color(0xFF87AE73).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          item.formattedPrice,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: category != null
-                                ? Color(
-                                    int.parse(
-                                      category.color.replaceAll('#', '0xFF'),
-                                    ),
-                                  )
-                                : const Color(0xFF87AE73),
-                          ),
-                        ),
-                      ),
+                      // Price display removed
                     ],
                   ),
 
@@ -381,7 +403,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             );
                           },
                           icon: const FaIcon(FontAwesomeIcons.message),
-                          label: const Text('Contact Owner'),
+                          label: const Text('Borrow'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: category != null
                                 ? Color(
@@ -550,6 +572,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 

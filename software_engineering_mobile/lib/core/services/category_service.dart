@@ -585,6 +585,12 @@ Category(
     return _categories.expand((category) => category.items).toList();
   }
 
+  static Future<List<Item>> getAllItemsWithUserItems() async {
+    final categoryItems = getAllItems();
+    // TODO: Add user-created items here if needed
+    return categoryItems;
+  }
+
   static List<Category> searchCategories(String query) {
     if (query.isEmpty) return _categories;
 
@@ -620,5 +626,18 @@ Category(
     } catch (e) {
       return null;
     }
+  }
+
+  static Future<Item?> getItemByIdWithUserItems(String id) async {
+    // First try to find in category items
+    final categoryItem = getItemById(id);
+    if (categoryItem != null) {
+      return categoryItem;
+    }
+    
+    // If not found, try to find in user-created items
+    // This would require access to user repository, but for now return null
+    // The dashboard will handle this by showing user items separately
+    return null;
   }
 }

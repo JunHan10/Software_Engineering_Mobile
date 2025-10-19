@@ -163,11 +163,7 @@ class _NewItemPageState extends State<NewItemPage> {
         }
         break;
       case 3: // Price
-        final price = double.tryParse(_priceCtrl.text.trim());
-        if (price == null || price <= 0) {
-          setState(() => _error = 'Valid price is required');
-          return false;
-        }
+        // Price is now optional - no validation required
         break;
     }
     setState(() => _error = null);
@@ -784,7 +780,7 @@ class _NewItemPageState extends State<NewItemPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Set your rental price *',
+            'Set your rental price (optional)',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
@@ -792,8 +788,8 @@ class _NewItemPageState extends State<NewItemPage> {
             controller: _priceCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
-              labelText: 'Price per day (HB) *',
-              hintText: '0.00',
+              labelText: 'Price per day (HB)',
+              hintText: '0.00 (optional)',
               border: OutlineInputBorder(),
               prefixIcon: SizedBox(
                 width: 48,
