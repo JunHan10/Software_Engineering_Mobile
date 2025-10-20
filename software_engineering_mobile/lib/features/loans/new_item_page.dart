@@ -8,8 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:io';
-import '../../core/services/auth_service.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
+import '../../core/services/session_service.dart';
+import '../../core/services/api_service.dart';
 import '../../core/models/user.dart';
 
 class NewItemPage extends StatefulWidget {
@@ -27,8 +27,7 @@ class _NewItemPageState extends State<NewItemPage> {
   final _priceCtrl = TextEditingController();
 
   // ---- State Management ----
-  final _repo = SharedPrefsUserRepository();
-  final _auth = AuthService();
+
   final _imagePicker = ImagePicker();
 
   User? _currentUser;
@@ -61,12 +60,11 @@ class _NewItemPageState extends State<NewItemPage> {
 
   // ---- Phase 1: Initialization ----
   Future<void> _loadCurrentUser() async {
-    final userId = await _auth.getCurrentUserId();
-    if (userId == null) {
+    final user = await SessionService.getCurrentUser();
+    if (user == null) {
       setState(() => _error = 'Please log in before adding items.');
       return;
     }
-    final user = await _repo.findById(userId);
     if (!mounted) return;
     setState(() => _currentUser = user);
   }
@@ -246,26 +244,18 @@ class _NewItemPageState extends State<NewItemPage> {
     });
 
     try {
-      // Create item locally
-      final newAsset = Asset(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _itemName,
-        value: _price,
-        description: _description,
-        imagePaths: _images,
-      );
-
-      final user = _currentUser!;
-      final updated = _copyUser(
-        user,
-        assets: <Asset>[...user.assets, newAsset],
-      );
-
-      await _repo.save(updated);
+      final assetData = {
+        'ownerId': _currentUser!.id,
+        'name': _itemName,
+        'value': _price,
+        'description': _description,
+        'imagePaths': _images,
+      };
+      await ApiService.createAsset(assetData);
+      
       await _clearDraft();
 
       if (!mounted) return;
-      setState(() => _currentUser = updated);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -303,26 +293,18 @@ class _NewItemPageState extends State<NewItemPage> {
     });
 
     try {
-      // Create item locally
-      final newAsset = Asset(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _itemName,
-        value: _price,
-        description: _description,
-        imagePaths: _images,
-      );
-
-      final user = _currentUser!;
-      final updated = _copyUser(
-        user,
-        assets: <Asset>[...user.assets, newAsset],
-      );
-
-      await _repo.save(updated);
+      final assetData = {
+        'ownerId': _currentUser!.id,
+        'name': _itemName,
+        'value': _price,
+        'description': _description,
+        'imagePaths': _images,
+      };
+      await ApiService.createAsset(assetData);
+      
       await _clearDraft();
 
       if (!mounted) return;
-      setState(() => _currentUser = updated);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

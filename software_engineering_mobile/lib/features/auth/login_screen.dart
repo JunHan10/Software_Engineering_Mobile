@@ -3,7 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../shared/widgets/main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
-import '../../core/services/auth_service.dart';
+import '../../core/services/login_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,13 +20,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  late final AuthService _authService;
-
   @override
   void initState() {
     super.initState();
-    // Use the most recent AuthService (no repository passed to constructor)
-    _authService = AuthService();
   }
 
   @override
@@ -40,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final user = await _authService.loginWithEmailPassword(
+      final user = await LoginService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
@@ -73,35 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    setState(() => _isLoading = true);
-    
-    try {
-      final user = await _authService.signInWithGoogle();
-      setState(() => _isLoading = false);
-      
-      if (user != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Google sign-in cancelled'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-in failed: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    // Google sign-in not implemented yet
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google sign-in not implemented yet'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override
@@ -375,6 +350,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Clear Data Button
+              TextButton(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Local session data cleared'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Clear Local Data',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),

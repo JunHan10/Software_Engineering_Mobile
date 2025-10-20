@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 
-import '../../core/services/auth_service.dart';
+import '../../core/services/registration_service.dart';
 import '../../core/models/user.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
+import '../../core/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/widgets/main_navigation.dart'; // or wherever you go after registration
 
@@ -31,8 +31,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
 
-  final _authService = AuthService();
-  final _userRepository = SharedPrefsUserRepository();
+
   bool _busy = false;
   String? _error;
 
@@ -46,24 +45,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
 
     try {
-      // Create user locally
-      final user = User(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        firstName: _firstNameCtrl.text.trim(),
-        lastName: _lastNameCtrl.text.trim(),
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
-        currency: 0.0,
-        assets: const [],
-        hippoBalanceCents: 0,
-      );
+      final userData = {
+        'firstName': _firstNameCtrl.text.trim(),
+        'lastName': _lastNameCtrl.text.trim(),
+        'email': _emailCtrl.text.trim(),
+        'password': _passwordCtrl.text,
+        'phone': _phoneCtrl.text.trim(),
+      };
 
-      // Save user to local repository
-      await _userRepository.save(user);
-      
-      // Set as active user
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('activeUserId', user.id!);
+      final user = await RegistrationService.register(userData);
       
       if (!mounted) return;
       
@@ -80,32 +70,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    if (_busy) return;
-    
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-
-    try {
-      final user = await _authService.signInWithGoogle();
-      
-      if (!mounted) return;
-      
-      if (user != null) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const MainNavigation()),
-          (route) => false,
-        );
-      } else {
-        setState(() => _error = 'Google sign-in cancelled');
-      }
-    } catch (e) {
-      setState(() => _error = 'Google sign-in failed');
-    }
-    
-    if (mounted) setState(() => _busy = false);
+    // Google sign-in not implemented yet
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google sign-in not implemented yet'),
+        backgroundColor: Colors.orange,
+      ),
+    );
   }
 
   @override

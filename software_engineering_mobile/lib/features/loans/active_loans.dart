@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../core/services/auth_service.dart';
+import '../../core/services/session_service.dart';
 
 class ActiveLoans extends StatefulWidget {
   final VoidCallback? onNavigateToHome;
@@ -18,7 +18,7 @@ class ActiveLoans extends StatefulWidget {
 }
 
 class _ActiveLoansState extends State<ActiveLoans> {
-  final _auth = AuthService();
+
   String? _userId;
   bool _loading = true;
   final List<dynamic> _loans = []; // TODO: Replace with your actual loan model
@@ -30,7 +30,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
   }
 
   Future<void> _load() async {
-    final id = await _auth.getCurrentUserId();
+    final id = await SessionService.getCurrentUserId();
     if (!mounted) return;
     setState(() {
       _userId = id;

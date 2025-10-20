@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'features/auth/firebase_options.dart';
 import 'features/auth/login_screen.dart'; // Import your login screen
-import 'core/repositories/shared_prefs_user_repository.dart';
+
 import 'core/services/notification_service.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 
@@ -22,9 +22,7 @@ void main() async {
   // Initialize notification service
   await NotificationService.init();
   
-  // Initialize test data
-  final repo = SharedPrefsUserRepository();
-  await repo.findByEmail('john.doe@example.com'); // triggers initialization
+  // Test data is now handled by the server
 
   runApp(const MyApp());
 }

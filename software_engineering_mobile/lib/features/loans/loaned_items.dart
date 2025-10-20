@@ -4,8 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'new_item_page.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
+import '../../core/services/session_service.dart';
 import '../../core/models/user.dart';
 import '../../shared/widgets/item_detail_page.dart';
 
@@ -17,8 +16,7 @@ class LoanedItems extends StatefulWidget {
 }
 
 class _LoanedItemsState extends State<LoanedItems> {
-  final _auth = AuthService();
-  final _repo = SharedPrefsUserRepository();
+
   List<Asset> _loanedItems = [];
   bool _loading = true;
   bool _hasDraft = false;
@@ -32,16 +30,7 @@ class _LoanedItemsState extends State<LoanedItems> {
 
   Future<void> _loadItems() async {
     setState(() => _loading = true);
-    final userId = await _auth.getCurrentUserId();
-    if (userId == null) {
-      if (!mounted) return;
-      setState(() {
-        _loanedItems = [];
-        _loading = false;
-      });
-      return;
-    }
-    final user = await _repo.findById(userId);
+    final user = await SessionService.getCurrentUser();
     await _loadDraft();
     if (!mounted) return;
     setState(() {

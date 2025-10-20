@@ -11,9 +11,8 @@ import '../../shared/widgets/item_detail_page.dart';
 // Models & Services
 import '../../core/models/category.dart';
 import '../../core/services/category_service.dart';
-import '../../core/services/vote_service.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/services/favorite_service.dart';
+import '../../core/services/server_services.dart';
+import '../../core/services/session_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -23,7 +22,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final _auth = AuthService();
+
+  final _voteService = ServerVoteService();
+  final _favoriteService = ServerFavoriteService();
   // int _hippoBalanceCents = 0;
 
   // -----------------------------------------------------------------------
@@ -97,8 +98,8 @@ class _DashboardPageState extends State<DashboardPage> {
     items = [...categoryItems, ...userItems];
 
     if (_showFavoritesOnly) {
-      final userId = await _auth.getCurrentUserId() ?? 'guest';
-      final favorites = await FavoriteService.getUserFavorites(userId);
+      final userId = await SessionService.getCurrentUserId() ?? 'guest';
+      final favorites = await _favoriteService.getUserFavorites(userId);
       items = items.where((item) => favorites.contains(item.id)).toList();
     }
 
@@ -110,7 +111,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<List<Item>> _getUserCreatedItems() async {
     try {
       // Get current user's assets only for now
-      final currentUser = await _auth.getCurrentUser();
+      final currentUser = await SessionService.getCurrentUser();
       if (currentUser == null) return [];
       
       List<Item> userItems = [];
@@ -140,8 +141,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<bool> _isItemFavorited(String itemId) async {
-    final userId = await _auth.getCurrentUserId() ?? 'guest';
-    return await FavoriteService.isFavorited(itemId, userId);
+    final userId = await SessionService.getCurrentUserId() ?? 'guest';
+    return await _favoriteService.isFavorited(itemId, userId);
   }
 
   void _toggleFavoritesFilter() async {
@@ -155,9 +156,9 @@ class _DashboardPageState extends State<DashboardPage> {
   // PHASE: Vote Row for Item
   // -----------------------------------------------------------------------
   Future<Widget> _voteRowForItem(Item item, Color accent) async {
-    final userId = await _auth.getCurrentUserId() ?? 'guest';
-    final score = await VoteService.getScore(item.id);
-    final myVote = await VoteService.getUserVote(item.id, userId);
+    final userId = await SessionService.getCurrentUserId() ?? 'guest';
+    final score = await _voteService.getScore(item.id);
+    final myVote = await _voteService.getUserVote(item.id, userId);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -168,9 +169,9 @@ class _DashboardPageState extends State<DashboardPage> {
             size: 20,
           ),
           onPressed: () async {
-            final current = await VoteService.getUserVote(item.id, userId);
+            final current = await _voteService.getUserVote(item.id, userId);
             final next = current == 1 ? 0 : 1;
-            await VoteService.setVote(
+            await _voteService.setVote(
               itemId: item.id,
               userId: userId,
               vote: next,
@@ -180,7 +181,7 @@ class _DashboardPageState extends State<DashboardPage> {
           },
         ),
         FutureBuilder<int>(
-          future: VoteService.getScore(item.id),
+          future: _voteService.getScore(item.id),
           builder: (context, snapshot) {
             final s = snapshot.data ?? score;
             return Text(
@@ -196,9 +197,9 @@ class _DashboardPageState extends State<DashboardPage> {
             size: 20,
           ),
           onPressed: () async {
-            final current = await VoteService.getUserVote(item.id, userId);
+            final current = await _voteService.getUserVote(item.id, userId);
             final next = current == -1 ? 0 : -1;
-            await VoteService.setVote(
+            await _voteService.setVote(
               itemId: item.id,
               userId: userId,
               vote: next,

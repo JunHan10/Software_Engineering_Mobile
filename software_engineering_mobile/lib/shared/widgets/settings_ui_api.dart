@@ -3,9 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/models/user.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
-import '../../core/repositories/user_repository.dart' as repo;
-import '../../core/services/auth_service.dart';
+import '../../core/services/session_service.dart';
+import '../../core/services/api_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -28,18 +27,17 @@ class _SettingsPageState extends State<SettingsPage> {
 
   bool _isLoading = false;
 
-  late repo.UserRepository _userRepository;
+
 
   @override
   void initState() {
     super.initState();
-    _userRepository = SharedPrefsUserRepository();
+
     _loadCurrentUserData();
   }
 
   Future<void> _loadCurrentUserData() async {
-    final authService = AuthService();
-    final currentUser = await authService.getCurrentUser();
+    final currentUser = await SessionService.getCurrentUser();
     if (currentUser != null) {
       _firstNameController.text = currentUser.firstName;
       _lastNameController.text = currentUser.lastName;
@@ -60,30 +58,24 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     try {
-      final authService = AuthService();
-      final currentUser = await authService.getCurrentUser();
+      final currentUser = await SessionService.getCurrentUser();
       if (currentUser == null) {
         _showErrorSnackBar('No user logged in');
         return;
       }
 
-      final updatedUser = User(
-        id: currentUser.id,
-        email: _emailController.text.trim(),
-        password: currentUser.password,
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        age: currentUser.age,
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        streetAddress: _streetAddressController.text.trim().isEmpty ? null : _streetAddressController.text.trim(),
-        city: _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
-        state: _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        zipcode: _zipcodeController.text.trim().isEmpty ? null : _zipcodeController.text.trim(),
-        currency: currentUser.currency,
-        assets: currentUser.assets,
-      );
+      final updateData = {
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        'streetAddress': _streetAddressController.text.trim().isEmpty ? null : _streetAddressController.text.trim(),
+        'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
+        'state': _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
+        'zipcode': _zipcodeController.text.trim().isEmpty ? null : _zipcodeController.text.trim(),
+      };
 
-      await _userRepository.save(updatedUser);
+      await ApiService.updateUser(currentUser.id!, updateData);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -122,25 +122,23 @@ class User {
   /// even if JSON contains an integer
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      email: json['email'],
-      password: json['password'],
-      firstName: json['firstName'],
-      lastName: json['lastName'],
+      id: json['_id'] ?? json['id'],
+      email: json['email'] ?? '',
+      password: json['password'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
       age: json['age'],
       phone: json['phone'],
       streetAddress: json['streetAddress'],
       city: json['city'],
       state: json['state'],
       zipcode: json['zipcode'],
-      // Ensure currency is always a double for consistent calculations
-      currency: json['currency'].toDouble(),
-      // Convert assets array from JSON to List<Asset> objects
-      assets: (json['assets'] as List)
+      currency: (json['currency'] ?? 0).toDouble(),
+      assets: (json['assets'] as List? ?? [])
           .map((asset) => Asset.fromJson(asset))
           .toList(),
-      hippoBalanceCents: (json['hippoBalanceCents'] ?? 0) as int, // NEW
-      transactionCount: (json['transactionCount'] ?? 0) as int, // NEW
+      hippoBalanceCents: json['hippoBalanceCents'] ?? 0,
+      transactionCount: json['transactionCount'] ?? 0,
       bio: json['bio'],
       photoUrl: json['photoUrl'],
     );
@@ -212,11 +210,10 @@ class Asset {
   /// Mirrors the User.fromJson pattern for consistency
   factory Asset.fromJson(Map<String, dynamic> json) {
     return Asset(
-      id: json['id'],
-      name: json['name'],
-      // Ensure value is always a double for monetary calculations
-      value: json['value'].toDouble(),
-      description: json['description'],
+      id: json['_id'] ?? json['id'],
+      name: json['name'] ?? '',
+      value: (json['value'] ?? 0).toDouble(),
+      description: json['description'] ?? '',
       imagePaths: (json['imagePaths'] as List?)?.map((e) => e.toString()).toList() ?? const [],
     );
   }

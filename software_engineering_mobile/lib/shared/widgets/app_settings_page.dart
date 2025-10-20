@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'login_screen.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
+
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});
@@ -232,10 +232,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                     );
                     if (ok == true) {
-                      await (SharedPrefsUserRepository()).clearAllData();
+                      // Clear local session data only
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
                       if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Reset Successful')),
+                        const SnackBar(content: Text('Local data cleared')),
                       );
                     }
                   },

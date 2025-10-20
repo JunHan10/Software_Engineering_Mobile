@@ -2,12 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'profile_state.dart';
-import '../../../core/services/profile_service.dart';
+import '../../../core/services/server_services.dart';
 
 /// Controller class that manages profile state and business logic
 /// Separates state management from UI components
 class ProfileController extends ChangeNotifier {
-  final ProfileService _profileService = ProfileService();
+  final ServerProfileService _profileService = ServerProfileService();
   
   ProfileState _state = const ProfileState();
   ProfileState get state => _state;
@@ -71,7 +71,7 @@ class ProfileController extends ChangeNotifier {
     try {
       final images = await _profileService.pickMultipleImages();
       if (images.isNotEmpty) {
-        final updatedGallery = List<File>.from(_state.galleryImages)..addAll(images);
+        final updatedGallery = List<File>.from(_state.galleryImages)..addAll(images.cast<File>());
         _updateState(_state.copyWith(galleryImages: updatedGallery));
       }
     } catch (e) {

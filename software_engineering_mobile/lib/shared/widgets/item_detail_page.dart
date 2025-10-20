@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/services/category_service.dart';
 import '../../core/services/comment_service.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/services/vote_service.dart';
-import '../../core/services/favorite_service.dart';
+import '../../core/services/session_service.dart';
+import '../../core/services/server_services.dart';
 import '../../core/models/category.dart';
 
 class ItemDetailPage extends StatefulWidget {
@@ -19,7 +18,9 @@ class ItemDetailPage extends StatefulWidget {
 }
 
 class _ItemDetailPageState extends State<ItemDetailPage> {
-  final _auth = AuthService();
+
+  final _voteService = ServerVoteService();
+  final _favoriteService = ServerFavoriteService();
   final _commentCtrl = TextEditingController();
   List<Comment> _comments = const [];
   bool _loading = true;
@@ -47,7 +48,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   Future<void> _submitComment() async {
     final text = _commentCtrl.text.trim();
     if (text.isEmpty) return;
-    final user = await _auth.getCurrentUser();
+    final user = await SessionService.getCurrentUser();
     final authorId = user?.id ?? 'guest';
     final authorName = user != null
         ? '${user.firstName} ${user.lastName}'.trim()
@@ -66,9 +67,9 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<void> _loadVotes() async {
-    final uid = await _auth.getCurrentUserId() ?? 'guest';
-    final score = await VoteService.getScore(widget.itemId);
-    final my = await VoteService.getUserVote(widget.itemId, uid);
+    final uid = await SessionService.getCurrentUserId() ?? 'guest';
+    final score = await _voteService.getScore(widget.itemId);
+    final my = await _voteService.getUserVote(widget.itemId, uid);
     if (!mounted) return;
     setState(() {
       _voteScore = score;
@@ -77,8 +78,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<void> _loadFavoriteStatus() async {
-    final userId = await _auth.getCurrentUserId() ?? 'guest';
-    final isFavorited = await FavoriteService.isFavorited(widget.itemId, userId);
+    final userId = await SessionService.getCurrentUserId() ?? 'guest';
+    final isFavorited = await _favoriteService.isFavorited(widget.itemId, userId);
     if (!mounted) return;
     setState(() {
       _isFavorited = isFavorited;
@@ -86,8 +87,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<void> _toggleFavorite() async {
-    final userId = await _auth.getCurrentUserId() ?? 'guest';
-    await FavoriteService.toggleFavorite(
+    final userId = await SessionService.getCurrentUserId() ?? 'guest';
+    await _favoriteService.toggleFavorite(
       itemId: widget.itemId,
       userId: userId,
     );
@@ -117,7 +118,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   Future<Item?> _findUserCreatedItem(String itemId) async {
     try {
       // Get current user's assets only for now
-      final currentUser = await _auth.getCurrentUser();
+      final currentUser = await SessionService.getCurrentUser();
       if (currentUser == null) return null;
       
       for (final asset in currentUser.assets) {
@@ -146,10 +147,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<void> _toggleVote(int desired) async {
-    final uid = await _auth.getCurrentUserId() ?? 'guest';
-    final current = await VoteService.getUserVote(widget.itemId, uid);
+    final uid = await SessionService.getCurrentUserId() ?? 'guest';
+    final current = await _voteService.getUserVote(widget.itemId, uid);
     final next = current == desired ? 0 : desired;
-    final newScore = await VoteService.setVote(
+    final newScore = await _voteService.setVote(
       itemId: widget.itemId,
       userId: uid,
       vote: next,
@@ -290,7 +291,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             tooltip: 'Upvote',
                           ),
                           FutureBuilder<int>(
-                            future: VoteService.getScore(widget.itemId),
+                            future: _voteService.getScore(widget.itemId),
                             builder: (context, snapshot) {
                               final s = snapshot.data ?? _voteScore;
                               return Text(

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/models/user.dart';
-import '../../core/repositories/shared_prefs_user_repository.dart';
-import '../../core/services/profile_service.dart';
+import '../../core/services/server_auth_service.dart';
+import '../../core/services/api_service.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -14,8 +14,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _repo = SharedPrefsUserRepository();
-  final _profileService = ProfileServiceApi();
+  final _authService = ServerAuthService();
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -37,14 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _loadUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('activeUserId');
-    if (userId == null || userId.isEmpty) {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      return;
-    }
-    final user = await _repo.findById(userId);
+    final user = await ServerAuthService.getCurrentUser();
     if (!mounted) return;
     setState(() {
       _user = user;
@@ -65,36 +57,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_user == null) return;
 
-    // Update bio on server if it changed
-    final newBio = _bioController.text.trim();
-    if (newBio != (_user!.bio ?? '')) {
-      final bioResult = await _profileService.updateBio(newBio);
-      if (bioResult != null && bioResult.containsKey('error')) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Bio update failed: ${bioResult['error']}')),
-        );
-        return;
-      }
+    try {
+      final updateData = {
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'streetAddress': _streetController.text.trim(),
+        'city': _cityController.text.trim(),
+        'state': _stateController.text.trim(),
+        'zipcode': _zipController.text.trim(),
+        'bio': _bioController.text.trim(),
+      };
+      
+      await ApiService.updateUser(_user!.id!, updateData);
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update profile')),
+      );
     }
-
-    final updated = _user!.copyWith(
-      firstName: _firstNameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
-      streetAddress: _streetController.text.trim(),
-      city: _cityController.text.trim(),
-      state: _stateController.text.trim(),
-      zipcode: _zipController.text.trim(),
-      bio: newBio,
-    );
-    await _repo.save(updated);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile updated')),
-    );
-    Navigator.pop(context, true);
   }
 
   @override
