@@ -140,7 +140,7 @@ class User {
       hippoBalanceCents: json['hippoBalanceCents'] ?? 0,
       transactionCount: json['transactionCount'] ?? 0,
       bio: json['bio'],
-      photoUrl: json['photoUrl'],
+      photoUrl: json['photoUrl'] ?? json['profilePicture'],
     );
   }
 
@@ -174,6 +174,7 @@ class User {
       'transactionCount': transactionCount, // NEW
       'bio': bio,
       'photoUrl': photoUrl,
+      'profilePicture': photoUrl,
     };
   }
 }

@@ -14,18 +14,30 @@ class ProfileController extends ChangeNotifier {
 
   /// Initialize profile data
   Future<void> initialize() async {
+    print('ProfileController: Starting initialization');
     _updateState(_state.copyWith(isLoading: true, clearError: true));
 
     try {
       // Load user data and balance
+      print('ProfileController: Loading user data and balance');
       final userData = await _profileService.loadUserAndBalance();
+      print('ProfileController: User data loaded - ${userData.user?.email}');
       
       // Load statistics
-      final statistics = await _profileService.loadUserStatistics();
+      print('ProfileController: Loading statistics');
+      final statsData = await _profileService.loadUserStatistics();
+      print('ProfileController: Stats data: $statsData');
+      final statistics = ProfileStatistics(
+        totalLoans: statsData['items'] ?? 0,
+        activeLoans: statsData['favorites'] ?? 0,
+        completedLoans: statsData['loans'] ?? 0,
+        totalEarnings: 0.0,
+      );
       
       // Load saved profile image
       final profileImage = await _profileService.loadSavedImage();
 
+      print('ProfileController: Updating state with loaded data');
       _updateState(_state.copyWith(
         user: userData.user,
         hippoBalanceCents: userData.hippoBalanceCents,
@@ -34,7 +46,9 @@ class ProfileController extends ChangeNotifier {
         profileImage: profileImage,
         isLoading: false,
       ));
+      print('ProfileController: State updated successfully');
     } catch (e) {
+      print('ProfileController: Error during initialization: $e');
       _updateState(_state.copyWith(
         isLoading: false,
         errorMessage: 'Failed to load profile data: $e',

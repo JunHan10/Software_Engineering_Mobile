@@ -143,7 +143,7 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/api/users/$userId/balance'));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['balance'];
+      return data['balance'] ?? 0;
     }
     return 0;
   }
@@ -172,6 +172,15 @@ class ApiService {
       Uri.parse('$baseUrl/api/transactions/$id'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(transactionData),
+    );
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> updateProfilePicture(String userId, String base64Image) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/users/$userId/profile-picture'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'profilePicture': base64Image}),
     );
     return response.statusCode == 200;
   }

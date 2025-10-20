@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/flutter_app', {
@@ -24,7 +25,8 @@ const UserSchema = new mongoose.Schema({
   phone: String,
   currency: { type: Number, default: 0 },
   hippoBalanceCents: { type: Number, default: 0 },
-  assets: { type: Array, default: [] }
+  assets: { type: Array, default: [] },
+  profilePicture: String // Base64 encoded image
 });
 
 const AssetSchema = new mongoose.Schema({
@@ -172,6 +174,20 @@ app.get('/api/users/:id/balance', async (req, res) => {
     res.json({ balance: user.hippoBalanceCents });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/users/:id/profile-picture', async (req, res) => {
+  try {
+    const { profilePicture } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id, 
+      { profilePicture }, 
+      { new: true }
+    );
+    res.json({ success: true, profilePicture: user.profilePicture });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

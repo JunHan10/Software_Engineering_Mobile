@@ -6,6 +6,7 @@ import '../../core/services/category_service.dart';
 import '../../core/services/comment_service.dart';
 import '../../core/services/session_service.dart';
 import '../../core/services/server_services.dart';
+import '../../core/services/api_service.dart';
 import '../../core/models/category.dart';
 
 class ItemDetailPage extends StatefulWidget {
@@ -105,14 +106,43 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<Item?> _getItem() async {
-    // First try to find in CategoryService
-    final categoryItem = CategoryService.getItemById(widget.itemId);
-    if (categoryItem != null) {
-      return categoryItem;
+    try {
+      // Get all assets from database and find the matching one
+      final assetsData = await ApiService.getAssets();
+      
+      for (final assetJson in assetsData) {
+        if (assetJson['_id'] == widget.itemId) {
+          // Get owner info
+          final ownerData = await ApiService.getUserById(assetJson['ownerId']);
+          final ownerName = ownerData != null 
+              ? '${ownerData['firstName'] ?? ''} ${ownerData['lastName'] ?? ''}'.trim()
+              : 'Unknown Owner';
+          
+          // Convert to Item
+          return Item(
+            id: assetJson['_id'] ?? '',
+            name: assetJson['name'] ?? '',
+            description: assetJson['description'] ?? '',
+            price: (assetJson['value'] ?? 0).toDouble(),
+            currency: 'HB',
+            icon: Icons.inventory,
+            imageUrl: (assetJson['imagePaths'] as List?)?.isNotEmpty == true 
+                ? assetJson['imagePaths'][0] : '',
+            categoryId: 'database-item',
+            ownerId: assetJson['ownerId'] ?? '',
+            ownerName: ownerName,
+            isAvailable: true,
+            tags: [],
+          );
+        }
+      }
+      
+      // Fallback to CategoryService for hardcoded items
+      return CategoryService.getItemById(widget.itemId);
+    } catch (e) {
+      print('Error loading item: $e');
+      return null;
     }
-    
-    // If not found, try to find in user-created items
-    return await _findUserCreatedItem(widget.itemId);
   }
 
   Future<Item?> _findUserCreatedItem(String itemId) async {

@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../shared/widgets/main_navigation.dart'; // Import the main navigation widget
 import 'registration_page.dart'; // Import the registration page
 import '../../core/services/login_service.dart';
+import '../../core/services/google_auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -70,13 +71,38 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    // Google sign-in not implemented yet
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Google sign-in not implemented yet'),
-        backgroundColor: Colors.orange,
-      ),
-    );
+    if (_isLoading) return;
+    
+    setState(() => _isLoading = true);
+    
+    try {
+      final user = await GoogleAuthService.signInWithGoogle();
+      
+      if (user != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google sign-in failed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Google sign-in error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+    
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override

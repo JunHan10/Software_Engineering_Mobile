@@ -13,6 +13,7 @@ import '../../core/models/category.dart';
 import '../../core/services/category_service.dart';
 import '../../core/services/server_services.dart';
 import '../../core/services/session_service.dart';
+import '../../core/services/api_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -47,10 +48,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _loadAllItems() async {
-    final categoryItems = CategoryService.getAllItems();
-    final userItems = await _getUserCreatedItems();
+    final allItems = await _getAllDatabaseItems();
     setState(() {
-      _filteredItems = [...categoryItems, ...userItems];
+      _filteredItems = allItems;
     });
   }
 
@@ -72,31 +72,18 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _updateFilteredItems() async {
-    List<Item> items;
+    List<Item> items = await _getAllDatabaseItems();
     
-    // Get items from CategoryService
-    List<Item> categoryItems;
-    if (_isSearching) {
-      categoryItems = CategoryService.searchItems(_searchController.text);
-    } else {
-      categoryItems = CategoryService.getAllItems();
-    }
-
-    // Get user-created items
-    List<Item> userItems = await _getUserCreatedItems();
-    
-    // Apply search to user items if searching
+    // Apply search filter
     if (_isSearching) {
       final query = _searchController.text.toLowerCase();
-      userItems = userItems.where((item) => 
+      items = items.where((item) => 
         item.name.toLowerCase().contains(query) ||
         item.description.toLowerCase().contains(query)
       ).toList();
     }
-    
-    // Combine both lists
-    items = [...categoryItems, ...userItems];
 
+    // Apply favorites filter
     if (_showFavoritesOnly) {
       final userId = await SessionService.getCurrentUserId() ?? 'guest';
       final favorites = await _favoriteService.getUserFavorites(userId);
@@ -108,34 +95,41 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  Future<List<Item>> _getUserCreatedItems() async {
+  Future<List<Item>> _getAllDatabaseItems() async {
     try {
-      // Get current user's assets only for now
-      final currentUser = await SessionService.getCurrentUser();
-      if (currentUser == null) return [];
+      // Get all assets from database
+      final assetsData = await ApiService.getAssets();
+      List<Item> items = [];
       
-      List<Item> userItems = [];
-      for (final asset in currentUser.assets) {
-        // Convert Asset to Item for display
+      for (final assetJson in assetsData) {
+        // Get owner info
+        final ownerData = await ApiService.getUserById(assetJson['ownerId']);
+        final ownerName = ownerData != null 
+            ? '${ownerData['firstName'] ?? ''} ${ownerData['lastName'] ?? ''}'.trim()
+            : 'Unknown Owner';
+        
+        // Convert to Item
         final item = Item(
-          id: asset.id ?? '',
-          name: asset.name,
-          description: asset.description,
-          price: asset.value,
+          id: assetJson['_id'] ?? '',
+          name: assetJson['name'] ?? '',
+          description: assetJson['description'] ?? '',
+          price: (assetJson['value'] ?? 0).toDouble(),
           currency: 'HB',
           icon: Icons.inventory,
-          imageUrl: asset.imagePaths.isNotEmpty ? asset.imagePaths.first : '',
-          categoryId: 'user-created',
-          ownerId: currentUser.id ?? '',
-          ownerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+          imageUrl: (assetJson['imagePaths'] as List?)?.isNotEmpty == true 
+              ? assetJson['imagePaths'][0] : '',
+          categoryId: 'database-item',
+          ownerId: assetJson['ownerId'] ?? '',
+          ownerName: ownerName,
           isAvailable: true,
           tags: [],
         );
-        userItems.add(item);
+        items.add(item);
       }
       
-      return userItems;
+      return items;
     } catch (e) {
+      print('Error loading database items: $e');
       return [];
     }
   }
