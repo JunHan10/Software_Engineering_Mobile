@@ -13,6 +13,7 @@ import '../../core/models/category.dart';
 import '../../core/services/category_service.dart';
 import '../../core/services/server_services.dart';
 import '../../core/services/session_service.dart';
+import '../../core/services/api_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -46,11 +47,16 @@ class _DashboardPageState extends State<DashboardPage> {
     _loadAllItems();
   }
 
+  // Add this method to refresh the dashboard
+  Future<void> refreshDashboard() async {
+    await _loadAllItems();
+  }
+
   Future<void> _loadAllItems() async {
     final categoryItems = CategoryService.getAllItems();
-    final userItems = await _getUserCreatedItems();
+    final databaseAssets = await _getDatabaseAssets();
     setState(() {
-      _filteredItems = [...categoryItems, ...userItems];
+      _filteredItems = [...categoryItems, ...databaseAssets];
     });
   }
 
@@ -82,20 +88,20 @@ class _DashboardPageState extends State<DashboardPage> {
       categoryItems = CategoryService.getAllItems();
     }
 
-    // Get user-created items
-    List<Item> userItems = await _getUserCreatedItems();
+    // Get database assets
+    List<Item> databaseItems = await _getDatabaseAssets();
     
-    // Apply search to user items if searching
+    // Apply search to database items if searching
     if (_isSearching) {
       final query = _searchController.text.toLowerCase();
-      userItems = userItems.where((item) => 
+      databaseItems = databaseItems.where((item) => 
         item.name.toLowerCase().contains(query) ||
         item.description.toLowerCase().contains(query)
       ).toList();
     }
     
     // Combine both lists
-    items = [...categoryItems, ...userItems];
+    items = [...categoryItems, ...databaseItems];
 
     if (_showFavoritesOnly) {
       final userId = await SessionService.getCurrentUserId() ?? 'guest';
@@ -108,34 +114,42 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  Future<List<Item>> _getUserCreatedItems() async {
+  Future<List<Item>> _getDatabaseAssets() async {
     try {
-      // Get current user's assets only for now
-      final currentUser = await SessionService.getCurrentUser();
-      if (currentUser == null) return [];
+      // Get all assets from the database
+      final assetsData = await ApiService.getAssets();
+      List<Item> databaseItems = [];
       
-      List<Item> userItems = [];
-      for (final asset in currentUser.assets) {
-        // Convert Asset to Item for display
+      for (final assetData in assetsData) {
+        // Get owner information
+        final ownerData = await ApiService.getUserById(assetData['ownerId']);
+        final ownerName = ownerData != null 
+          ? '${ownerData['firstName']} ${ownerData['lastName']}'.trim()
+          : 'Unknown Owner';
+        
+        // Convert database asset to Item for display
         final item = Item(
-          id: asset.id ?? '',
-          name: asset.name,
-          description: asset.description,
-          price: asset.value,
+          id: assetData['_id'] ?? '',
+          name: assetData['name'] ?? '',
+          description: assetData['description'] ?? '',
+          price: (assetData['value'] ?? 0).toDouble(),
           currency: 'HB',
           icon: Icons.inventory,
-          imageUrl: asset.imagePaths.isNotEmpty ? asset.imagePaths.first : '',
-          categoryId: 'user-created',
-          ownerId: currentUser.id ?? '',
-          ownerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+          imageUrl: (assetData['imagePaths'] != null && assetData['imagePaths'].isNotEmpty) 
+            ? assetData['imagePaths'][0] 
+            : '',
+          categoryId: 'database',
+          ownerId: assetData['ownerId'] ?? '',
+          ownerName: ownerName,
           isAvailable: true,
           tags: [],
         );
-        userItems.add(item);
+        databaseItems.add(item);
       }
       
-      return userItems;
+      return databaseItems;
     } catch (e) {
+      print('Error loading database assets: $e');
       return [];
     }
   }
@@ -233,137 +247,125 @@ class _DashboardPageState extends State<DashboardPage> {
   // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF87AE73),
-        statusBarIconBrightness: Brightness.light,
-      ),
-      child: Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        backgroundColor: const Color(0xFF87AE73),
-        foregroundColor: Colors.white,
-        systemOverlayStyle: const SystemUiOverlayStyle(
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
           statusBarColor: Color(0xFF87AE73),
           statusBarIconBrightness: Brightness.light,
         ),
-        // actions: [
-        //   Padding(
-        //     padding: const EdgeInsets.symmetric(
-        //       vertical: 16.0,
-        //       horizontal: 8.0,
-        //     ),
-        //     child: Text(
-        //       MoneyService.formatCents(_hippoBalanceCents),
-        //       style: const TextStyle(
-        //         fontSize: 14,
-        //         fontWeight: FontWeight.normal,
-        //       ),
-        //     ),
-        //   ),
-        // ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-            children: [
-              // -----------------------------------------------------------------------
-              // SECTION: Search Bar with Heart Button
-              // -----------------------------------------------------------------------
-              Row(
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Dashboard'),
+            backgroundColor: const Color(0xFF87AE73),
+            foregroundColor: Colors.white,
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Color(0xFF87AE73),
+              statusBarIconBrightness: Brightness.light,
+            ),
+          ),
+          body: RefreshIndicator(
+            onRefresh: refreshDashboard,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
-                        ),
-                        hintText: 'Search items...',
-                        prefixIcon: Container(
-                          width: 48,
-                          alignment: Alignment.center,
-                          child: const FaIcon(
-                            FontAwesomeIcons.magnifyingGlass,
-                            size: 18,
+                // -----------------------------------------------------------------------
+                // SECTION: Search Bar with Heart Button
+                // -----------------------------------------------------------------------
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        style: const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 12,
                           ),
-                        ),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
-                                onPressed: () {
-                                  _searchController.clear();
-                                },
-                              )
-                            : null,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF87AE73),
-                            width: 2,
+                          hintText: 'Search items...',
+                          prefixIcon: Container(
+                            width: 48,
+                            alignment: Alignment.center,
+                            child: const FaIcon(
+                              FontAwesomeIcons.magnifyingGlass,
+                              size: 18,
+                            ),
                           ),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                  },
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF87AE73),
+                              width: 2,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
-                        filled: true,
-                        fillColor: Colors.white,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: _showFavoritesOnly ? const Color(0xFF87AE73) : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: const Color(0xFF87AE73),
-                        width: 2,
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: _showFavoritesOnly ? const Color(0xFF87AE73) : Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: const Color(0xFF87AE73),
+                          width: 2,
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: FaIcon(
+                          FontAwesomeIcons.heart,
+                          color: _showFavoritesOnly ? Colors.white : const Color(0xFF87AE73),
+                          size: 20,
+                        ),
+                        onPressed: _toggleFavoritesFilter,
                       ),
                     ),
-                    child: IconButton(
-                      icon: FaIcon(
-                        FontAwesomeIcons.heart,
-                        color: _showFavoritesOnly ? Colors.white : const Color(0xFF87AE73),
-                        size: 20,
-                      ),
-                      onPressed: _toggleFavoritesFilter,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                  ],
+                ),
+                const SizedBox(height: 16),
 
-              // -----------------------------------------------------------------------
-              // SECTION: Items Grid (rounded top container to avoid sharp cutoff)
-              // -----------------------------------------------------------------------
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      border: Border(
-                        top: BorderSide(
-                          color: const Color(0xFF87AE73).withOpacity(0.25),
-                          width: 1,
+                // -----------------------------------------------------------------------
+                // SECTION: Items Grid (rounded top container to avoid sharp cutoff)
+                // -----------------------------------------------------------------------
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        border: Border(
+                          top: BorderSide(
+                            color: const Color(0xFF87AE73).withOpacity(0.25),
+                            width: 1,
+                          ),
                         ),
                       ),
+                      child: _buildItemsGrid(),
                     ),
-                    child: _buildItemsGrid(),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
         ),
-      ),
       ),
     );
   }

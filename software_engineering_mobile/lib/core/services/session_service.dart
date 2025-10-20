@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class SessionService {
-  static const String baseUrl = 'http://192.168.50.158:3000/api';
+  static const String baseUrl = 'http://192.168.1.144:3000/api';
 
   static Future<String?> getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();

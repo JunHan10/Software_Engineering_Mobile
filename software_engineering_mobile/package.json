@@ -1,0 +1,22 @@
+{
+  "name": "software-engineering-mobile-db-setup",
+  "version": "1.0.0",
+  "description": "Database setup script for Software Engineering Mobile app",
+  "main": "setup_db.js",
+  "scripts": {
+    "setup-db": "node setup_db.js",
+    "test-mongo": "node start-mongodb.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mongodb": "^6.3.0"
+  },
+  "keywords": [
+    "mongodb",
+    "database",
+    "setup",
+    "flutter"
+  ],
+  "author": "",
+  "license": "ISC"
+}

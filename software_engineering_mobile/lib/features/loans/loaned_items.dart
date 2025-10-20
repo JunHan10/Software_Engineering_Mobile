@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'new_item_page.dart';
 import '../../core/services/session_service.dart';
+import '../../core/services/api_service.dart';
 import '../../core/models/user.dart';
 import '../../shared/widgets/item_detail_page.dart';
 
@@ -32,11 +33,37 @@ class _LoanedItemsState extends State<LoanedItems> {
     setState(() => _loading = true);
     final user = await SessionService.getCurrentUser();
     await _loadDraft();
-    if (!mounted) return;
-    setState(() {
-      _loanedItems = user?.assets ?? [];
-      _loading = false;
-    });
+    
+    if (user?.id != null) {
+      try {
+        print('Loading assets for user: ${user!.id}');
+        // Load items directly from the assets API instead of from user.assets
+        final assetsData = await ApiService.getAssetsByOwner(user.id!);
+        print('Raw assets data from API: $assetsData');
+        final assets = assetsData.map((assetJson) => Asset.fromJson(assetJson)).toList();
+        print('Parsed assets: ${assets.length} items');
+        
+        if (!mounted) return;
+        setState(() {
+          _loanedItems = assets;
+          _loading = false;
+        });
+      } catch (e) {
+        print('Error loading assets: $e');
+        if (!mounted) return;
+        setState(() {
+          _loanedItems = [];
+          _loading = false;
+        });
+      }
+    } else {
+      print('No user ID found');
+      if (!mounted) return;
+      setState(() {
+        _loanedItems = [];
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _loadDraft() async {

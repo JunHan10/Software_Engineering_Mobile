@@ -10,6 +10,7 @@ class ProfileState {
   final ProfileStatistics statistics;
   final File? profileImage;
   final List<File> galleryImages;
+  final List<Asset> userAssets;
   final bool isLoading;
   final bool isPickingImage;
   final String? errorMessage;
@@ -26,6 +27,7 @@ class ProfileState {
     ),
     this.profileImage,
     this.galleryImages = const [],
+    this.userAssets = const [],
     this.isLoading = false,
     this.isPickingImage = false,
     this.errorMessage,
@@ -39,6 +41,7 @@ class ProfileState {
     ProfileStatistics? statistics,
     File? profileImage,
     List<File>? galleryImages,
+    List<Asset>? userAssets,
     bool? isLoading,
     bool? isPickingImage,
     String? errorMessage,
@@ -51,6 +54,7 @@ class ProfileState {
       statistics: statistics ?? this.statistics,
       profileImage: profileImage ?? this.profileImage,
       galleryImages: galleryImages ?? this.galleryImages,
+      userAssets: userAssets ?? this.userAssets,
       isLoading: isLoading ?? this.isLoading,
       isPickingImage: isPickingImage ?? this.isPickingImage,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),

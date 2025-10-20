@@ -8,6 +8,7 @@ import '../../features/dashboard/dashboard_page.dart';
 import '../../features/loans/loaned_items.dart';
 import '../../features/loans/active_loans.dart';
 import '../../features/profile/profile_page.dart';
+import '../../features/messaging/conversation_list_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -31,6 +32,7 @@ class _MainNavigationState extends State<MainNavigation> {
       DashboardPage(),
       LoanedItems(),
       ActiveLoans(onNavigateToHome: _navigateToHome, onNavigateToPost: _navigateToPost),
+      ConversationListPage(),
       ProfilePageV2(),
     ];
   }
@@ -162,7 +164,8 @@ class _MainNavigationState extends State<MainNavigation> {
             _buildNavButton(0, FontAwesomeIcons.house, 'Home'),
             _buildNavButton(1, FontAwesomeIcons.arrowUp, 'Post'),
             _buildNavButton(2, FontAwesomeIcons.arrowDown, 'Borrow'),
-            _buildNavButton(3, FontAwesomeIcons.user, 'Profile'),
+            _buildNavButton(3, FontAwesomeIcons.message, 'Chat'),
+            _buildNavButton(4, FontAwesomeIcons.user, 'Profile'),
           ],
         ),
       ),

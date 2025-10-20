@@ -6,7 +6,12 @@ import '../../core/services/category_service.dart';
 import '../../core/services/comment_service.dart';
 import '../../core/services/session_service.dart';
 import '../../core/services/server_services.dart';
+import '../../core/services/api_service.dart';
 import '../../core/models/category.dart';
+import '../../core/models/user.dart';
+import '../../core/services/message_service.dart';
+import '../../core/models/message.dart';
+import '../../features/messaging/conversation_page.dart';
 
 class ItemDetailPage extends StatefulWidget {
   final String itemId;
@@ -104,44 +109,174 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     );
   }
 
+  Future<void> _handleBorrow(Item item) async {
+    try {
+      final currentUser = await SessionService.getCurrentUser();
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please log in to borrow items'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Check if user is trying to borrow their own item
+      if (currentUser.id == item.ownerId) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You cannot borrow your own item'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      // Check if conversation already exists
+      final existingConversation = await MessageService.findExistingConversation(
+        itemId: item.id,
+        borrowerId: currentUser.id!,
+      );
+
+      if (existingConversation != null) {
+        // Navigate to existing conversation
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ConversationPage(
+              conversation: existingConversation,
+              currentUserId: currentUser.id!,
+            ),
+          ),
+        );
+        
+        if (result == true) {
+          // Refresh if needed
+        }
+        return;
+      }
+
+      // Create new conversation
+      final conversation = await MessageService.createConversation(
+        itemId: item.id,
+        itemName: item.name,
+        ownerId: item.ownerId,
+        ownerName: item.ownerName,
+        borrowerId: currentUser.id!,
+        borrowerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+      );
+
+      if (conversation != null) {
+        // Send initial message
+        await MessageService.sendMessage(
+          conversationId: conversation.id!,
+          senderId: currentUser.id!,
+          senderName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+          content: 'Hi! I\'m interested in borrowing your ${item.name}. When would be a good time to discuss this?',
+        );
+
+        // Navigate to conversation
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ConversationPage(
+              conversation: conversation,
+              currentUserId: currentUser.id!,
+            ),
+          ),
+        );
+        
+        if (result == true) {
+          // Refresh if needed
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to start conversation'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error handling borrow: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<Item?> _getItem() async {
+    print('ItemDetailPage: Loading item with ID: ${widget.itemId}');
+    
     // First try to find in CategoryService
     final categoryItem = CategoryService.getItemById(widget.itemId);
     if (categoryItem != null) {
+      print('ItemDetailPage: Found item in CategoryService: ${categoryItem.name}');
       return categoryItem;
     }
     
+    print('ItemDetailPage: Item not found in CategoryService, searching in database...');
     // If not found, try to find in user-created items
     return await _findUserCreatedItem(widget.itemId);
   }
 
   Future<Item?> _findUserCreatedItem(String itemId) async {
     try {
-      // Get current user's assets only for now
-      final currentUser = await SessionService.getCurrentUser();
-      if (currentUser == null) return null;
+      print('ItemDetailPage: Searching for item with ID: $itemId');
       
-      for (final asset in currentUser.assets) {
-        if (asset.id == itemId) {
+      // Search through all assets in the database
+      final allAssets = await ApiService.getAssets();
+      print('ItemDetailPage: Found ${allAssets.length} total assets in database');
+      
+      for (final assetData in allAssets) {
+        final assetId = assetData['_id'] ?? assetData['id'];
+        if (assetId == itemId) {
+          print('ItemDetailPage: Found matching asset: ${assetData['name']}');
+          
+          // Get the owner information
+          final ownerId = assetData['ownerId'];
+          User? owner;
+          if (ownerId != null) {
+            try {
+              final ownerData = await ApiService.getUserById(ownerId);
+              if (ownerData != null) {
+                owner = User.fromJson(ownerData);
+              }
+            } catch (e) {
+              print('ItemDetailPage: Error loading owner data: $e');
+            }
+          }
+          
           // Convert Asset to Item
           return Item(
-            id: asset.id ?? '',
-            name: asset.name,
-            description: asset.description,
-            price: asset.value,
+            id: assetId ?? '',
+            name: assetData['name'] ?? 'Unknown Item',
+            description: assetData['description'] ?? '',
+            price: (assetData['value'] ?? 0).toDouble(),
             currency: 'HB',
             icon: Icons.inventory,
-            imageUrl: asset.imagePaths.isNotEmpty ? asset.imagePaths.first : '',
+            imageUrl: (assetData['imagePaths'] as List?)?.isNotEmpty == true 
+                ? (assetData['imagePaths'] as List).first.toString() 
+                : '',
             categoryId: 'user-created',
-            ownerId: currentUser.id ?? '',
-            ownerName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
+            ownerId: ownerId ?? '',
+            ownerName: owner != null 
+                ? '${owner.firstName} ${owner.lastName}'.trim()
+                : 'Unknown Owner',
             isAvailable: true,
             tags: [],
           );
         }
       }
+      
+      print('ItemDetailPage: No asset found with ID: $itemId');
       return null;
     } catch (e) {
+      print('ItemDetailPage: Error searching for item: $e');
       return null;
     }
   }
@@ -393,16 +528,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement contact owner functionality
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Contact owner functionality coming soon!',
-                                ),
-                              ),
-                            );
-                          },
+                          onPressed: () => _handleBorrow(item),
                           icon: const FaIcon(FontAwesomeIcons.message),
                           label: const Text('Borrow'),
                           style: ElevatedButton.styleFrom(

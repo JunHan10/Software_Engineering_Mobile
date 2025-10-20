@@ -101,7 +101,7 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
 
                       // User Posts
                       PostsSection(
-                        userPosts: state.user?.assets ?? [],
+                        userPosts: state.userAssets,
                         onCreatePost: _handleCreatePost,
                         onPostTap: _handlePostTap,
                       ),

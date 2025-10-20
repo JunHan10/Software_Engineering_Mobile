@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../shared/widgets/app_settings_page.dart';
 import '../../../shared/widgets/edit_profile_page.dart';
 import '../../auth/login_screen.dart';
+import '../../auth/switch_accounts_page.dart';
 
 /// ProfileV2 App Bar component - handles the header section of the profile
 /// Contains profile image, user info, background patterns, and navigation menu
@@ -51,6 +52,19 @@ class ProfileAppBar extends StatelessWidget {
                   ),
                   SizedBox(width: 8),
                   Text('Edit Profile'),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'switch',
+              child: Row(
+                children: [
+                  FaIcon(
+                    FontAwesomeIcons.arrowRightArrowLeft,
+                    color: Color(0xFF87AE73),
+                  ),
+                  SizedBox(width: 8),
+                  Text('Switch Account'),
                 ],
               ),
             ),
@@ -219,6 +233,12 @@ class ProfileAppBar extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const EditProfilePage()),
+        );
+        break;
+      case 'switch':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SwitchAccountsPage()),
         );
         break;
       case 'settings':
