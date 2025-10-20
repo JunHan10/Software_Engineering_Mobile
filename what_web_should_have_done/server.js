@@ -21,9 +21,10 @@ const UserSchema = new mongoose.Schema({
   password: String,
   firstName: String,
   lastName: String,
-  currency: Number,
-  hippoBalanceCents: Number,
-  assets: Array
+  phone: String,
+  currency: { type: Number, default: 0 },
+  hippoBalanceCents: { type: Number, default: 0 },
+  assets: { type: Array, default: [] }
 });
 
 const AssetSchema = new mongoose.Schema({
@@ -92,10 +93,13 @@ app.get('/api/users/id/:id', async (req, res) => {
 
 app.post('/api/users', async (req, res) => {
   try {
+    console.log('Registration attempt:', req.body);
     const user = new User(req.body);
     await user.save();
+    console.log('User created successfully:', user._id);
     res.status(201).json(user);
   } catch (error) {
+    console.log('Registration error:', error.message);
     res.status(400).json({ error: error.message });
   }
 });

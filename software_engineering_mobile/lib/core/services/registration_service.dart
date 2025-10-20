@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class RegistrationService {
-  static const String baseUrl = 'http://localhost:3000/api';
+  static const String baseUrl = 'http://192.168.50.158:3000/api';
 
   static Future<User?> register(Map<String, dynamic> userData) async {
     try {
