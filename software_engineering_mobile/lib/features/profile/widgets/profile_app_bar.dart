@@ -250,7 +250,9 @@ class ProfileAppBar extends StatelessWidget {
       case 'logout':
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (context) => LoginScreen(initialEmail: displayEmail),
+          ),
         );
         break;
     }

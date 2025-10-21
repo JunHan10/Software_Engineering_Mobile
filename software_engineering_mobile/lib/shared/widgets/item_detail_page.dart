@@ -10,7 +10,6 @@ import '../../core/services/api_service.dart';
 import '../../core/models/category.dart';
 import '../../core/models/user.dart';
 import '../../core/services/message_service.dart';
-import '../../core/models/message.dart';
 import '../../features/messaging/conversation_page.dart';
 
 class ItemDetailPage extends StatefulWidget {
@@ -23,7 +22,6 @@ class ItemDetailPage extends StatefulWidget {
 }
 
 class _ItemDetailPageState extends State<ItemDetailPage> {
-
   final _voteService = ServerVoteService();
   final _favoriteService = ServerFavoriteService();
   final _commentCtrl = TextEditingController();
@@ -84,7 +82,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
 
   Future<void> _loadFavoriteStatus() async {
     final userId = await SessionService.getCurrentUserId() ?? 'guest';
-    final isFavorited = await _favoriteService.isFavorited(widget.itemId, userId);
+    final isFavorited = await _favoriteService.isFavorited(
+      widget.itemId,
+      userId,
+    );
     if (!mounted) return;
     setState(() {
       _isFavorited = isFavorited;
@@ -101,10 +102,12 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     setState(() {
       _isFavorited = !_isFavorited;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isFavorited ? 'Added to favorites!' : 'Removed from favorites!'),
+        content: Text(
+          _isFavorited ? 'Added to favorites!' : 'Removed from favorites!',
+        ),
       ),
     );
   }
@@ -134,10 +137,11 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       }
 
       // Check if conversation already exists
-      final existingConversation = await MessageService.findExistingConversation(
-        itemId: item.id,
-        borrowerId: currentUser.id!,
-      );
+      final existingConversation =
+          await MessageService.findExistingConversation(
+            itemId: item.id,
+            borrowerId: currentUser.id!,
+          );
 
       if (existingConversation != null) {
         // Navigate to existing conversation
@@ -150,7 +154,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             ),
           ),
         );
-        
+
         if (result == true) {
           // Refresh if needed
         }
@@ -173,7 +177,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           conversationId: conversation.id!,
           senderId: currentUser.id!,
           senderName: '${currentUser.firstName} ${currentUser.lastName}'.trim(),
-          content: 'Hi! I\'m interested in borrowing your ${item.name}. When would be a good time to discuss this?',
+          content:
+              'Hi! I\'m interested in borrowing your ${item.name}. When would be a good time to discuss this?',
         );
 
         // Navigate to conversation
@@ -186,7 +191,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             ),
           ),
         );
-        
+
         if (result == true) {
           // Refresh if needed
         }
@@ -211,15 +216,19 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
 
   Future<Item?> _getItem() async {
     print('ItemDetailPage: Loading item with ID: ${widget.itemId}');
-    
+
     // First try to find in CategoryService
     final categoryItem = CategoryService.getItemById(widget.itemId);
     if (categoryItem != null) {
-      print('ItemDetailPage: Found item in CategoryService: ${categoryItem.name}');
+      print(
+        'ItemDetailPage: Found item in CategoryService: ${categoryItem.name}',
+      );
       return categoryItem;
     }
-    
-    print('ItemDetailPage: Item not found in CategoryService, searching in database...');
+
+    print(
+      'ItemDetailPage: Item not found in CategoryService, searching in database...',
+    );
     // If not found, try to find in user-created items
     return await _findUserCreatedItem(widget.itemId);
   }
@@ -227,16 +236,18 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   Future<Item?> _findUserCreatedItem(String itemId) async {
     try {
       print('ItemDetailPage: Searching for item with ID: $itemId');
-      
+
       // Search through all assets in the database
       final allAssets = await ApiService.getAssets();
-      print('ItemDetailPage: Found ${allAssets.length} total assets in database');
-      
+      print(
+        'ItemDetailPage: Found ${allAssets.length} total assets in database',
+      );
+
       for (final assetData in allAssets) {
         final assetId = assetData['_id'] ?? assetData['id'];
         if (assetId == itemId) {
           print('ItemDetailPage: Found matching asset: ${assetData['name']}');
-          
+
           // Get the owner information
           final ownerId = assetData['ownerId'];
           User? owner;
@@ -250,7 +261,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               print('ItemDetailPage: Error loading owner data: $e');
             }
           }
-          
+
           // Convert Asset to Item
           return Item(
             id: assetId ?? '',
@@ -259,12 +270,12 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
             price: (assetData['value'] ?? 0).toDouble(),
             currency: 'HB',
             icon: Icons.inventory,
-            imageUrl: (assetData['imagePaths'] as List?)?.isNotEmpty == true 
-                ? (assetData['imagePaths'] as List).first.toString() 
+            imageUrl: (assetData['imagePaths'] as List?)?.isNotEmpty == true
+                ? (assetData['imagePaths'] as List).first.toString()
                 : '',
             categoryId: 'user-created',
             ownerId: ownerId ?? '',
-            ownerName: owner != null 
+            ownerName: owner != null
                 ? '${owner.firstName} ${owner.lastName}'.trim()
                 : 'Unknown Owner',
             isAvailable: true,
@@ -272,7 +283,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           );
         }
       }
-      
+
       print('ItemDetailPage: No asset found with ID: $itemId');
       return null;
     } catch (e) {
@@ -322,117 +333,266 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
 
         final category = CategoryService.getCategoryById(item.categoryId);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(item.name),
-        backgroundColor: category != null
-            ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
-            : const Color(0xFF87AE73),
-        foregroundColor: Colors.white,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Item image placeholder
-            Container(
-              width: double.infinity,
-              height: 250,
-              color: Colors.grey[200],
-              child: Icon(item.icon, size: 100, color: Colors.grey[400]),
-            ),
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(item.name),
+            backgroundColor: category != null
+                ? Color(int.parse(category.color.replaceAll('#', '0xFF')))
+                : const Color(0xFF87AE73),
+            foregroundColor: Colors.white,
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Item image placeholder
+                Container(
+                  width: double.infinity,
+                  height: 250,
+                  color: Colors.grey[200],
+                  child: Icon(item.icon, size: 100, color: Colors.grey[400]),
+                ),
 
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Item name and price
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          item.name,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      // Price display removed
-                    ],
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  const SizedBox(height: 16),
-
-                  // Owner info
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.grey[300],
-                        child: Text(
-                          item.ownerName[0].toUpperCase(),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Item name and price
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Owner',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                          Expanded(
+                            child: Text(
+                              item.name,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          Text(
-                            item.ownerName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                          // Price display removed
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      const SizedBox(height: 16),
+
+                      // Owner info
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.grey[300],
+                            child: Text(
+                              item.ownerName[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Owner',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              Text(
+                                item.ownerName,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  FontAwesomeIcons.arrowUp,
+                                  color: _myVote == 1
+                                      ? (category != null
+                                            ? Color(
+                                                int.parse(
+                                                  category.color.replaceAll(
+                                                    '#',
+                                                    '0xFF',
+                                                  ),
+                                                ),
+                                              )
+                                            : const Color(0xFF87AE73))
+                                      : Colors.grey[500],
+                                  size: 20,
+                                ),
+                                onPressed: () => _toggleVote(1),
+                                tooltip: 'Upvote',
+                              ),
+                              FutureBuilder<int>(
+                                future: _voteService.getScore(widget.itemId),
+                                builder: (context, snapshot) {
+                                  final s = snapshot.data ?? _voteScore;
+                                  return Text(
+                                    s.toString(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: category != null
+                                          ? Color(
+                                              int.parse(
+                                                category.color.replaceAll(
+                                                  '#',
+                                                  '0xFF',
+                                                ),
+                                              ),
+                                            )
+                                          : const Color(0xFF87AE73),
+                                    ),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  FontAwesomeIcons.arrowDown,
+                                  color: _myVote == -1
+                                      ? (category != null
+                                            ? Color(
+                                                int.parse(
+                                                  category.color.replaceAll(
+                                                    '#',
+                                                    '0xFF',
+                                                  ),
+                                                ),
+                                              )
+                                            : const Color(0xFF87AE73))
+                                      : Colors.grey[500],
+                                  size: 20,
+                                ),
+                                onPressed: () => _toggleVote(-1),
+                                tooltip: 'Downvote',
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              FontAwesomeIcons.arrowUp,
-                              color: _myVote == 1
-                                  ? (category != null
-                                        ? Color(
-                                            int.parse(
-                                              category.color.replaceAll(
-                                                '#',
-                                                '0xFF',
-                                              ),
-                                            ),
-                                          )
-                                        : const Color(0xFF87AE73))
-                                  : Colors.grey[500],
-                              size: 20,
+
+                      const SizedBox(height: 24),
+
+                      // Description
+                      const Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item.description,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          height: 1.5,
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Tags
+                      const Text(
+                        'Tags',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: item.tags.map((tag) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
                             ),
-                            onPressed: () => _toggleVote(1),
-                            tooltip: 'Upvote',
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              tag,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleBorrow(item),
+                              icon: const FaIcon(FontAwesomeIcons.message),
+                              label: const Text('Borrow'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: category != null
+                                    ? Color(
+                                        int.parse(
+                                          category.color.replaceAll(
+                                            '#',
+                                            '0xFF',
+                                          ),
+                                        ),
+                                      )
+                                    : const Color(0xFF87AE73),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
                           ),
-                          FutureBuilder<int>(
-                            future: _voteService.getScore(widget.itemId),
-                            builder: (context, snapshot) {
-                              final s = snapshot.data ?? _voteScore;
-                              return Text(
-                                s.toString(),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _toggleFavorite,
+                              icon: FaIcon(
+                                _isFavorited
+                                    ? FontAwesomeIcons.solidHeart
+                                    : FontAwesomeIcons.heart,
+                              ),
+                              label: Text(
+                                _isFavorited ? 'Favorited' : 'Favorite',
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: category != null
+                                    ? Color(
+                                        int.parse(
+                                          category.color.replaceAll(
+                                            '#',
+                                            '0xFF',
+                                          ),
+                                        ),
+                                      )
+                                    : const Color(0xFF87AE73),
+                                side: BorderSide(
                                   color: category != null
                                       ? Color(
                                           int.parse(
@@ -444,262 +604,141 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                         )
                                       : const Color(0xFF87AE73),
                                 ),
-                              );
-                            },
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              FontAwesomeIcons.arrowDown,
-                              color: _myVote == -1
-                                  ? (category != null
-                                        ? Color(
-                                            int.parse(
-                                              category.color.replaceAll(
-                                                '#',
-                                                '0xFF',
-                                              ),
-                                            ),
-                                          )
-                                        : const Color(0xFF87AE73))
-                                  : Colors.grey[500],
-                              size: 20,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
-                            onPressed: () => _toggleVote(-1),
-                            tooltip: 'Downvote',
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                      const SizedBox(height: 32),
 
-                  const SizedBox(height: 24),
-
-                  // Description
-                  const Text(
-                    'Description',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    item.description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[700],
-                      height: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Tags
-                  const Text(
-                    'Tags',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: item.tags.map((tag) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          tag,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _handleBorrow(item),
-                          icon: const FaIcon(FontAwesomeIcons.message),
-                          label: const Text('Borrow'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: category != null
-                                ? Color(
-                                    int.parse(
-                                      category.color.replaceAll('#', '0xFF'),
-                                    ),
-                                  )
-                                : const Color(0xFF87AE73),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
+                      // Comments Section
+                      const Text(
+                        'Comments',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _toggleFavorite,
-                          icon: FaIcon(
-                            _isFavorited ? FontAwesomeIcons.solidHeart : FontAwesomeIcons.heart,
+                      const SizedBox(height: 8),
+                      if (_loading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      else if (_comments.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            'No comments yet. Be the first to comment!',
+                            style: TextStyle(color: Colors.grey[600]),
                           ),
-                          label: Text(_isFavorited ? 'Favorited' : 'Favorite'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: category != null
-                                ? Color(
-                                    int.parse(
-                                      category.color.replaceAll('#', '0xFF'),
-                                    ),
-                                  )
-                                : const Color(0xFF87AE73),
-                            side: BorderSide(
-                              color: category != null
+                        )
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _comments.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 16),
+                          itemBuilder: (context, index) {
+                            final c = _comments[index];
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.grey[300],
+                                  child: Text(
+                                    (c.authorName.isNotEmpty
+                                            ? c.authorName[0]
+                                            : 'G')
+                                        .toUpperCase(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            c.authorName,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            _formatTime(c.createdAt),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(c.text),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _commentCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'Add a comment...',
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                              minLines: 1,
+                              maxLines: 3,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _submitComment,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: category != null
                                   ? Color(
                                       int.parse(
                                         category.color.replaceAll('#', '0xFF'),
                                       ),
                                     )
                                   : const Color(0xFF87AE73),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            child: const Text('Post'),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
-
-                  // Comments Section
-                  const Text(
-                    'Comments',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  if (_loading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  else if (_comments.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        'No comments yet. Be the first to comment!',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    )
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _comments.length,
-                      separatorBuilder: (_, __) => const Divider(height: 16),
-                      itemBuilder: (context, index) {
-                        final c = _comments[index];
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.grey[300],
-                              child: Text(
-                                (c.authorName.isNotEmpty
-                                        ? c.authorName[0]
-                                        : 'G')
-                                    .toUpperCase(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        c.authorName,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      Text(
-                                        _formatTime(c.createdAt),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(c.text),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _commentCtrl,
-                          decoration: const InputDecoration(
-                            hintText: 'Add a comment...',
-                            border: OutlineInputBorder(),
-                            isDense: true,
-                          ),
-                          minLines: 1,
-                          maxLines: 3,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _submitComment,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: category != null
-                              ? Color(
-                                  int.parse(
-                                    category.color.replaceAll('#', '0xFF'),
-                                  ),
-                                )
-                              : const Color(0xFF87AE73),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                        ),
-                        child: const Text('Post'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        );
       },
     );
   }

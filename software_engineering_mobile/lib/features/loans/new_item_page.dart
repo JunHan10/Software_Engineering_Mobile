@@ -252,7 +252,7 @@ class _NewItemPageState extends State<NewItemPage> {
         'imagePaths': _images,
       };
       await ApiService.createAsset(assetData);
-      
+
       await _clearDraft();
 
       if (!mounted) return;
@@ -301,7 +301,7 @@ class _NewItemPageState extends State<NewItemPage> {
         'imagePaths': _images,
       };
       await ApiService.createAsset(assetData);
-      
+
       await _clearDraft();
 
       if (!mounted) return;
@@ -832,13 +832,11 @@ class _NewItemPageState extends State<NewItemPage> {
 
   Widget _buildReviewCard() {
     const Color categoryColor = Color(0xFF87AE73);
-    
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 280),
       child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
@@ -875,7 +873,7 @@ class _NewItemPageState extends State<NewItemPage> {
                         ),
                 ),
               ),
-              
+
               // Text content - using the same layout as marketplace cards
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -896,10 +894,7 @@ class _NewItemPageState extends State<NewItemPage> {
                       _description.isNotEmpty ? _description : 'No description',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -944,7 +939,7 @@ class _NewItemPageState extends State<NewItemPage> {
                         ),
                       ],
                     ),
-                    
+
                     // Maintenance note (if any) - compact version
                     if (_maintenance.isNotEmpty) ...[
                       const SizedBox(height: 8),
@@ -958,7 +953,11 @@ class _NewItemPageState extends State<NewItemPage> {
                         ),
                         child: Row(
                           children: [
-                            FaIcon(FontAwesomeIcons.wrench, size: 10, color: Colors.blue[700]),
+                            FaIcon(
+                              FontAwesomeIcons.wrench,
+                              size: 10,
+                              color: Colors.blue[700],
+                            ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
@@ -975,7 +974,7 @@ class _NewItemPageState extends State<NewItemPage> {
                         ),
                       ),
                     ],
-                    
+
                     // Edit buttons - compact version
                     const SizedBox(height: 8),
                     Row(
@@ -989,7 +988,10 @@ class _NewItemPageState extends State<NewItemPage> {
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               minimumSize: Size.zero,
                             ),
-                            child: const Text('Edit', style: TextStyle(fontSize: 12)),
+                            child: const Text(
+                              'Edit',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -1002,7 +1004,10 @@ class _NewItemPageState extends State<NewItemPage> {
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               minimumSize: Size.zero,
                             ),
-                            child: const Text('Photos', style: TextStyle(fontSize: 12)),
+                            child: const Text(
+                              'Photos',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                         ),
                       ],
@@ -1017,69 +1022,7 @@ class _NewItemPageState extends State<NewItemPage> {
     );
   }
 
-  Widget _buildReviewField(String label, String value, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                label,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Text(value, style: TextStyle(color: Colors.grey[700])),
-            ),
-            FaIcon(
-              FontAwesomeIcons.penToSquare,
-              size: 14,
-              color: Colors.grey[400],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Helper to avoid requiring a copyWith on your model
-  User _copyUser(
-    User u, {
-    String? id,
-    String? email,
-    String? password,
-    String? firstName,
-    String? lastName,
-    int? age,
-    String? streetAddress,
-    String? city,
-    String? state,
-    String? zipcode,
-    double? currency,
-    List<Asset>? assets,
-    int? hippoBalanceCents,
-  }) {
-    return User(
-      id: id ?? u.id,
-      email: email ?? u.email,
-      password: password ?? u.password,
-      firstName: firstName ?? u.firstName,
-      lastName: lastName ?? u.lastName,
-      age: age ?? u.age,
-      streetAddress: streetAddress ?? u.streetAddress,
-      city: city ?? u.city,
-      state: state ?? u.state,
-      zipcode: zipcode ?? u.zipcode,
-      currency: currency ?? u.currency,
-      assets: assets ?? u.assets,
-      // keep existing HB if present
-      hippoBalanceCents: hippoBalanceCents ?? u.hippoBalanceCents,
-    );
-  }
+  // (Removed unused helper methods to reduce analyzer warnings.)
 
   // ---- Phase 7: Main Build Method ----
   @override
@@ -1217,13 +1160,15 @@ class _NewItemPageState extends State<NewItemPage> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _saving ? null : _submitItemAsDone,
-                      icon: _saving 
+                      icon: _saving
                           ? const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation(Colors.white),
+                                valueColor: AlwaysStoppedAnimation(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const FaIcon(FontAwesomeIcons.circleCheck),
@@ -1237,7 +1182,7 @@ class _NewItemPageState extends State<NewItemPage> {
                   ),
                 ],
               ),
-              
+
               // Back button row (only show if not on first step)
               if (_currentStep > 0) ...[
                 const SizedBox(height: 8),

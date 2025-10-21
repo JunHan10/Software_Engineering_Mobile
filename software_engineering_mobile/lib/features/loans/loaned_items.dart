@@ -17,7 +17,6 @@ class LoanedItems extends StatefulWidget {
 }
 
 class _LoanedItemsState extends State<LoanedItems> {
-
   List<Asset> _loanedItems = [];
   bool _loading = true;
   bool _hasDraft = false;
@@ -30,19 +29,19 @@ class _LoanedItemsState extends State<LoanedItems> {
   }
 
   Future<void> _loadItems() async {
+    if (!mounted) return;
     setState(() => _loading = true);
+
     final user = await SessionService.getCurrentUser();
     await _loadDraft();
-    
+
     if (user?.id != null) {
       try {
         print('Loading assets for user: ${user!.id}');
-        // Load items directly from the assets API instead of from user.assets
         final assetsData = await ApiService.getAssetsByOwner(user.id!);
-        print('Raw assets data from API: $assetsData');
         final assets = assetsData.map((assetJson) => Asset.fromJson(assetJson)).toList();
         print('Parsed assets: ${assets.length} items');
-        
+
         if (!mounted) return;
         setState(() {
           _loanedItems = assets;
@@ -69,6 +68,8 @@ class _LoanedItemsState extends State<LoanedItems> {
   Future<void> _loadDraft() async {
     final prefs = await SharedPreferences.getInstance();
     final draftExists = prefs.getString('item_draft');
+
+    if (!mounted) return;
     if (draftExists != null) {
       setState(() {
         _hasDraft = true;
@@ -94,8 +95,17 @@ class _LoanedItemsState extends State<LoanedItems> {
     await prefs.remove('draft_maintenance');
     await prefs.remove('draft_price');
     await prefs.remove('item_draft');
+    if (!mounted) return;
     await _loadDraft();
   }
+
+  @override
+  void dispose() {
+    // If you later add timers, streams, or controllers, cancel them here.
+    super.dispose();
+  }
+
+  // rest of your widget tree (_buildEmptyState, _buildDraftCard, _buildItemsList, build) stays the same
 
   Widget _buildEmptyState(BuildContext context) {
     return SingleChildScrollView(

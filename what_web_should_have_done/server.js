@@ -13,6 +13,27 @@ app.use(express.json());
 mongoose.connect('mongodb://localhost:27017/flutter_app', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+})
+.then(() => {
+  console.log("✅ Connected to MongoDB (flutter_app)");
+
+  // Start the server *after* MongoDB connection succeeds
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📱 Access from mobile: http://localhost:${PORT}`);
+  });
+})
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err.message);
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    server: 'running',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
 });
 
 // Schemas
@@ -832,9 +853,4 @@ app.get('/api/loans/find', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Access from mobile: http://192.168.1.144:${PORT}`);
 });

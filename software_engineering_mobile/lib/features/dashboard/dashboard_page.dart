@@ -23,7 +23,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-
   final _voteService = ServerVoteService();
   final _favoriteService = ServerFavoriteService();
   // int _hippoBalanceCents = 0;
@@ -79,7 +78,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void _updateFilteredItems() async {
     List<Item> items;
-    
+
     // Get items from CategoryService
     List<Item> categoryItems;
     if (_isSearching) {
@@ -90,16 +89,19 @@ class _DashboardPageState extends State<DashboardPage> {
 
     // Get database assets
     List<Item> databaseItems = await _getDatabaseAssets();
-    
+
     // Apply search to database items if searching
     if (_isSearching) {
       final query = _searchController.text.toLowerCase();
-      databaseItems = databaseItems.where((item) => 
-        item.name.toLowerCase().contains(query) ||
-        item.description.toLowerCase().contains(query)
-      ).toList();
+      databaseItems = databaseItems
+          .where(
+            (item) =>
+                item.name.toLowerCase().contains(query) ||
+                item.description.toLowerCase().contains(query),
+          )
+          .toList();
     }
-    
+
     // Combine both lists
     items = [...categoryItems, ...databaseItems];
 
@@ -119,14 +121,14 @@ class _DashboardPageState extends State<DashboardPage> {
       // Get all assets from the database
       final assetsData = await ApiService.getAssets();
       List<Item> databaseItems = [];
-      
+
       for (final assetData in assetsData) {
         // Get owner information
         final ownerData = await ApiService.getUserById(assetData['ownerId']);
-        final ownerName = ownerData != null 
-          ? '${ownerData['firstName']} ${ownerData['lastName']}'.trim()
-          : 'Unknown Owner';
-        
+        final ownerName = ownerData != null
+            ? '${ownerData['firstName']} ${ownerData['lastName']}'.trim()
+            : 'Unknown Owner';
+
         // Convert database asset to Item for display
         final item = Item(
           id: assetData['_id'] ?? '',
@@ -135,9 +137,11 @@ class _DashboardPageState extends State<DashboardPage> {
           price: (assetData['value'] ?? 0).toDouble(),
           currency: 'HB',
           icon: Icons.inventory,
-          imageUrl: (assetData['imagePaths'] != null && assetData['imagePaths'].isNotEmpty) 
-            ? assetData['imagePaths'][0] 
-            : '',
+          imageUrl:
+              (assetData['imagePaths'] != null &&
+                  assetData['imagePaths'].isNotEmpty)
+              ? assetData['imagePaths'][0]
+              : '',
           categoryId: 'database',
           ownerId: assetData['ownerId'] ?? '',
           ownerName: ownerName,
@@ -146,7 +150,7 @@ class _DashboardPageState extends State<DashboardPage> {
         );
         databaseItems.add(item);
       }
-      
+
       return databaseItems;
     } catch (e) {
       print('Error loading database assets: $e');
@@ -247,27 +251,27 @@ class _DashboardPageState extends State<DashboardPage> {
   // -----------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-      return AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Color(0xFF87AE73),
-          statusBarIconBrightness: Brightness.light,
-        ),
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Dashboard'),
-            backgroundColor: const Color(0xFF87AE73),
-            foregroundColor: Colors.white,
-            systemOverlayStyle: const SystemUiOverlayStyle(
-              statusBarColor: Color(0xFF87AE73),
-              statusBarIconBrightness: Brightness.light,
-            ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Color(0xFF87AE73),
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Dashboard'),
+          backgroundColor: const Color(0xFF87AE73),
+          foregroundColor: Colors.white,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Color(0xFF87AE73),
+            statusBarIconBrightness: Brightness.light,
           ),
-          body: RefreshIndicator(
-            onRefresh: refreshDashboard,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
+        ),
+        body: RefreshIndicator(
+          onRefresh: refreshDashboard,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
                 // -----------------------------------------------------------------------
                 // SECTION: Search Bar with Heart Button
                 // -----------------------------------------------------------------------
@@ -293,7 +297,10 @@ class _DashboardPageState extends State<DashboardPage> {
                           ),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
-                                  icon: const FaIcon(FontAwesomeIcons.xmark, size: 18),
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.xmark,
+                                    size: 18,
+                                  ),
                                   onPressed: () {
                                     _searchController.clear();
                                   },
@@ -319,7 +326,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: _showFavoritesOnly ? const Color(0xFF87AE73) : Colors.white,
+                        color: _showFavoritesOnly
+                            ? const Color(0xFF87AE73)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
                           color: const Color(0xFF87AE73),
@@ -329,7 +338,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: IconButton(
                         icon: FaIcon(
                           FontAwesomeIcons.heart,
-                          color: _showFavoritesOnly ? Colors.white : const Color(0xFF87AE73),
+                          color: _showFavoritesOnly
+                              ? Colors.white
+                              : const Color(0xFF87AE73),
                           size: 20,
                         ),
                         onPressed: _toggleFavoritesFilter,
@@ -380,7 +391,9 @@ class _DashboardPageState extends State<DashboardPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FaIcon(
-              _showFavoritesOnly ? FontAwesomeIcons.heart : FontAwesomeIcons.magnifyingGlass,
+              _showFavoritesOnly
+                  ? FontAwesomeIcons.heart
+                  : FontAwesomeIcons.magnifyingGlass,
               size: 64,
               color: Colors.grey,
             ),
@@ -391,9 +404,9 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              _showFavoritesOnly 
-                ? 'Add items to your favorites to see them here'
-                : 'Try searching for something else',
+              _showFavoritesOnly
+                  ? 'Add items to your favorites to see them here'
+                  : 'Try searching for something else',
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
@@ -416,7 +429,8 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisCount: crossAxisCount,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.72,
+            // Slightly taller cards to accommodate image + details comfortably
+            childAspectRatio: 0.75,
           ),
           itemBuilder: (context, index) {
             final item = _filteredItems[index];
@@ -426,6 +440,7 @@ class _DashboardPageState extends State<DashboardPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 3,
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: () {
@@ -439,53 +454,100 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
+                    // Image area with fixed aspect ratio for consistent proportions
+                    AspectRatio(
+                      aspectRatio: 4 / 3,
                       child: Stack(
                         children: [
+                          // Background color + image
                           Container(
                             color: itemColor.withOpacity(0.06),
-                            child: item.imageUrl.isNotEmpty
-                                ? Image.network(
-                                    item.imageUrl,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stack) {
-                                      return Center(
-                                        child: FaIcon(
-                                          FontAwesomeIcons.box,
-                                          size: 40,
-                                          color: itemColor,
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : Center(
-                                    child: FaIcon(
-                                      FontAwesomeIcons.box,
-                                      size: 40,
-                                      color: itemColor,
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                              child: item.imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      item.imageUrl,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stack) {
+                                        return Center(
+                                          child: FaIcon(
+                                            FontAwesomeIcons.box,
+                                            size: 40,
+                                            color: itemColor,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.box,
+                                        size: 40,
+                                        color: itemColor,
+                                      ),
                                     ),
-                                  ),
+                            ),
                           ),
+
+                          // Subtle gradient at bottom for title readability
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 56,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.35),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Price badge top-left
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                '${item.currency} ${item.price.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+
                           // Favorite indicator
                           FutureBuilder<bool>(
                             future: _isItemFavorited(item.id),
                             builder: (context, snapshot) {
                               if (snapshot.hasData && snapshot.data == true) {
-                                return Positioned(
+                                return const Positioned(
                                   top: 8,
                                   right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.9),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const FaIcon(
-                                      FontAwesomeIcons.solidHeart,
-                                      size: 12,
-                                      color: Colors.red,
-                                    ),
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.red,
+                                    size: 18,
                                   ),
                                 );
                               }

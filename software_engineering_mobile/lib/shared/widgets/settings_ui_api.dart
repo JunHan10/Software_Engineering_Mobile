@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/models/user.dart';
 import '../../core/services/session_service.dart';
 import '../../core/services/api_service.dart';
 
@@ -26,8 +25,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final _zipcodeController = TextEditingController();
 
   bool _isLoading = false;
-
-
 
   @override
   void initState() {
@@ -68,11 +65,21 @@ class _SettingsPageState extends State<SettingsPage> {
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        'streetAddress': _streetAddressController.text.trim().isEmpty ? null : _streetAddressController.text.trim(),
-        'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
-        'state': _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        'zipcode': _zipcodeController.text.trim().isEmpty ? null : _zipcodeController.text.trim(),
+        'phone': _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        'streetAddress': _streetAddressController.text.trim().isEmpty
+            ? null
+            : _streetAddressController.text.trim(),
+        'city': _cityController.text.trim().isEmpty
+            ? null
+            : _cityController.text.trim(),
+        'state': _stateController.text.trim().isEmpty
+            ? null
+            : _stateController.text.trim(),
+        'zipcode': _zipcodeController.text.trim().isEmpty
+            ? null
+            : _zipcodeController.text.trim(),
       };
 
       await ApiService.updateUser(currentUser.id!, updateData);
@@ -87,7 +94,8 @@ class _SettingsPageState extends State<SettingsPage> {
         Navigator.pop(context);
       }
     } catch (_) {
-      if (mounted) _showErrorSnackBar('Failed to update profile. Please try again.');
+      if (mounted)
+        _showErrorSnackBar('Failed to update profile. Please try again.');
     } finally {
       if (mounted) {
         setState(() {
@@ -99,7 +107,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: const Color(0xFFE53E3E)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFE53E3E),
+      ),
     );
   }
 
@@ -121,7 +132,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 231, 228, 213),
       appBar: AppBar(
-        title: const Text('Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Settings',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: const Color(0xFF87AE73),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -137,40 +151,89 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: _buildTextField(controller: _firstNameController, label: 'First Name', validator: (v) => v == null || v.trim().isEmpty ? 'First name is required' : null)),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _firstNameController,
+                      label: 'First Name',
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'First name is required'
+                          : null,
+                    ),
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildTextField(controller: _lastNameController, label: 'Last Name', validator: (v) => v == null || v.trim().isEmpty ? 'Last name is required' : null)),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _lastNameController,
+                      label: 'Last Name',
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Last name is required'
+                          : null,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              _buildTextField(controller: _phoneController, label: 'Phone Number', keyboardType: TextInputType.phone, inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(10),
-              ]),
+              _buildTextField(
+                controller: _phoneController,
+                label: 'Phone Number',
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
+              ),
               const SizedBox(height: 16),
-              _buildTextField(controller: _emailController, label: 'Email', keyboardType: TextInputType.emailAddress, validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Email is required';
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v)) return 'Please enter a valid email';
-                return null;
-              }),
+              _buildTextField(
+                controller: _emailController,
+                label: 'Email',
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Email is required';
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v))
+                    return 'Please enter a valid email';
+                  return null;
+                },
+              ),
               const SizedBox(height: 24),
               _buildSectionHeader('Address'),
               const SizedBox(height: 16),
-              _buildTextField(controller: _streetAddressController, label: 'Street Address'),
+              _buildTextField(
+                controller: _streetAddressController,
+                label: 'Street Address',
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(flex: 2, child: _buildTextField(controller: _cityController, label: 'City')),
+                  Expanded(
+                    flex: 2,
+                    child: _buildTextField(
+                      controller: _cityController,
+                      label: 'City',
+                    ),
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildTextField(controller: _stateController, label: 'State', inputFormatters: [
-                    LengthLimitingTextInputFormatter(2),
-                    UpperCaseTextFormatter(),
-                  ])),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _stateController,
+                      label: 'State',
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(2),
+                        UpperCaseTextFormatter(),
+                      ],
+                    ),
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: _buildTextField(controller: _zipcodeController, label: 'ZIP Code', keyboardType: TextInputType.number, inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(5),
-                  ])),
+                  Expanded(
+                    child: _buildTextField(
+                      controller: _zipcodeController,
+                      label: 'ZIP Code',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(5),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -180,11 +243,28 @@ class _SettingsPageState extends State<SettingsPage> {
                   backgroundColor: const Color(0xFF87AE73),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: _isLoading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                    : const Text('Save Changes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                    : const Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ],
           ),
@@ -194,7 +274,14 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF87AE73)));
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF87AE73),
+      ),
+    );
   }
 
   Widget _buildTextField({
@@ -211,8 +298,14 @@ class _SettingsPageState extends State<SettingsPage> {
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF87AE73))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF87AE73), width: 2)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF87AE73)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Color(0xFF87AE73), width: 2),
+        ),
         labelStyle: const TextStyle(color: Color(0xFF87AE73)),
         filled: true,
         fillColor: Colors.white,
@@ -223,7 +316,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return TextEditingValue(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,

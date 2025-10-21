@@ -7,7 +7,7 @@ import '../../core/models/user.dart';
 import 'login_screen.dart';
 
 /// SwitchAccountsPage - Allows users to switch between different accounts
-/// 
+///
 /// This page displays all available users and allows the current user to switch
 /// to a different account by selecting from the list.
 class SwitchAccountsPage extends StatefulWidget {
@@ -30,16 +30,18 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
 
   Future<void> _loadUsers() async {
     setState(() => _loading = true);
-    
+
     try {
       // Get current user ID
       final currentUser = await SessionService.getCurrentUser();
       _currentUserId = currentUser?.id;
-      
+
       // Load all users
       final usersData = await ApiService.getUsers();
-      final users = usersData.map((userJson) => User.fromJson(userJson)).toList();
-      
+      final users = usersData
+          .map((userJson) => User.fromJson(userJson))
+          .toList();
+
       if (mounted) {
         setState(() {
           _users = users;
@@ -64,7 +66,9 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Switch Account'),
-          content: Text('Are you sure you want to switch to ${user.firstName} ${user.lastName}?'),
+          content: Text(
+            'Are you sure you want to switch to ${user.firstName} ${user.lastName}?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -82,7 +86,7 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
         // Save the new user ID to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('activeUserId', user.id!);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -90,11 +94,13 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
               backgroundColor: const Color(0xFF87AE73),
             ),
           );
-          
-          // Navigate back to home
+
+          // Navigate back to login, pre-filling the email for convenience
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            MaterialPageRoute(
+              builder: (context) => LoginScreen(initialEmail: user.email),
+            ),
           );
         }
       }
@@ -113,12 +119,14 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
 
   Widget _buildUserCard(User user) {
     final isCurrentUser = user.id == _currentUserId;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: isCurrentUser ? const Color(0xFF87AE73) : Colors.grey[300],
+          backgroundColor: isCurrentUser
+              ? const Color(0xFF87AE73)
+              : Colors.grey[300],
           child: Text(
             user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : 'U',
             style: TextStyle(
@@ -191,10 +199,7 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
             const SizedBox(height: 12),
             Text(
               'Unable to load user accounts',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
           ],
@@ -220,17 +225,17 @@ class _SwitchAccountsPageState extends State<SwitchAccountsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _users.isEmpty
-              ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: _loadUsers,
-                  color: const Color(0xFF87AE73),
-                  child: ListView.builder(
-                    itemCount: _users.length,
-                    itemBuilder: (context, index) {
-                      return _buildUserCard(_users[index]);
-                    },
-                  ),
-                ),
+          ? _buildEmptyState()
+          : RefreshIndicator(
+              onRefresh: _loadUsers,
+              color: const Color(0xFF87AE73),
+              child: ListView.builder(
+                itemCount: _users.length,
+                itemBuilder: (context, index) {
+                  return _buildUserCard(_users[index]);
+                },
+              ),
+            ),
     );
   }
 }

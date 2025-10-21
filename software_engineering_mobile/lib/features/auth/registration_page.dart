@@ -7,11 +7,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 import '../../core/services/registration_service.dart';
-import '../../core/models/user.dart';
-import '../../core/services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// imports trimmed - unused imports removed
 import '../../shared/widgets/main_navigation.dart'; // or wherever you go after registration
 
 class RegistrationPage extends StatefulWidget {
@@ -30,7 +27,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _phoneCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
-
 
   bool _busy = false;
   String? _error;
@@ -53,10 +49,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         'phone': _phoneCtrl.text.trim(),
       };
 
-      final user = await RegistrationService.register(userData);
-      
+      await RegistrationService.register(userData);
       if (!mounted) return;
-      
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const MainNavigation()),
@@ -65,7 +60,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     } catch (e) {
       setState(() => _error = 'Registration failed. Please try again.');
     }
-    
+
     if (mounted) setState(() => _busy = false);
   }
 
@@ -131,10 +126,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ),
                           ),
                         ),
-                        validator: (v) =>
-                            (v == null || v.trim().isEmpty)
-                                ? 'First name required'
-                                : null,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'First name required'
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -157,10 +151,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ),
                           ),
                         ),
-                        validator: (v) =>
-                            (v == null || v.trim().isEmpty)
-                                ? 'Last name required'
-                                : null,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Last name required'
+                            : null,
                       ),
                     ),
                   ],
@@ -172,10 +165,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     hintText: 'example@gmail.com',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -186,8 +176,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Email required';
-                    final ok = RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$')
-                        .hasMatch(v.trim());
+                    final ok = RegExp(
+                      r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,}$',
+                    ).hasMatch(v.trim());
                     return ok ? null : 'Enter a valid email';
                   },
                 ),
@@ -203,10 +194,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   decoration: const InputDecoration(
                     labelText: 'Phone number',
                     hintText: '+1 (555) 123-4567',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -226,7 +214,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       if (digitsOnly.length < 11 || digitsOnly.length > 13) {
                         return 'Include country code (+XX) and 10-digit number';
                       }
-                      final national = digitsOnly.substring(digitsOnly.length - 10);
+                      final national = digitsOnly.substring(
+                        digitsOnly.length - 10,
+                      );
                       if (national.length != 10) {
                         return 'National number must be 10 digits';
                       }
@@ -246,10 +236,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     hintText: 'At least 6 characters',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -271,10 +258,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   decoration: const InputDecoration(
                     labelText: 'Confirm password',
                     hintText: 'Re-enter your password',
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
@@ -305,19 +289,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ),
                     child: _busy
                         ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
                         : const Text('Create account'),
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // OR Divider
                 Row(
                   children: [

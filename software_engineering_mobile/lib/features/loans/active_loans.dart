@@ -13,7 +13,7 @@ import '../../core/models/loan.dart';
 class ActiveLoans extends StatefulWidget {
   final VoidCallback? onNavigateToHome;
   final VoidCallback? onNavigateToPost;
-  
+
   const ActiveLoans({super.key, this.onNavigateToHome, this.onNavigateToPost});
 
   @override
@@ -21,7 +21,6 @@ class ActiveLoans extends StatefulWidget {
 }
 
 class _ActiveLoansState extends State<ActiveLoans> {
-
   String? _userId;
   bool _loading = true;
   List<Loan> _loans = [];
@@ -36,18 +35,20 @@ class _ActiveLoansState extends State<ActiveLoans> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    
+
     try {
       final id = await SessionService.getCurrentUserId();
       if (id != null) {
         // Load all loans for the user
         final allLoans = await LoanService.getUserActiveLoans(id);
-        
+
         if (mounted) {
           setState(() {
             _userId = id;
             _loans = allLoans;
-            _borrowedItems = allLoans.where((loan) => loan.borrowerId == id).toList();
+            _borrowedItems = allLoans
+                .where((loan) => loan.borrowerId == id)
+                .toList();
             _lentItems = allLoans.where((loan) => loan.ownerId == id).toList();
             _loading = false;
           });
@@ -213,17 +214,24 @@ class _ActiveLoansState extends State<ActiveLoans> {
           children: [
             // Borrowed Items Section
             if (_borrowedItems.isNotEmpty) ...[
-              _buildSectionHeader('Items I\'m Borrowing', _borrowedItems.length),
+              _buildSectionHeader(
+                'Items I\'m Borrowing',
+                _borrowedItems.length,
+              ),
               const SizedBox(height: 12),
-              ..._borrowedItems.map((loan) => _buildLoanCard(loan, isBorrowed: true)),
+              ..._borrowedItems.map(
+                (loan) => _buildLoanCard(loan, isBorrowed: true),
+              ),
               const SizedBox(height: 24),
             ],
-            
+
             // Lent Items Section
             if (_lentItems.isNotEmpty) ...[
               _buildSectionHeader('Items I\'ve Lent', _lentItems.length),
               const SizedBox(height: 12),
-              ..._lentItems.map((loan) => _buildLoanCard(loan, isBorrowed: false)),
+              ..._lentItems.map(
+                (loan) => _buildLoanCard(loan, isBorrowed: false),
+              ),
             ],
           ],
         ),
@@ -266,9 +274,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () => _showLoanDetails(loan),
         borderRadius: BorderRadius.circular(12),
@@ -310,7 +316,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
                       ),
               ),
               const SizedBox(width: 12),
-              
+
               // Loan Details
               Expanded(
                 child: Column(
@@ -327,19 +333,19 @@ class _ActiveLoansState extends State<ActiveLoans> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isBorrowed 
+                      isBorrowed
                           ? 'From: ${loan.ownerName}'
                           : 'To: ${loan.borrowerName}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: _getStatusColor(loan.status),
                             borderRadius: BorderRadius.circular(10),
@@ -356,7 +362,10 @@ class _ActiveLoansState extends State<ActiveLoans> {
                         if (loan.isOverdue) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.red,
                               borderRadius: BorderRadius.circular(10),
@@ -376,7 +385,7 @@ class _ActiveLoansState extends State<ActiveLoans> {
                   ],
                 ),
               ),
-              
+
               // Value and Arrow
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -422,28 +431,108 @@ class _ActiveLoansState extends State<ActiveLoans> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(loan.itemName),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Description: ${loan.itemDescription}'),
-            const SizedBox(height: 8),
-            Text('Value: HB ${loan.itemValue.toStringAsFixed(2)}'),
-            const SizedBox(height: 8),
-            Text('Status: ${loan.statusDisplayName}'),
-            const SizedBox(height: 8),
-            Text('Start Date: ${_formatDate(loan.startDate)}'),
-            if (loan.expectedReturnDate != null) ...[
-              const SizedBox(height: 8),
-              Text('Expected Return: ${_formatDate(loan.expectedReturnDate!)}'),
-            ],
-            if (loan.notes != null && loan.notes!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text('Notes: ${loan.notes}'),
-            ],
-          ],
+        content: Builder(
+          builder: (context) {
+            // Constrain the dialog height so long content becomes scrollable
+            final maxHeight = MediaQuery.of(context).size.height * 0.6;
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Description: ${loan.itemDescription}'),
+                    const SizedBox(height: 8),
+                    Text('Value: HB ${loan.itemValue.toStringAsFixed(2)}'),
+                    const SizedBox(height: 8),
+                    Text('Status: ${loan.statusDisplayName}'),
+                    const SizedBox(height: 8),
+                    Text('Start Date: ${_formatDate(loan.startDate)}'),
+                    if (loan.expectedReturnDate != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Expected Return: ${_formatDate(loan.expectedReturnDate!)}',
+                      ),
+                    ],
+                    if (loan.notes != null && loan.notes!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text('Notes: ${loan.notes}'),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
         ),
         actions: [
+          // If the loan is still active and the current user is involved,
+          // allow ending the loan (marking it as returned).
+          if (loan.status == LoanStatus.active &&
+              _userId != null &&
+              (_userId == loan.borrowerId || _userId == loan.ownerId))
+            TextButton(
+              onPressed: () async {
+                // Confirm the action with the user
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('End Loan'),
+                    content: const Text('Mark this loan as returned?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text('Confirm'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm != true) return;
+
+                // Show a loading indicator while performing the request
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) =>
+                      const Center(child: CircularProgressIndicator()),
+                );
+
+                bool success = false;
+                try {
+                  if (loan.id != null) {
+                    success = await LoanService.endLoanTerm(loan.id!);
+                  }
+                } catch (e) {
+                  print('Error ending loan: $e');
+                  success = false;
+                }
+
+                // Dismiss the loading dialog
+                if (Navigator.canPop(context)) Navigator.of(context).pop();
+
+                // Dismiss the details dialog as well
+                if (Navigator.canPop(context)) Navigator.of(context).pop();
+
+                // Show result feedback and refresh the list
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Loan marked as returned')),
+                  );
+                  await _load();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to end loan')),
+                  );
+                }
+              },
+              child: const Text('End Loan'),
+            ),
+
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),

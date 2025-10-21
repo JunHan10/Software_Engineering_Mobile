@@ -1,34 +1,20 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import 'api_service.dart';
 
 class LoginService {
-  static const String baseUrl = 'http://192.168.1.144:3000/api';
-
+  /// Uses ApiService.login which already uses configured baseUrl and network checks
   static Future<User?> login(String email, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
+      final data = await ApiService.login(email, password);
+      if (data == null) return null;
+      final user = User.fromJson(data);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final user = User.fromJson(data);
-        
-        // Save user ID to local storage for session management
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('activeUserId', user.id!);
-        
-        return user;
-      } else {
-        return null;
-      }
+      // Save user ID to local storage for session management
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('activeUserId', user.id!);
+
+      return user;
     } catch (e) {
       print('Login error: $e');
       return null;

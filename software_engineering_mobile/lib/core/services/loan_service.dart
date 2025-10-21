@@ -1,13 +1,18 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+// Networking delegated to ApiService
 import '../models/loan.dart';
+import 'api_service.dart';
 
 /// LoanService - Handles all loan-related API calls
-/// 
+///
 /// This service manages active loans between users for the borrowing system.
 /// It provides methods to create, retrieve, update, and manage loan records.
+/// LoanService - Handles loan-related API calls.
+///
+/// All network calls should use `ApiService` or its `baseUrl` so the
+/// environment (emulator vs device) is honored. This service provides
+/// convenience methods for creating and managing loans.
 class LoanService {
-  static const String baseUrl = 'http://192.168.1.144:3000/api';
+  static String get baseUrl => ApiService.baseUrl + '/api';
 
   /// Create a new loan when a borrow request is approved
   static Future<Loan?> createLoan({
@@ -23,33 +28,25 @@ class LoanService {
     DateTime? expectedReturnDate,
     String? notes,
   }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/loans'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'itemId': itemId,
-          'itemName': itemName,
-          'itemDescription': itemDescription,
-          'itemImagePath': itemImagePath,
-          'ownerId': ownerId,
-          'ownerName': ownerName,
-          'borrowerId': borrowerId,
-          'borrowerName': borrowerName,
-          'itemValue': itemValue,
-          'expectedReturnDate': expectedReturnDate?.toIso8601String(),
-          'notes': notes,
-        }),
-      );
+    final loanData = {
+      'itemId': itemId,
+      'itemName': itemName,
+      'itemDescription': itemDescription,
+      'itemImagePath': itemImagePath,
+      'ownerId': ownerId,
+      'ownerName': ownerName,
+      'borrowerId': borrowerId,
+      'borrowerName': borrowerName,
+      'itemValue': itemValue,
+      'expectedReturnDate': expectedReturnDate?.toIso8601String(),
+      'notes': notes,
+    };
 
-      if (response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return Loan.fromJson(data);
-      }
-      print('Failed to create loan: ${response.statusCode} ${response.body}');
-      return null;
+    try {
+      final resp = await ApiService.createLoan(loanData);
+      return resp != null ? Loan.fromJson(resp) : null;
     } catch (e) {
-      print('Error creating loan: $e');
+      print('Error creating loan via ApiService: $e');
       return null;
     }
   }
@@ -57,19 +54,10 @@ class LoanService {
   /// Get all loans for a specific user (as borrower)
   static Future<List<Loan>> getBorrowerLoans(String userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/loans/borrower/$userId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        return data.map((json) => Loan.fromJson(json)).toList();
-      }
-      print('Failed to get borrower loans: ${response.statusCode} ${response.body}');
-      return [];
+      final data = await ApiService.getUserLoans(userId);
+      return data.map((json) => Loan.fromJson(json)).toList();
     } catch (e) {
-      print('Error getting borrower loans: $e');
+      print('Error getting borrower loans via ApiService: $e');
       return [];
     }
   }
@@ -77,19 +65,10 @@ class LoanService {
   /// Get all loans for a specific user (as owner)
   static Future<List<Loan>> getOwnerLoans(String userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/loans/owner/$userId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        return data.map((json) => Loan.fromJson(json)).toList();
-      }
-      print('Failed to get owner loans: ${response.statusCode} ${response.body}');
-      return [];
+      final data = await ApiService.getUserLoans(userId);
+      return data.map((json) => Loan.fromJson(json)).toList();
     } catch (e) {
-      print('Error getting owner loans: $e');
+      print('Error getting owner loans via ApiService: $e');
       return [];
     }
   }
@@ -97,19 +76,10 @@ class LoanService {
   /// Get all active loans for a user (both as borrower and owner)
   static Future<List<Loan>> getUserActiveLoans(String userId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/loans/user/$userId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        return data.map((json) => Loan.fromJson(json)).toList();
-      }
-      print('Failed to get user loans: ${response.statusCode} ${response.body}');
-      return [];
+      final data = await ApiService.getUserLoans(userId);
+      return data.map((json) => Loan.fromJson(json)).toList();
     } catch (e) {
-      print('Error getting user loans: $e');
+      print('Error getting user loans via ApiService: $e');
       return [];
     }
   }
@@ -121,18 +91,10 @@ class LoanService {
     String? notes,
   }) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/loans/$loanId/status'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'status': status.toString().split('.').last,
-          'notes': notes,
-        }),
-      );
-
-      return response.statusCode == 200;
+      final statusStr = status.toString().split('.').last;
+      return await ApiService.updateLoanStatus(loanId, statusStr, notes: notes);
     } catch (e) {
-      print('Error updating loan status: $e');
+      print('Error updating loan status via ApiService: $e');
       return false;
     }
   }
@@ -140,33 +102,37 @@ class LoanService {
   /// Mark loan as returned
   static Future<bool> markLoanAsReturned(String loanId) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/loans/$loanId/return'),
-        headers: {'Content-Type': 'application/json'},
+      final success = await ApiService.returnLoan(loanId);
+      if (!success) {
+        print(
+          'markLoanAsReturned: ApiService.returnLoan returned false for loanId=$loanId',
+        );
+      }
+      return success;
+    } catch (e, st) {
+      print(
+        'Error marking loan as returned via ApiService for loanId=$loanId: $e',
       );
-
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error marking loan as returned: $e');
+      print(st);
       return false;
     }
+  }
+
+  /// End a loan term (alias for markLoanAsReturned).
+  ///
+  /// This will call the server endpoint that sets the loan's status to
+  /// 'returned' and records an endDate. Returns true on success.
+  static Future<bool> endLoanTerm(String loanId) async {
+    return await markLoanAsReturned(loanId);
   }
 
   /// Get loan by ID
   static Future<Loan?> getLoanById(String loanId) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/loans/$loanId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return Loan.fromJson(data);
-      }
-      return null;
+      final data = await ApiService.getLoanById(loanId);
+      return data != null ? Loan.fromJson(data) : null;
     } catch (e) {
-      print('Error getting loan by ID: $e');
+      print('Error getting loan by ID via ApiService: $e');
       return null;
     }
   }
@@ -177,18 +143,10 @@ class LoanService {
     required String borrowerId,
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/loans/find?itemId=$itemId&borrowerId=$borrowerId'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data != null ? Loan.fromJson(data) : null;
-      }
-      return null;
+      final body = await ApiService.findExistingLoan(itemId, borrowerId);
+      return body != null ? Loan.fromJson(body) : null;
     } catch (e) {
-      print('Error finding existing loan: $e');
+      print('Error finding existing loan via ApiService: $e');
       return null;
     }
   }

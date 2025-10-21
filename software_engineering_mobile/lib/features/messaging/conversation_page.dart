@@ -7,7 +7,7 @@ import '../../core/services/loan_service.dart';
 import '../../core/services/api_service.dart';
 
 /// ConversationPage - Shows messages in a specific conversation
-/// 
+///
 /// This page displays the chat interface for a conversation between users,
 /// allowing them to send messages and manage the borrowing request.
 class ConversationPage extends StatefulWidget {
@@ -46,22 +46,24 @@ class _ConversationPageState extends State<ConversationPage> {
 
   Future<void> _loadMessages() async {
     setState(() => _loading = true);
-    
+
     try {
-      final messages = await MessageService.getConversationMessages(widget.conversation.id!);
-      
+      final messages = await MessageService.getConversationMessages(
+        widget.conversation.id!,
+      );
+
       if (mounted) {
         setState(() {
           _messages = messages;
           _loading = false;
         });
-        
+
         // Mark messages as read
         await MessageService.markMessagesAsRead(
           widget.conversation.id!,
           widget.currentUserId,
         );
-        
+
         // Scroll to bottom
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
@@ -141,7 +143,8 @@ class _ConversationPageState extends State<ConversationPage> {
           conversationId: widget.conversation.id!,
           senderId: user.id!,
           senderName: '${user.firstName} ${user.lastName}'.trim(),
-          content: 'I would like to borrow your ${widget.conversation.itemName}. Please let me know if this works for you!',
+          content:
+              'I would like to borrow your ${widget.conversation.itemName}. Please let me know if this works for you!',
           type: MessageType.request,
         );
 
@@ -194,15 +197,18 @@ class _ConversationPageState extends State<ConversationPage> {
           itemId: widget.conversation.itemId,
           itemName: widget.conversation.itemName,
           itemDescription: itemDetails['description'] ?? '',
-          itemImagePath: (itemDetails['imagePaths'] as List?)?.isNotEmpty == true 
-              ? (itemDetails['imagePaths'] as List).first.toString() 
+          itemImagePath:
+              (itemDetails['imagePaths'] as List?)?.isNotEmpty == true
+              ? (itemDetails['imagePaths'] as List).first.toString()
               : '',
           ownerId: widget.conversation.ownerId,
           ownerName: widget.conversation.ownerName,
           borrowerId: widget.conversation.borrowerId,
           borrowerName: widget.conversation.borrowerName,
           itemValue: (itemDetails['value'] ?? 0.0).toDouble(),
-          expectedReturnDate: DateTime.now().add(const Duration(days: 7)), // Default 7 days
+          expectedReturnDate: DateTime.now().add(
+            const Duration(days: 7),
+          ), // Default 7 days
           notes: 'Approved via chat conversation',
         );
 
@@ -221,7 +227,8 @@ class _ConversationPageState extends State<ConversationPage> {
           conversationId: widget.conversation.id!,
           senderId: user.id!,
           senderName: '${user.firstName} ${user.lastName}'.trim(),
-          content: 'Great! I approve your request to borrow my ${widget.conversation.itemName}. The item has been added to your active loans. Let\'s arrange a time to meet up!',
+          content:
+              'Great! I approve your request to borrow my ${widget.conversation.itemName}. The item has been added to your active loans. Let\'s arrange a time to meet up!',
           type: MessageType.approval,
         );
 
@@ -249,7 +256,9 @@ class _ConversationPageState extends State<ConversationPage> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Borrow request approved! Item added to active loans.'),
+              content: Text(
+                'Borrow request approved! Item added to active loans.',
+              ),
               backgroundColor: Colors.green,
             ),
           );
@@ -290,7 +299,8 @@ class _ConversationPageState extends State<ConversationPage> {
           conversationId: widget.conversation.id!,
           senderId: user.id!,
           senderName: '${user.firstName} ${user.lastName}'.trim(),
-          content: 'I\'m sorry, but I cannot lend my ${widget.conversation.itemName} at this time.',
+          content:
+              'I\'m sorry, but I cannot lend my ${widget.conversation.itemName} at this time.',
           type: MessageType.rejection,
         );
 
@@ -331,7 +341,7 @@ class _ConversationPageState extends State<ConversationPage> {
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (difference.inHours > 0) {
@@ -346,19 +356,22 @@ class _ConversationPageState extends State<ConversationPage> {
   Widget _buildMessageBubble(Message message) {
     final isMe = message.senderId == widget.currentUserId;
     final isOwner = widget.conversation.ownerId == widget.currentUserId;
-    final isBorrower = widget.conversation.borrowerId == widget.currentUserId;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isMe
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
             CircleAvatar(
               radius: 16,
               backgroundColor: const Color(0xFF87AE73),
               child: Text(
-                message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : 'U',
+                message.senderName.isNotEmpty
+                    ? message.senderName[0].toUpperCase()
+                    : 'U',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -406,7 +419,9 @@ class _ConversationPageState extends State<ConversationPage> {
                     ),
                   ),
                   // Action buttons for specific message types
-                  if (message.type == MessageType.request && !isMe && isOwner) ...[
+                  if (message.type == MessageType.request &&
+                      !isMe &&
+                      isOwner) ...[
                     const SizedBox(height: 8),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -416,10 +431,16 @@ class _ConversationPageState extends State<ConversationPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             minimumSize: const Size(0, 32),
                           ),
-                          child: const Text('Approve', style: TextStyle(fontSize: 12)),
+                          child: const Text(
+                            'Approve',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                         const SizedBox(width: 8),
                         OutlinedButton(
@@ -427,10 +448,16 @@ class _ConversationPageState extends State<ConversationPage> {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.red,
                             side: const BorderSide(color: Colors.red),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             minimumSize: const Size(0, 32),
                           ),
-                          child: const Text('Decline', style: TextStyle(fontSize: 12)),
+                          child: const Text(
+                            'Decline',
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ],
                     ),
@@ -548,10 +575,7 @@ class _ConversationPageState extends State<ConversationPage> {
                 const SizedBox(height: 4),
                 Text(
                   'Discussing borrowing arrangements',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -576,7 +600,10 @@ class _ConversationPageState extends State<ConversationPage> {
             ),
             Text(
               widget.conversation.itemName,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -590,35 +617,30 @@ class _ConversationPageState extends State<ConversationPage> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _messages.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No messages yet. Start the conversation!',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          return _buildMessageBubble(_messages[index]);
-                        },
-                      ),
+                ? Center(
+                    child: Text(
+                      'No messages yet. Start the conversation!',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return _buildMessageBubble(_messages[index]);
+                    },
+                  ),
           ),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey[300]!),
-              ),
+              border: Border(top: BorderSide(color: Colors.grey[300]!)),
             ),
             child: Column(
               children: [
                 // Request to Borrow button (only for borrowers)
-                if (widget.conversation.borrowerId == widget.currentUserId && 
+                if (widget.conversation.borrowerId == widget.currentUserId &&
                     widget.conversation.status == ConversationStatus.active)
                   Container(
                     width: double.infinity,
@@ -668,7 +690,9 @@ class _ConversationPageState extends State<ConversationPage> {
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
                                 ),
                               )
                             : const FaIcon(

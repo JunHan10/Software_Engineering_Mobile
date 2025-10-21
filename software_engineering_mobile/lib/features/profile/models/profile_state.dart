@@ -63,15 +63,26 @@ class ProfileState {
 
   /// Get user's display name
   String get displayName {
-    if (user?.firstName?.isNotEmpty == true) {
-      return '${user!.firstName} ${user!.lastName ?? ''}'.trim();
+    final u = user;
+    if (u != null) {
+      final first = u.firstName;
+      final last = u.lastName;
+      final display =
+          '${first.isNotEmpty ? first : ''}${last.isNotEmpty ? ' $last' : ''}'
+              .trim();
+      return display.isNotEmpty ? display : 'User';
     }
     return 'User';
   }
 
   /// Get user's email or default
   String get displayEmail {
-    return user?.email?.isNotEmpty == true ? user!.email : 'user@example.com';
+    final u = user;
+    if (u != null) {
+      final e = u.email;
+      return e.isNotEmpty ? e : 'user@example.com';
+    }
+    return 'user@example.com';
   }
 
   /// Check if user is logged in

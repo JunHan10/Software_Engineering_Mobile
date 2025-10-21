@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/message.dart';
+import 'api_service.dart';
 
 /// MessageService - Handles all messaging-related API calls
-/// 
+///
 /// This service manages conversations and messages between users for the borrowing system.
 /// It provides methods to create conversations, send messages, and retrieve conversation history.
 class MessageService {
-  static const String baseUrl = 'http://192.168.1.144:3000/api';
+  static String get baseUrl => ApiService.baseUrl + '/api';
 
   /// Create a new conversation between a borrower and item owner
   static Future<Conversation?> createConversation({
@@ -82,7 +83,9 @@ class MessageService {
   }
 
   /// Get messages for a conversation
-  static Future<List<Message>> getConversationMessages(String conversationId) async {
+  static Future<List<Message>> getConversationMessages(
+    String conversationId,
+  ) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/conversations/$conversationId/messages'),
@@ -134,7 +137,10 @@ class MessageService {
   }
 
   /// Mark messages as read
-  static Future<bool> markMessagesAsRead(String conversationId, String userId) async {
+  static Future<bool> markMessagesAsRead(
+    String conversationId,
+    String userId,
+  ) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/conversations/$conversationId/read'),
@@ -158,9 +164,7 @@ class MessageService {
       final response = await http.put(
         Uri.parse('$baseUrl/conversations/$conversationId/status'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'status': status.toString().split('.').last,
-        }),
+        body: jsonEncode({'status': status.toString().split('.').last}),
       );
 
       return response.statusCode == 200;

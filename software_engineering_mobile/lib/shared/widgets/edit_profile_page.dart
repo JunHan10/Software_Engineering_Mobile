@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../core/models/user.dart';
 import '../../core/services/server_auth_service.dart';
 import '../../core/services/api_service.dart';
@@ -14,7 +12,7 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _authService = ServerAuthService();
+  // ServerAuthService methods are used statically; no instance required.
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -69,19 +67,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
         'zipcode': _zipController.text.trim(),
         'bio': _bioController.text.trim(),
       };
-      
+
       await ApiService.updateUser(_user!.id!, updateData);
-      
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Profile updated')));
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to update profile')));
     }
   }
 
@@ -105,28 +103,81 @@ class _EditProfilePageState extends State<EditProfilePage> {
             children: [
               Row(
                 children: [
-                  Expanded(child: _buildTextField(_firstNameController, 'First name', TextInputType.name)),
+                  Expanded(
+                    child: _buildTextField(
+                      _firstNameController,
+                      'First name',
+                      TextInputType.name,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_lastNameController, 'Last name', TextInputType.name)),
+                  Expanded(
+                    child: _buildTextField(
+                      _lastNameController,
+                      'Last name',
+                      TextInputType.name,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
-              _buildTextField(_emailController, 'Email', TextInputType.emailAddress,
-                  validator: (v) => (v == null || v.isEmpty) ? 'Required' : null),
+              _buildTextField(
+                _emailController,
+                'Email',
+                TextInputType.emailAddress,
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
               const SizedBox(height: 12),
-              _buildTextField(_phoneController, 'Phone', TextInputType.phone, requiredField: false),
+              _buildTextField(
+                _phoneController,
+                'Phone',
+                TextInputType.phone,
+                requiredField: false,
+              ),
               const SizedBox(height: 12),
-              _buildTextField(_bioController, 'Bio', TextInputType.multiline, requiredField: false, maxLines: 3),
+              _buildTextField(
+                _bioController,
+                'Bio',
+                TextInputType.multiline,
+                requiredField: false,
+                maxLines: 3,
+              ),
               const SizedBox(height: 12),
-              _buildTextField(_streetController, 'Street address', TextInputType.streetAddress, requiredField: false),
+              _buildTextField(
+                _streetController,
+                'Street address',
+                TextInputType.streetAddress,
+                requiredField: false,
+              ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildTextField(_cityController, 'City', TextInputType.text, requiredField: false)),
+                  Expanded(
+                    child: _buildTextField(
+                      _cityController,
+                      'City',
+                      TextInputType.text,
+                      requiredField: false,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_stateController, 'State', TextInputType.text, requiredField: false)),
+                  Expanded(
+                    child: _buildTextField(
+                      _stateController,
+                      'State',
+                      TextInputType.text,
+                      requiredField: false,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildTextField(_zipController, 'ZIP', TextInputType.number, requiredField: false)),
+                  Expanded(
+                    child: _buildTextField(
+                      _zipController,
+                      'ZIP',
+                      TextInputType.number,
+                      requiredField: false,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -166,8 +217,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         filled: true,
         fillColor: Colors.white,
       ),
-      validator: validator ??
-          (v) => requiredField && (v == null || v.trim().isEmpty) ? 'Required' : null,
+      validator:
+          validator ??
+          (v) => requiredField && (v == null || v.trim().isEmpty)
+              ? 'Required'
+              : null,
     );
   }
 }
@@ -188,5 +242,3 @@ class _SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
-
-

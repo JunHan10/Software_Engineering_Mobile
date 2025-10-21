@@ -39,14 +39,23 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
   }
 
   Future<void> _initializeProfile() async {
-    await _controller.initialize();
+    if (!mounted) return;
+    try {
+      await _controller.initialize();
+    } catch (e) {
+      if (!mounted) return;
+      // Handle initialization error if needed
+    }
   }
 
   void _onStateChanged() {
     // Handle error messages
     if (_controller.state.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ProfileDialogs.showErrorDialog(context, _controller.state.errorMessage!);
+        ProfileDialogs.showErrorDialog(
+          context,
+          _controller.state.errorMessage!,
+        );
         _controller.clearError();
       });
     }
@@ -60,12 +69,10 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
         listenable: _controller,
         builder: (context, _) {
           final state = _controller.state;
-          
+
           if (state.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFF87AE73),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFF87AE73)),
             );
           }
 
@@ -126,7 +133,7 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
   //     title: 'Add Hippo Bucks',
   //     action: 'Add',
   //   );
-    
+
   //   if (amount != null && amount.isNotEmpty) {
   //     await _controller.depositHippoBucks(amount);
   //     if (mounted && _controller.state.errorMessage == null) {
@@ -141,7 +148,7 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
   //     title: 'Spend Hippo Bucks',
   //     action: 'Spend',
   //   );
-    
+
   //   if (amount != null && amount.isNotEmpty) {
   //     await _controller.withdrawHippoBucks(amount);
   //     if (mounted && _controller.state.errorMessage == null) {
@@ -153,9 +160,7 @@ class _ProfilePageV2State extends State<ProfilePageV2> {
   void _handleCreatePost() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const NewItemPage(),
-      ),
+      MaterialPageRoute(builder: (context) => const NewItemPage()),
     ).then((result) {
       // Refresh the profile data when returning from post creation
       if (result == true) {

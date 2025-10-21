@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../core/models/user.dart';
 import '../../core/services/session_service.dart';
 import '../../core/services/api_service.dart';
 
@@ -21,9 +20,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
   final _zipcodeController = TextEditingController();
-  
-  bool _isLoading = false;
 
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -66,11 +64,21 @@ class _SettingsPageState extends State<SettingsPage> {
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'email': _emailController.text.trim(),
-        'phone': _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        'streetAddress': _streetAddressController.text.trim().isEmpty ? null : _streetAddressController.text.trim(),
-        'city': _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
-        'state': _stateController.text.trim().isEmpty ? null : _stateController.text.trim(),
-        'zipcode': _zipcodeController.text.trim().isEmpty ? null : _zipcodeController.text.trim(),
+        'phone': _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        'streetAddress': _streetAddressController.text.trim().isEmpty
+            ? null
+            : _streetAddressController.text.trim(),
+        'city': _cityController.text.trim().isEmpty
+            ? null
+            : _cityController.text.trim(),
+        'state': _stateController.text.trim().isEmpty
+            ? null
+            : _stateController.text.trim(),
+        'zipcode': _zipcodeController.text.trim().isEmpty
+            ? null
+            : _zipcodeController.text.trim(),
       };
 
       await ApiService.updateUser(currentUser.id!, updateData);
@@ -99,10 +107,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
@@ -126,10 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: const Text(
           'Settings',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF87AE73),
         elevation: 0,
@@ -145,7 +147,7 @@ class _SettingsPageState extends State<SettingsPage> {
               // Personal Information Section
               _buildSectionHeader('Personal Information'),
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
                   Expanded(
@@ -176,7 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               _buildTextField(
                 controller: _phoneController,
                 label: 'Phone Number',
@@ -187,7 +189,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               _buildTextField(
                 controller: _emailController,
                 label: 'Email',
@@ -196,24 +198,26 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Email is required';
                   }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
                     return 'Please enter a valid email';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 24),
-              
+
               // Address Section
               _buildSectionHeader('Address'),
               const SizedBox(height: 16),
-              
+
               _buildTextField(
                 controller: _streetAddressController,
                 label: 'Street Address',
               ),
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
                   Expanded(
@@ -249,7 +253,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ],
               ),
               const SizedBox(height: 32),
-              
+
               // Save Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _saveChanges,
@@ -267,7 +271,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text(
